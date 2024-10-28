@@ -11,8 +11,6 @@ void Timer::stop() {
         running = false;
     }
 }
-
-
 double Timer::elapsedMilliseconds() const {
     std::chrono::time_point<std::chrono::high_resolution_clock> endTimePoint;
     if (running) {

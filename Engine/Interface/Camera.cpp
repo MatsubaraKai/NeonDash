@@ -50,47 +50,49 @@ void Camera::Move(int menucount)
 
 void Camera::HandleGamepadMovement(int menucount)
 {
-    XINPUT_STATE joyState;
-    if (Input::GetInstance()->GetJoystickState(joyState))
-    {
-
-        // 左スティックによる移動
-        Vector3 moveLeftStick = { 0, 0, 0 };
-        const float leftStickDeadZone = 0.2f;
-        if (std::abs(joyState.Gamepad.sThumbLX) > leftStickDeadZone * SHRT_MAX ||
-            std::abs(joyState.Gamepad.sThumbLY) > leftStickDeadZone * SHRT_MAX)
+    if (isDie == false) {
+        XINPUT_STATE joyState;
+        if (Input::GetInstance()->GetJoystickState(joyState))
         {
-            moveLeftStick = {
-                (float)joyState.Gamepad.sThumbLX / SHRT_MAX,
-                0.0f,
-                (float)joyState.Gamepad.sThumbLY / SHRT_MAX
-            };
 
-            float inputMagnitude = Length(moveLeftStick);
-            if (inputMagnitude > leftStickDeadZone)
+            // 左スティックによる移動
+            Vector3 moveLeftStick = { 0, 0, 0 };
+            const float leftStickDeadZone = 0.2f;
+            if (std::abs(joyState.Gamepad.sThumbLX) > leftStickDeadZone * SHRT_MAX ||
+                std::abs(joyState.Gamepad.sThumbLY) > leftStickDeadZone * SHRT_MAX)
             {
-                moveLeftStick.x *= PlayerSpeed;
-                moveLeftStick.z *= PlayerSpeed;
+                moveLeftStick = {
+                    (float)joyState.Gamepad.sThumbLX / SHRT_MAX,
+                    0.0f,
+                    (float)joyState.Gamepad.sThumbLY / SHRT_MAX
+                };
+
+                float inputMagnitude = Length(moveLeftStick);
+                if (inputMagnitude > leftStickDeadZone)
+                {
+                    moveLeftStick.x *= PlayerSpeed;
+                    moveLeftStick.z *= PlayerSpeed;
+                }
+
             }
 
-        }
+            // カメラの向きに基づく移動方向の調整
+            if (moveLeftStick.x != 0.0f || moveLeftStick.z != 0.0f)
+            {
+                float cosY = cosf(transform_.rotate.y);
+                float sinY = sinf(transform_.rotate.y);
+                Vector3 move = {
+                    moveLeftStick.x * cosY + moveLeftStick.z * sinY,
+                    0.0f,
+                    moveLeftStick.z * cosY - moveLeftStick.x * sinY
+                };
+                transform_.translate.x += move.x;
+                transform_.translate.z += move.z;
+            }
 
-        // カメラの向きに基づく移動方向の調整
-        if (moveLeftStick.x != 0.0f || moveLeftStick.z != 0.0f)
-        {
-            float cosY = cosf(transform_.rotate.y);
-            float sinY = sinf(transform_.rotate.y);
-            Vector3 move = {
-                moveLeftStick.x * cosY + moveLeftStick.z * sinY,
-                0.0f,
-                moveLeftStick.z * cosY - moveLeftStick.x * sinY
-            };
-            transform_.translate.x += move.x;
-            transform_.translate.z += move.z;
+            // 右スティックによる視野の移動
+            HandleRightStick(joyState, menucount);
         }
-
-        // 右スティックによる視野の移動
-        HandleRightStick(joyState, menucount);
     }
 }
 
@@ -128,6 +130,33 @@ void Camera::HandleRightStick(const XINPUT_STATE& joyState, int menucount)
 
 void Camera::Jump(bool isOnFloor)
 {
+    static float easingProgress = 0.0f;
+
+    if (isDie) {
+        if (easingProgress == 0.0f) {
+            Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), AudioPortalhandle_, false, 0.30f);
+        }
+        jumpVelocity = 0.0f;
+        isJumping = false;
+        easingProgress += 0.0001f;  // イージング進行度
+
+        transform_.translate.x = Lerp2(transform_.translate.x, 0.0f, easingProgress);
+        transform_.translate.y = Lerp2(transform_.translate.y, 7.0f, easingProgress);
+        transform_.translate.z = Lerp2(transform_.translate.z, -15.0f, easingProgress);
+        transform_.rotate.x = Lerp2(transform_.rotate.x, -0.2f, easingProgress);
+        transform_.rotate.y = Lerp2(transform_.rotate.y, 0.0f, easingProgress);
+        transform_.rotate.z = Lerp2(transform_.rotate.z, 0.0f, easingProgress);
+    }
+    if (easingProgress >= 1.0f) {
+        easingProgress = 0.0f;
+        isDie = false;
+    }
+    if (fabs(transform_.translate.x - 0.0f) <= 0.5f &&
+        fabs(transform_.translate.y - 7.0f) <= 0.5f &&
+        fabs(transform_.translate.z + 15.0f) <= 0.5f) {
+        easingProgress = 0.0f;
+        isDie = false;
+    }
     if (isJumping) {
         // ジャンプ中の処理
         transform_.translate.y += jumpVelocity;
@@ -136,8 +165,7 @@ void Camera::Jump(bool isOnFloor)
         if (transform_.translate.y <= -10.0f) {
             // 落下しすぎた場合のリセット処理
             jumpVelocity = 0.0f;
-            transform_.translate = { 0.0f, 15.0f, -15.0f };
-            transform_.rotate = { -0.2f, 0.0f, 0.0f };
+            isDie = true;
             isJumping = false;
         }
     }
@@ -148,8 +176,7 @@ void Camera::Jump(bool isOnFloor)
         if (transform_.translate.y <= -10.0f) {
             // 落下しすぎた場合のリセット処理
             jumpVelocity = 0.0f;
-            transform_.translate = { 0.0f, 15.0f, -15.0f };
-            transform_.rotate = { -0.2f, 0.0f, 0.0f };
+            isDie = true;
             isJumping = false;
         }
     }

@@ -51,6 +51,7 @@ public: //Setter
 	float fovY_ = 0.8f;
 	float lookSensitivity;
 	bool isEasing = false;
+	bool isDie = false;
 private:
 	Matrix4x4 worldmatrix_;
 	Matrix4x4 cameraMatrix_;
@@ -73,5 +74,7 @@ private:
 	float jumpVelocity = 0.0f;
 	float previousJumpVelocity = 0.0f;
 	uint32_t AudioJumphandle_ = Audio::SoundLoadWave("Resources/game/Audio/Jump.wav");
+	uint32_t AudioPortalhandle_ = Audio::SoundLoadWave("Resources/game/Audio/portal.wav");
+
 	int SE = 0;
 };

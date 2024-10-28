@@ -11,7 +11,7 @@ void Object3d::Init()
 	WinAPI* sWinAPI = WinAPI::GetInstance();
 	DirectXCommon* directXCommon = DirectXCommon::GetInstance();
 	worldTransform_.Initialize();
-
+	
 	//バッファリソース
 	// データを書き込む
 	wvpData = nullptr;
