@@ -111,7 +111,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalOptions>/ignore:4049 /ignore:4098 %(AdditionalOptions)</AdditionalOptions>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalLibraryDirectories>$(ProjectDir)Engine\Externals\assimp\build\lib\Release</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)Engine\Externals\assimp\build\lib\Release\</AdditionalLibraryDirectories>
       <AdditionalDependencies>assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>

@@ -131,6 +131,7 @@ void Camera::HandleRightStick(const XINPUT_STATE& joyState, int menucount)
 void Camera::Jump(bool isOnFloor)
 {
     static float easingProgress = 0.0f;
+    static Vector3 initpos = { 0.0f,7.0f,-15.0f };
 
     if (isDie) {
         if (easingProgress == 0.0f) {
@@ -255,6 +256,22 @@ float Camera::Lerp(const float& a, const float& b, float t) {
 }
 float Camera::Lerp2(float a, float b, float t) {
     return a + t * (b - a);
+}
+Vector3 Camera::Slerp(const Vector3& a, const Vector3& b, float t) {
+    // ベクトル間の角度のコサインを求めるため、ドット積（内積）を計算
+    float dot = a.Dot(b);
+
+    // acos関数に無効な入力が入らないように、dotの値を[-1, 1]の範囲にクランプ
+    dot = std::fmax(-1.0f, std::fmin(1.0f, dot));
+
+    // ベクトル間の角度（theta）を計算
+    float theta = std::acos(dot) * t;
+
+    // 相対ベクトル（b - a * dot）を求めて正規化
+    Vector3 relativeVec = (b - a * dot).Normalize();
+
+    // 補間されたベクトルを返す
+    return (a * std::cos(theta)) + (relativeVec * std::sin(theta));
 }
 
 // 最短角度補間
