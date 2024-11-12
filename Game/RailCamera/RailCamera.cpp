@@ -1,15 +1,23 @@
-#include "RailCamera.h"
+﻿#include "RailCamera.h"
 
+/// <summary>
+/// レールカメラの初期化を行う関数
+/// </summary>
 void RailCamera::Init()
 {
-	camera_ = std::make_unique<Camera>();
-	camera_->Initialize();
+    // カメラオブジェクトを生成して初期化
+    camera_ = std::make_unique<Camera>();
+    camera_->Initialize();
 
-	camera_->SetRotate({ 0.16f, 0.0f, 0.0f });
-
+    // カメラの回転を設定
+    camera_->SetRotate({ 0.16f, 0.0f, 0.0f });
 }
 
+/// <summary>
+/// レールカメラの更新処理を行う関数
+/// </summary>
 void RailCamera::Update()
 {
-	camera_->Update();
+    // カメラの更新処理を呼び出す
+    camera_->Update();
 }

@@ -4,478 +4,480 @@
 #include <cassert>
 #include "ModelManager.h"
 
-
-
+/// <summary>
+/// JSONファイルを読み込み、オブジェクトとカメラを初期化する関数
+/// </summary>
+/// <param name="kDefaultBaseDirectory">デフォルトのベースディレクトリ</param>
+/// <param name="fileName">読み込むJSONファイル名（拡張子なし）</param>
+/// <param name="objects">生成したオブジェクトを格納するベクター</param>
+/// <param name="camera">カメラオブジェクトへのポインタ</param>
 void Loder::LoadJsonFile(const std::string kDefaultBaseDirectory, const std::string fileName, std::vector<Object3d*>& objects, Camera* camera)
 {
-	// 連結してフルパスを得る
-	const std::string fullpath = kDefaultBaseDirectory + "/" + fileName + ".json";
+    // フルパスを生成
+    const std::string fullpath = kDefaultBaseDirectory + "/" + fileName + ".json";
 
-	// ファイルストリーム
-	std::ifstream file;
+    // ファイルストリームを作成
+    std::ifstream file;
 
-	// ファイルを開く
-	file.open(fullpath);
-	// ファイルオープン失敗をチェック
-	if (file.fail()) {
-		assert(0);
-	}
+    // ファイルを開く
+    file.open(fullpath);
+    // ファイルオープン失敗をチェック
+    if (file.fail()) {
+        assert(0);
+    }
 
-	// Json文字列から回答したデータ
-	nlohmann::json deserialized;
+    // JSONデータを格納する変数
+    nlohmann::json deserialized;
 
-	// 解凍
-	file >> deserialized;
+    // ファイルからJSONデータを読み込む
+    file >> deserialized;
 
-	// 正しいレベルデータファイルかチェック
-	assert(deserialized.is_object());
-	assert(deserialized.contains("name"));
-	assert(deserialized["name"].is_string());
+    // 正しいレベルデータファイルかチェック
+    assert(deserialized.is_object());
+    assert(deserialized.contains("name"));
+    assert(deserialized["name"].is_string());
 
-	// "name"を文字列として取得
-	std::string name =
-		deserialized["name"].get<std::string>();
-	// 正しいレベルデータファイル化チェック
-	assert(name.compare("scene") == 0);
+    // "name"フィールドを取得
+    std::string name = deserialized["name"].get<std::string>();
+    // "scene"であることを確認
+    assert(name.compare("scene") == 0);
 
-	// レベルデータ格納用インスタンスを生成
-	LevelData* levelData = new LevelData();
+    // レベルデータを格納するインスタンスを生成
+    LevelData* levelData = new LevelData();
 
-	// "objects"の全オブジェクトを走査
-	for (nlohmann::json& object : deserialized["objects"]) {
-		assert(object.contains("type"));
+    // "objects"配列内の全オブジェクトを走査
+    for (nlohmann::json& object : deserialized["objects"]) {
+        assert(object.contains("type"));
 
-		// 種別を取得
-		std::string type = object["type"].get<std::string>();
+        // オブジェクトの種別を取得
+        std::string type = object["type"].get<std::string>();
 
-		// MESH
-		if (type.compare("MESH") == 0) {
-			// 要素追加
-			levelData->objects.emplace_back(LevelData::ObjectData{});
-			// 今追加した要素の参照を得る
-			LevelData::ObjectData& objectData = levelData->objects.back();
+        // MESHオブジェクトの場合
+        if (type.compare("MESH") == 0) {
+            // オブジェクトデータを追加
+            levelData->objects.emplace_back(LevelData::ObjectData{});
+            // 追加したオブジェクトデータへの参照を取得
+            LevelData::ObjectData& objectData = levelData->objects.back();
 
-			if (object.contains("file_name")) {
-				// ファイル名
-				objectData.filename = object["file_name"];
-			}
+            if (object.contains("file_name")) {
+                // ファイル名を取得
+                objectData.filename = object["file_name"];
+            }
 
-			// トランスフォームのパラメータ読み込み
-			nlohmann::json& transform = object["transform"];
-			// 平行移動
-			objectData.transform.translate.x = (float)transform["translation"][0];
-			objectData.transform.translate.y = (float)transform["translation"][2];
-			objectData.transform.translate.z = (float)transform["translation"][1];
-			// 回転角
-			objectData.transform.rotate.x = -(float)transform["rotation"][0];
-			objectData.transform.rotate.y = -(float)transform["rotation"][2];
-			objectData.transform.rotate.z = -(float)transform["rotation"][1];
-			// スケーリングa
-			objectData.transform.scale.x = (float)transform["scaling"][0];
-			objectData.transform.scale.y = (float)transform["scaling"][1];
-			objectData.transform.scale.z = (float)transform["scaling"][2];
-			ModelManager::GetInstance()->LoadModel("Resources/game/", objectData.filename + ".obj");
+            // トランスフォームのパラメータを読み込む
+            nlohmann::json& transform = object["transform"];
+            // 平行移動
+            objectData.transform.translate.x = (float)transform["translation"][0];
+            objectData.transform.translate.y = (float)transform["translation"][2];
+            objectData.transform.translate.z = (float)transform["translation"][1];
+            // 回転角度
+            objectData.transform.rotate.x = -(float)transform["rotation"][0];
+            objectData.transform.rotate.y = -(float)transform["rotation"][2];
+            objectData.transform.rotate.z = -(float)transform["rotation"][1];
+            // スケーリング
+            objectData.transform.scale.x = (float)transform["scaling"][0];
+            objectData.transform.scale.y = (float)transform["scaling"][1];
+            objectData.transform.scale.z = (float)transform["scaling"][2];
 
-		}
+            // モデルをロード
+            ModelManager::GetInstance()->LoadModel("Resources/game/", objectData.filename + ".obj");
+        }
 
-		// TODO: オブジェクト走査を再帰関数にまとめ、再帰呼出で枝を走査する
-		if (object.contains("children")) {
+        // 子オブジェクトが存在する場合（未実装）
+        if (object.contains("children")) {
+            // TODO: 再帰的に子オブジェクトを処理する
+        }
 
-		}
-		// MESH
-		if (type.compare("CAMERA") == 0) {
-			// 要素追加
-			levelData->objects.emplace_back(LevelData::ObjectData{});
-			// 今追加した要素の参照を得る
-			LevelData::ObjectData& objectData = levelData->objects.back();
+        // CAMERAオブジェクトの場合
+        if (type.compare("CAMERA") == 0) {
+            // オブジェクトデータを追加
+            levelData->objects.emplace_back(LevelData::ObjectData{});
+            // 追加したオブジェクトデータへの参照を取得
+            LevelData::ObjectData& objectData = levelData->objects.back();
 
-			//if (object.contains("file_name")) {
-			//	// ファイル名
-			//	objectData.filename = object["file_name"];
-			//}
+            // トランスフォームのパラメータを読み込む
+            nlohmann::json& transform = object["transform"];
+            // 平行移動
+            objectData.transform.translate.x = (float)transform["translation"][0];
+            objectData.transform.translate.y = (float)transform["translation"][2];
+            objectData.transform.translate.z = (float)transform["translation"][1];
+            // 回転角度
+            objectData.transform.rotate.x = -((float)transform["rotation"][0] - 3.141592f / 2.0f);
+            objectData.transform.rotate.y = -(float)transform["rotation"][2];
+            objectData.transform.rotate.z = -(float)transform["rotation"][1];
+            // スケーリング
+            objectData.transform.scale.x = (float)transform["scaling"][0];
+            objectData.transform.scale.y = (float)transform["scaling"][1];
+            objectData.transform.scale.z = (float)transform["scaling"][2];
 
-			// トランスフォームのパラメータ読み込み
-			nlohmann::json& transform = object["transform"];
-			// 平行移動
-			objectData.transform.translate.x = (float)transform["translation"][0];
-			objectData.transform.translate.y = (float)transform["translation"][2];
-			objectData.transform.translate.z = (float)transform["translation"][1];
-			// 回転角
-			objectData.transform.rotate.x = -((float)transform["rotation"][0] - 3.141592f / 2.0f);
-			objectData.transform.rotate.y = -(float)transform["rotation"][2];
-			objectData.transform.rotate.z = -(float)transform["rotation"][1];
-			// スケーリング
-			objectData.transform.scale.x = (float)transform["scaling"][0];
-			objectData.transform.scale.y = (float)transform["scaling"][1];
-			objectData.transform.scale.z = (float)transform["scaling"][2];
+            // カメラの位置と回転を設定
+            camera->SetTranslate(objectData.transform.translate);
+            camera->SetRotate(objectData.transform.rotate);
+        }
+    }
 
-			camera->SetTranslate(objectData.transform.translate);
-			camera->SetRotate(objectData.transform.rotate);
-			//ModelManager::GetInstance()->LoadModel("Resources/box/", objectData.filename + ".obj");
-
-		}
-	}
-
-	// レベルデータからオブジェクトを生成、配置
-	for (auto& objectData : levelData->objects) {
-		// モデルを指定して3Dオブジェクトを生成
-		Object3d* newObject3d = new Object3d();
-		newObject3d->Init();
-		newObject3d->SetModel(objectData.filename + ".obj");
-		newObject3d->SetTransform(objectData.transform);
-		// 配列に登録
-		objects.push_back(newObject3d);
-
-	}
-
+    // オブジェクトを生成し、配置する
+    for (auto& objectData : levelData->objects) {
+        // 3Dオブジェクトを生成
+        Object3d* newObject3d = new Object3d();
+        newObject3d->Init();
+        newObject3d->SetModel(objectData.filename + ".obj");
+        newObject3d->SetTransform(objectData.transform);
+        // 配列に追加
+        objects.push_back(newObject3d);
+    }
 }
 
+/// <summary>
+/// JSONファイルを読み込み、オブジェクトを初期化する関数（カメラ設定なし）
+/// </summary>
+/// <param name="kDefaultBaseDirectory">デフォルトのベースディレクトリ</param>
+/// <param name="fileName">読み込むJSONファイル名（拡張子なし）</param>
+/// <param name="objects">生成したオブジェクトを格納するベクター</param>
 void Loder::LoadJsonFile2(const std::string kDefaultBaseDirectory, const std::string fileName, std::vector<Object3d*>& objects)
 {
-	// 連結してフルパスを得る
-	const std::string fullpath = kDefaultBaseDirectory + "/" + fileName + ".json";
+    // フルパスを生成
+    const std::string fullpath = kDefaultBaseDirectory + "/" + fileName + ".json";
 
-	// ファイルストリーム
-	std::ifstream file;
+    // ファイルストリームを作成
+    std::ifstream file;
 
-	// ファイルを開く
-	file.open(fullpath);
-	// ファイルオープン失敗をチェック
-	if (file.fail()) {
-		assert(0);
-	}
+    // ファイルを開く
+    file.open(fullpath);
+    // ファイルオープン失敗をチェック
+    if (file.fail()) {
+        assert(0);
+    }
 
-	// Json文字列から回答したデータ
-	nlohmann::json deserialized;
+    // JSONデータを格納する変数
+    nlohmann::json deserialized;
 
-	// 解凍
-	file >> deserialized;
+    // ファイルからJSONデータを読み込む
+    file >> deserialized;
 
-	// 正しいレベルデータファイルかチェック
-	assert(deserialized.is_object());
-	assert(deserialized.contains("name"));
-	assert(deserialized["name"].is_string());
+    // 正しいレベルデータファイルかチェック
+    assert(deserialized.is_object());
+    assert(deserialized.contains("name"));
+    assert(deserialized["name"].is_string());
 
-	// "name"を文字列として取得
-	std::string name =
-		deserialized["name"].get<std::string>();
-	// 正しいレベルデータファイル化チェック
-	assert(name.compare("scene") == 0);
+    // "name"フィールドを取得
+    std::string name = deserialized["name"].get<std::string>();
+    // "scene"であることを確認
+    assert(name.compare("scene") == 0);
 
-	// レベルデータ格納用インスタンスを生成
-	LevelData* levelData = new LevelData();
+    // レベルデータを格納するインスタンスを生成
+    LevelData* levelData = new LevelData();
 
-	// "objects"の全オブジェクトを走査
-	for (nlohmann::json& object : deserialized["objects"]) {
-		assert(object.contains("type"));
+    // "objects"配列内の全オブジェクトを走査
+    for (nlohmann::json& object : deserialized["objects"]) {
+        assert(object.contains("type"));
 
-		// 種別を取得
-		std::string type = object["type"].get<std::string>();
+        // オブジェクトの種別を取得
+        std::string type = object["type"].get<std::string>();
 
-		// MESH
-		if (type.compare("MESH") == 0) {
-			// 要素追加
-			levelData->objects.emplace_back(LevelData::ObjectData{});
-			// 今追加した要素の参照を得る
-			LevelData::ObjectData& objectData = levelData->objects.back();
+        // MESHオブジェクトの場合
+        if (type.compare("MESH") == 0) {
+            // オブジェクトデータを追加
+            levelData->objects.emplace_back(LevelData::ObjectData{});
+            // 追加したオブジェクトデータへの参照を取得
+            LevelData::ObjectData& objectData = levelData->objects.back();
 
-			if (object.contains("file_name")) {
-				// ファイル名
-				objectData.filename = object["file_name"];
-			}
+            if (object.contains("file_name")) {
+                // ファイル名を取得
+                objectData.filename = object["file_name"];
+            }
 
-			// トランスフォームのパラメータ読み込み
-			nlohmann::json& transform = object["transform"];
-			// 平行移動
-			objectData.transform.translate.x = (float)transform["translation"][0];
-			objectData.transform.translate.y = (float)transform["translation"][2];
-			objectData.transform.translate.z = (float)transform["translation"][1];
-			// 回転角
-			objectData.transform.rotate.x = -(float)transform["rotation"][0];
-			objectData.transform.rotate.y = -(float)transform["rotation"][2];
-			objectData.transform.rotate.z = -(float)transform["rotation"][1];
-			// スケーリングa
-			objectData.transform.scale.x = (float)transform["scaling"][0];
-			objectData.transform.scale.y = (float)transform["scaling"][1];
-			objectData.transform.scale.z = (float)transform["scaling"][2];
-			ModelManager::GetInstance()->LoadModel("Resources/game/", objectData.filename + ".obj");
-		}
+            // トランスフォームのパラメータを読み込む
+            nlohmann::json& transform = object["transform"];
+            // 平行移動
+            objectData.transform.translate.x = (float)transform["translation"][0];
+            objectData.transform.translate.y = (float)transform["translation"][2];
+            objectData.transform.translate.z = (float)transform["translation"][1];
+            // 回転角度
+            objectData.transform.rotate.x = -(float)transform["rotation"][0];
+            objectData.transform.rotate.y = -(float)transform["rotation"][2];
+            objectData.transform.rotate.z = -(float)transform["rotation"][1];
+            // スケーリング
+            objectData.transform.scale.x = (float)transform["scaling"][0];
+            objectData.transform.scale.y = (float)transform["scaling"][1];
+            objectData.transform.scale.z = (float)transform["scaling"][2];
 
-		// TODO: オブジェクト走査を再帰関数にまとめ、再帰呼出で枝を走査する
-		if (object.contains("children")) {
+            // モデルをロード
+            ModelManager::GetInstance()->LoadModel("Resources/game/", objectData.filename + ".obj");
+        }
 
-		}
-		// MESH
-		if (type.compare("CAMERA") == 0) {
-			// 要素追加
-			levelData->objects.emplace_back(LevelData::ObjectData{});
-			// 今追加した要素の参照を得る
-			LevelData::ObjectData& objectData = levelData->objects.back();
+        // 子オブジェクトが存在する場合（未実装）
+        if (object.contains("children")) {
+            // TODO: 再帰的に子オブジェクトを処理する
+        }
 
-			//if (object.contains("file_name")) {
-			//	// ファイル名
-			//	objectData.filename = object["file_name"];
-			//}
+        // CAMERAオブジェクトの場合（カメラ設定なし）
+        if (type.compare("CAMERA") == 0) {
+            // オブジェクトデータを追加
+            levelData->objects.emplace_back(LevelData::ObjectData{});
+            // 追加したオブジェクトデータへの参照を取得
+            LevelData::ObjectData& objectData = levelData->objects.back();
 
-			// トランスフォームのパラメータ読み込み
-			nlohmann::json& transform = object["transform"];
-			// 平行移動
-			objectData.transform.translate.x = (float)transform["translation"][0];
-			objectData.transform.translate.y = (float)transform["translation"][2];
-			objectData.transform.translate.z = (float)transform["translation"][1];
-			// 回転角
-			objectData.transform.rotate.x = -((float)transform["rotation"][0] - 3.141592f / 2.0f);
-			objectData.transform.rotate.y = -(float)transform["rotation"][2];
-			objectData.transform.rotate.z = -(float)transform["rotation"][1];
-			// スケーリング
-			objectData.transform.scale.x = (float)transform["scaling"][0];
-			objectData.transform.scale.y = (float)transform["scaling"][1];
-			objectData.transform.scale.z = (float)transform["scaling"][2];
-			//ModelManager::GetInstance()->LoadModel("Resources/box/", objectData.filename + ".obj");
-		}
-	}
+            // トランスフォームのパラメータを読み込む
+            nlohmann::json& transform = object["transform"];
+            // 平行移動
+            objectData.transform.translate.x = (float)transform["translation"][0];
+            objectData.transform.translate.y = (float)transform["translation"][2];
+            objectData.transform.translate.z = (float)transform["translation"][1];
+            // 回転角度
+            objectData.transform.rotate.x = -((float)transform["rotation"][0] - 3.141592f / 2.0f);
+            objectData.transform.rotate.y = -(float)transform["rotation"][2];
+            objectData.transform.rotate.z = -(float)transform["rotation"][1];
+            // スケーリング
+            objectData.transform.scale.x = (float)transform["scaling"][0];
+            objectData.transform.scale.y = (float)transform["scaling"][1];
+            objectData.transform.scale.z = (float)transform["scaling"][2];
 
-	// レベルデータからオブジェクトを生成、配置
-	for (auto& objectData : levelData->objects) {
-		// モデルを指定して3Dオブジェクトを生成
-		Object3d* newObject3d = new Object3d();
-		newObject3d->Init();
-		newObject3d->SetModel(objectData.filename + ".obj");
-		newObject3d->SetTransform(objectData.transform);
-		// 配列に登録
-		objects.push_back(newObject3d);
+            // カメラ設定は行わない
+        }
+    }
 
-	}
+    // オブジェクトを生成し、配置する
+    for (auto& objectData : levelData->objects) {
+        // 3Dオブジェクトを生成
+        Object3d* newObject3d = new Object3d();
+        newObject3d->Init();
+        newObject3d->SetModel(objectData.filename + ".obj");
+        newObject3d->SetTransform(objectData.transform);
+        // 配列に追加
+        objects.push_back(newObject3d);
+    }
 }
 
+/// <summary>
+/// JSONファイルを読み込み、番号付きのオブジェクトを初期化する関数
+/// </summary>
+/// <param name="kDefaultBaseDirectory">デフォルトのベースディレクトリ</param>
+/// <param name="fileName">読み込むJSONファイル名（拡張子なし）</param>
+/// <param name="objects">生成したオブジェクトを格納するベクター</param>
 void Loder::LoadJsonFileNumber(const std::string kDefaultBaseDirectory, const std::string fileName, std::vector<Object3d*>& objects) {
-	// 連結してフルパスを得る
-	const std::string fullpath = kDefaultBaseDirectory + "/" + fileName + ".json";
+    // フルパスを生成
+    const std::string fullpath = kDefaultBaseDirectory + "/" + fileName + ".json";
 
-	// ファイルストリーム
-	std::ifstream file;
+    // ファイルストリームを作成
+    std::ifstream file;
 
-	// ファイルを開く
-	file.open(fullpath);
-	// ファイルオープン失敗をチェック
-	if (file.fail()) {
-		assert(0);
-	}
+    // ファイルを開く
+    file.open(fullpath);
+    // ファイルオープン失敗をチェック
+    if (file.fail()) {
+        assert(0);
+    }
 
-	// Json文字列から回答したデータ
-	nlohmann::json deserialized;
+    // JSONデータを格納する変数
+    nlohmann::json deserialized;
 
-	// 解凍
-	file >> deserialized;
+    // ファイルからJSONデータを読み込む
+    file >> deserialized;
 
-	// 正しいレベルデータファイルかチェック
-	assert(deserialized.is_object());
-	assert(deserialized.contains("name"));
-	assert(deserialized["name"].is_string());
+    // 正しいレベルデータファイルかチェック
+    assert(deserialized.is_object());
+    assert(deserialized.contains("name"));
+    assert(deserialized["name"].is_string());
 
-	// "name"を文字列として取得
-	std::string name =
-		deserialized["name"].get<std::string>();
-	// 正しいレベルデータファイル化チェック
-	assert(name.compare("scene") == 0);
+    // "name"フィールドを取得
+    std::string name = deserialized["name"].get<std::string>();
+    // "scene"であることを確認
+    assert(name.compare("scene") == 0);
 
-	// レベルデータ格納用インスタンスを生成
-	LevelData* levelData = new LevelData();
+    // レベルデータを格納するインスタンスを生成
+    LevelData* levelData = new LevelData();
 
-	// "objects"の全オブジェクトを走査
-	for (nlohmann::json& object : deserialized["objects"]) {
-		assert(object.contains("type"));
+    // "objects"配列内の全オブジェクトを走査
+    for (nlohmann::json& object : deserialized["objects"]) {
+        assert(object.contains("type"));
 
-		// 種別を取得
-		std::string type = object["type"].get<std::string>();
+        // オブジェクトの種別を取得
+        std::string type = object["type"].get<std::string>();
 
-		// MESH
-		if (type.compare("MESH") == 0) {
-			// 要素追加
-			levelData->objects.emplace_back(LevelData::ObjectData{});
-			// 今追加した要素の参照を得る
-			LevelData::ObjectData& objectData = levelData->objects.back();
+        // MESHオブジェクトの場合
+        if (type.compare("MESH") == 0) {
+            // オブジェクトデータを追加
+            levelData->objects.emplace_back(LevelData::ObjectData{});
+            // 追加したオブジェクトデータへの参照を取得
+            LevelData::ObjectData& objectData = levelData->objects.back();
 
-			if (object.contains("file_name")) {
-				// ファイル名
-				objectData.filename = object["file_name"];
-			}
+            if (object.contains("file_name")) {
+                // ファイル名を取得
+                objectData.filename = object["file_name"];
+            }
 
-			// トランスフォームのパラメータ読み込み
-			nlohmann::json& transform = object["transform"];
-			// 平行移動
-			objectData.transform.translate.x = (float)transform["translation"][0];
-			objectData.transform.translate.y = (float)transform["translation"][2];
-			objectData.transform.translate.z = (float)transform["translation"][1];
-			// 回転角
-			objectData.transform.rotate.x = -(float)transform["rotation"][0];
-			objectData.transform.rotate.y = -(float)transform["rotation"][2];
-			objectData.transform.rotate.z = -(float)transform["rotation"][1];
-			// スケーリングa
-			objectData.transform.scale.x = (float)transform["scaling"][0];
-			objectData.transform.scale.y = (float)transform["scaling"][1];
-			objectData.transform.scale.z = (float)transform["scaling"][2];
-		}
+            // トランスフォームのパラメータを読み込む
+            nlohmann::json& transform = object["transform"];
+            // 平行移動
+            objectData.transform.translate.x = (float)transform["translation"][0];
+            objectData.transform.translate.y = (float)transform["translation"][2];
+            objectData.transform.translate.z = (float)transform["translation"][1];
+            // 回転角度
+            objectData.transform.rotate.x = -(float)transform["rotation"][0];
+            objectData.transform.rotate.y = -(float)transform["rotation"][2];
+            objectData.transform.rotate.z = -(float)transform["rotation"][1];
+            // スケーリング
+            objectData.transform.scale.x = (float)transform["scaling"][0];
+            objectData.transform.scale.y = (float)transform["scaling"][1];
+            objectData.transform.scale.z = (float)transform["scaling"][2];
+        }
 
-		// TODO: オブジェクト走査を再帰関数にまとめ、再帰呼出で枝を走査する
-		if (object.contains("children")) {
+        // 子オブジェクトが存在する場合（未実装）
+        if (object.contains("children")) {
+            // TODO: 再帰的に子オブジェクトを処理する
+        }
 
-		}
-		// MESH
-		if (type.compare("CAMERA") == 0) {
-			// 要素追加
-			levelData->objects.emplace_back(LevelData::ObjectData{});
-			// 今追加した要素の参照を得る
-			LevelData::ObjectData& objectData = levelData->objects.back();
+        // CAMERAオブジェクトの場合
+        if (type.compare("CAMERA") == 0) {
+            // オブジェクトデータを追加
+            levelData->objects.emplace_back(LevelData::ObjectData{});
+            // 追加したオブジェクトデータへの参照を取得
+            LevelData::ObjectData& objectData = levelData->objects.back();
 
-			//if (object.contains("file_name")) {
-			//	// ファイル名
-			//	objectData.filename = object["file_name"];
-			//}
+            // トランスフォームのパラメータを読み込む
+            nlohmann::json& transform = object["transform"];
+            // 平行移動
+            objectData.transform.translate.x = (float)transform["translation"][0];
+            objectData.transform.translate.y = (float)transform["translation"][2];
+            objectData.transform.translate.z = (float)transform["translation"][1];
+            // 回転角度
+            objectData.transform.rotate.x = -((float)transform["rotation"][0] - 3.141592f / 2.0f);
+            objectData.transform.rotate.y = -(float)transform["rotation"][2];
+            objectData.transform.rotate.z = -(float)transform["rotation"][1];
+            // スケーリング
+            objectData.transform.scale.x = (float)transform["scaling"][0];
+            objectData.transform.scale.y = (float)transform["scaling"][1];
+            objectData.transform.scale.z = (float)transform["scaling"][2];
+        }
+    }
 
-			// トランスフォームのパラメータ読み込み
-			nlohmann::json& transform = object["transform"];
-			// 平行移動
-			objectData.transform.translate.x = (float)transform["translation"][0];
-			objectData.transform.translate.y = (float)transform["translation"][2];
-			objectData.transform.translate.z = (float)transform["translation"][1];
-			// 回転角
-			objectData.transform.rotate.x = -((float)transform["rotation"][0] - 3.141592f / 2.0f);
-			objectData.transform.rotate.y = -(float)transform["rotation"][2];
-			objectData.transform.rotate.z = -(float)transform["rotation"][1];
-			// スケーリング
-			objectData.transform.scale.x = (float)transform["scaling"][0];
-			objectData.transform.scale.y = (float)transform["scaling"][1];
-			objectData.transform.scale.z = (float)transform["scaling"][2];
-			//ModelManager::GetInstance()->LoadModel("Resources/box/", objectData.filename + ".obj");
-		}
-	}
-
-	// レベルデータからオブジェクトを生成、配置
-	for (auto& objectData : levelData->objects) {
-		// モデルを指定して3Dオブジェクトを生成
-		Object3d* newObject3d = new Object3d();
-		newObject3d->Init();
-		newObject3d->SetModel(objectData.filename + ".obj");
-		newObject3d->SetTransform(objectData.transform);
-		// 配列に登録
-		objects.push_back(newObject3d);
-
-	}
+    // オブジェクトを生成し、配置する
+    for (auto& objectData : levelData->objects) {
+        // 3Dオブジェクトを生成
+        Object3d* newObject3d = new Object3d();
+        newObject3d->Init();
+        newObject3d->SetModel(objectData.filename + ".obj");
+        newObject3d->SetTransform(objectData.transform);
+        // 配列に追加
+        objects.push_back(newObject3d);
+    }
 }
+
+/// <summary>
+/// JSONファイルを読み込み、テキストオブジェクトを初期化する関数
+/// </summary>
+/// <param name="kDefaultBaseDirectory">デフォルトのベースディレクトリ</param>
+/// <param name="fileName">読み込むJSONファイル名（拡張子なし）</param>
+/// <param name="objects">生成したオブジェクトを格納するベクター</param>
 void Loder::LoadJsonFileText(const std::string kDefaultBaseDirectory, const std::string fileName, std::vector<Object3d*>& objects) {
-	// 連結してフルパスを得る
-	const std::string fullpath = kDefaultBaseDirectory + "/" + fileName + ".json";
+    // フルパスを生成
+    const std::string fullpath = kDefaultBaseDirectory + "/" + fileName + ".json";
 
-	// ファイルストリーム
-	std::ifstream file;
+    // ファイルストリームを作成
+    std::ifstream file;
 
-	// ファイルを開く
-	file.open(fullpath);
-	// ファイルオープン失敗をチェック
-	if (file.fail()) {
-		assert(0);
-	}
+    // ファイルを開く
+    file.open(fullpath);
+    // ファイルオープン失敗をチェック
+    if (file.fail()) {
+        assert(0);
+    }
 
-	// Json文字列から回答したデータ
-	nlohmann::json deserialized;
+    // JSONデータを格納する変数
+    nlohmann::json deserialized;
 
-	// 解凍
-	file >> deserialized;
+    // ファイルからJSONデータを読み込む
+    file >> deserialized;
 
-	// 正しいレベルデータファイルかチェック
-	assert(deserialized.is_object());
-	assert(deserialized.contains("name"));
-	assert(deserialized["name"].is_string());
+    // 正しいレベルデータファイルかチェック
+    assert(deserialized.is_object());
+    assert(deserialized.contains("name"));
+    assert(deserialized["name"].is_string());
 
-	// "name"を文字列として取得
-	std::string name =
-		deserialized["name"].get<std::string>();
-	// 正しいレベルデータファイル化チェック
-	assert(name.compare("scene") == 0);
+    // "name"フィールドを取得
+    std::string name = deserialized["name"].get<std::string>();
+    // "scene"であることを確認
+    assert(name.compare("scene") == 0);
 
-	// レベルデータ格納用インスタンスを生成
-	LevelData* levelData = new LevelData();
+    // レベルデータを格納するインスタンスを生成
+    LevelData* levelData = new LevelData();
 
-	// "objects"の全オブジェクトを走査
-	for (nlohmann::json& object : deserialized["objects"]) {
-		assert(object.contains("type"));
+    // "objects"配列内の全オブジェクトを走査
+    for (nlohmann::json& object : deserialized["objects"]) {
+        assert(object.contains("type"));
 
-		// 種別を取得
-		std::string type = object["type"].get<std::string>();
+        // オブジェクトの種別を取得
+        std::string type = object["type"].get<std::string>();
 
-		// MESH
-		if (type.compare("MESH") == 0) {
-			// 要素追加
-			levelData->objects.emplace_back(LevelData::ObjectData{});
-			// 今追加した要素の参照を得る
-			LevelData::ObjectData& objectData = levelData->objects.back();
+        // MESHオブジェクトの場合
+        if (type.compare("MESH") == 0) {
+            // オブジェクトデータを追加
+            levelData->objects.emplace_back(LevelData::ObjectData{});
+            // 追加したオブジェクトデータへの参照を取得
+            LevelData::ObjectData& objectData = levelData->objects.back();
 
-			if (object.contains("file_name")) {
-				// ファイル名
-				objectData.filename = object["file_name"];
-			}
+            if (object.contains("file_name")) {
+                // ファイル名を取得
+                objectData.filename = object["file_name"];
+            }
 
-			// トランスフォームのパラメータ読み込み
-			nlohmann::json& transform = object["transform"];
-			// 平行移動
-			objectData.transform.translate.x = (float)transform["translation"][0];
-			objectData.transform.translate.y = (float)transform["translation"][2];
-			objectData.transform.translate.z = (float)transform["translation"][1];
-			// 回転角
-			objectData.transform.rotate.x = -(float)transform["rotation"][0];
-			objectData.transform.rotate.y = -(float)transform["rotation"][2];
-			objectData.transform.rotate.z = -(float)transform["rotation"][1];
-			// スケーリングa
-			objectData.transform.scale.x = (float)transform["scaling"][0];
-			objectData.transform.scale.y = (float)transform["scaling"][1];
-			objectData.transform.scale.z = (float)transform["scaling"][2];
-			ModelManager::GetInstance()->LoadModel("Resources/game/Text/", objectData.filename + ".obj");
-		}
+            // トランスフォームのパラメータを読み込む
+            nlohmann::json& transform = object["transform"];
+            // 平行移動
+            objectData.transform.translate.x = (float)transform["translation"][0];
+            objectData.transform.translate.y = (float)transform["translation"][2];
+            objectData.transform.translate.z = (float)transform["translation"][1];
+            // 回転角度
+            objectData.transform.rotate.x = -(float)transform["rotation"][0];
+            objectData.transform.rotate.y = -(float)transform["rotation"][2];
+            objectData.transform.rotate.z = -(float)transform["rotation"][1];
+            // スケーリング
+            objectData.transform.scale.x = (float)transform["scaling"][0];
+            objectData.transform.scale.y = (float)transform["scaling"][1];
+            objectData.transform.scale.z = (float)transform["scaling"][2];
 
-		// TODO: オブジェクト走査を再帰関数にまとめ、再帰呼出で枝を走査する
-		if (object.contains("children")) {
+            // テキスト用モデルをロード
+            ModelManager::GetInstance()->LoadModel("Resources/game/Text/", objectData.filename + ".obj");
+        }
 
-		}
-		// MESH
-		if (type.compare("CAMERA") == 0) {
-			// 要素追加
-			levelData->objects.emplace_back(LevelData::ObjectData{});
-			// 今追加した要素の参照を得る
-			LevelData::ObjectData& objectData = levelData->objects.back();
+        // 子オブジェクトが存在する場合（未実装）
+        if (object.contains("children")) {
+            // TODO: 再帰的に子オブジェクトを処理する
+        }
 
-			//if (object.contains("file_name")) {
-			//	// ファイル名
-			//	objectData.filename = object["file_name"];
-			//}
+        // CAMERAオブジェクトの場合
+        if (type.compare("CAMERA") == 0) {
+            // オブジェクトデータを追加
+            levelData->objects.emplace_back(LevelData::ObjectData{});
+            // 追加したオブジェクトデータへの参照を取得
+            LevelData::ObjectData& objectData = levelData->objects.back();
 
-			// トランスフォームのパラメータ読み込み
-			nlohmann::json& transform = object["transform"];
-			// 平行移動
-			objectData.transform.translate.x = (float)transform["translation"][0];
-			objectData.transform.translate.y = (float)transform["translation"][2];
-			objectData.transform.translate.z = (float)transform["translation"][1];
-			// 回転角
-			objectData.transform.rotate.x = -((float)transform["rotation"][0] - 3.141592f / 2.0f);
-			objectData.transform.rotate.y = -(float)transform["rotation"][2];
-			objectData.transform.rotate.z = -(float)transform["rotation"][1];
-			// スケーリング
-			objectData.transform.scale.x = (float)transform["scaling"][0];
-			objectData.transform.scale.y = (float)transform["scaling"][1];
-			objectData.transform.scale.z = (float)transform["scaling"][2];
-			//ModelManager::GetInstance()->LoadModel("Resources/box/", objectData.filename + ".obj");
-		}
-	}
+            // トランスフォームのパラメータを読み込む
+            nlohmann::json& transform = object["transform"];
+            // 平行移動
+            objectData.transform.translate.x = (float)transform["translation"][0];
+            objectData.transform.translate.y = (float)transform["translation"][2];
+            objectData.transform.translate.z = (float)transform["translation"][1];
+            // 回転角度
+            objectData.transform.rotate.x = -((float)transform["rotation"][0] - 3.141592f / 2.0f);
+            objectData.transform.rotate.y = -(float)transform["rotation"][2];
+            objectData.transform.rotate.z = -(float)transform["rotation"][1];
+            // スケーリング
+            objectData.transform.scale.x = (float)transform["scaling"][0];
+            objectData.transform.scale.y = (float)transform["scaling"][1];
+            objectData.transform.scale.z = (float)transform["scaling"][2];
+        }
+    }
 
-	// レベルデータからオブジェクトを生成、配置
-	for (auto& objectData : levelData->objects) {
-		// モデルを指定して3Dオブジェクトを生成
-		Object3d* newObject3d = new Object3d();
-		newObject3d->Init();
-		newObject3d->SetModel(objectData.filename + ".obj");
-		newObject3d->SetTransform(objectData.transform);
-		// 配列に登録
-		objects.push_back(newObject3d);
-
-	}
+    // オブジェクトを生成し、配置する
+    for (auto& objectData : levelData->objects) {
+        // 3Dオブジェクトを生成
+        Object3d* newObject3d = new Object3d();
+        newObject3d->Init();
+        newObject3d->SetModel(objectData.filename + ".obj");
+        newObject3d->SetTransform(objectData.transform);
+        // 配列に追加
+        objects.push_back(newObject3d);
+    }
 }

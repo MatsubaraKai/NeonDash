@@ -138,7 +138,7 @@ void Sprite::Update() {
 
 
 void Sprite::Draw(uint32_t texture, const Vector4& color) {
-	pso_ = PSOSprite::GatInstance();
+	pso_ = PSOSprite::GetInstance();
 	materialData->color = color;
 	// Sprite用のWorldViewProjectMatrixを作る
 	Matrix4x4 worldMatrixSprite = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);

@@ -72,13 +72,13 @@ int GameManager::Run() {
 	PSO* pso = PSO::GetInstance();
 	pso->CreatePipelineStateObject();
 
-	PSOSprite* psoSprite = PSOSprite::GatInstance();
+	PSOSprite* psoSprite = PSOSprite::GetInstance();
 	psoSprite->CreatePipelineStateObject();
 
-	PSOParticle* psoParticle = PSOParticle::GatInstance();
+	PSOParticle* psoParticle = PSOParticle::GetInstance();
 	psoParticle->CreatePipelineStateObject();
 
-	PSOSkybox* psoSkybox = PSOSkybox::GatInstance();
+	PSOSkybox* psoSkybox = PSOSkybox::GetInstance();
 	psoSkybox->CreatePipelineStateObject();
 
 	PSOPostEffect* pSOPostEffect = PSOPostEffect::GetInstance();

@@ -116,7 +116,7 @@ void Particle::Initialize(Emitter emitter) {
 //};
 
 void Particle::Draw(Emitter emitter, const Vector3& worldTransformPa, uint32_t texture, Camera* camera, const RandRangePro& randRange, bool scaleAddFlag) {
-	pso_ = PSOParticle::GatInstance();
+	pso_ = PSOParticle::GetInstance();
 
 	emitter_.count = emitter.count;
 	emitter_.transform = { emitter.transform.scale,{0.0f,0.0f,0.0f},worldTransformPa };

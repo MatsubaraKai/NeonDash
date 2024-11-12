@@ -3,94 +3,137 @@
 #include "DirectXCommon.h"
 #include "PSOProperty.h"
 
+/**
+ * @file PSOParticle.h
+ * @brief パーティクル用のパイプラインステートオブジェクトを管理するクラス
+ */
 
-
+ /// <summary>
+ /// パーティクル用のパイプラインステートオブジェクトを管理するクラス
+ /// </summary>
 class PSOParticle : public PSOProperty
 {
 public:
-	static PSOParticle* GatInstance();
+    /// <summary>
+    /// シングルトンのインスタンスを取得する
+    /// </summary>
+    /// <returns>PSOParticleクラスのインスタンス</returns>
+    static PSOParticle* GetInstance();
 
-	PSOParticle() = default;
-	~PSOParticle() = default;
-	const PSOParticle& operator=(const PSOParticle&) = delete;
+    /// <summary>
+    /// コンストラクタ
+    /// </summary>
+    PSOParticle() = default;
 
+    /// <summary>
+    /// デストラクタ
+    /// </summary>
+    ~PSOParticle() = default;
 
-	/// <summary>
-	/// 描画に関する設定をまとめる関数
-	/// </summary>
-	void CreatePipelineStateObject();
+    /// <summary>
+    /// コピー代入演算子を削除（コピー不可）
+    /// </summary>
+    /// <param name="other">コピー元のオブジェクト</param>
+    /// <returns>コピー不可</returns>
+    const PSOParticle& operator=(const PSOParticle&) = delete;
 
-	/// <summary>
-	/// ShaderとResourceを関係のつけ方を決める関数
-	/// </summary>
-	void CreateRootSignature();
+    /// <summary>
+    /// 描画に関する設定をまとめる関数
+    /// </summary>
+    void CreatePipelineStateObject();
 
-	/// <summary>
-	/// VSへ渡す頂点データの指定を行う関数
-	/// </summary>
-	void SetInputLayout();
+    /// <summary>
+    /// シェーダーとリソースの関係を設定する関数
+    /// </summary>
+    void CreateRootSignature();
 
-	/// <summary>
-	/// PSからの出力をどう書き込むかの設定を行う関数
-	/// </summary>
-	void SetBlendState();
+    /// <summary>
+    /// 頂点シェーダーへ渡す頂点データの指定を行う関数
+    /// </summary>
+    void SetInputLayout();
 
-	/// <summary>
-	/// ラスタライザーに関する設定の関数
-	/// </summary>
-	void SetRasterrizerState();
+    /// <summary>
+    /// ピクセルシェーダーからの出力をどのように書き込むか設定する関数
+    /// </summary>
+    void SetBlendState();
 
-	/// <summary>
-	/// Release
-	/// </summary>
-	/// <returns></returns>
+    /// <summary>
+    /// ラスタライザーに関する設定を行う関数
+    /// </summary>
+    void SetRasterizerState();
+    
+    /// <summary>
+    /// デプスバッファを生成する関数
+    /// </summary>
+    void CreateDepth();
 
-	/// <summary>
-	/// DepthBufferの生成
-	/// </summary>
-	void CreateDepth();
-
-
-	PSOProperty GetProperty() { return property; }
+    /// <summary>
+    /// PSOプロパティを取得する
+    /// </summary>
+    /// <returns>PSOPropertyオブジェクト</returns>
+    PSOProperty GetProperty() { return property; }
 
 private:
-	HRESULT hr_;
-	// RootSignature作成
-	D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
-	// シリアライズしてバイナリにする
-	//ID3DBlob* signatureBlob;
-	//ID3DBlob* errorBlob;
-	// バイナリを元に生成
-	//ID3D12RootSignature* rootSignature;
-	// RootParmeter作成。複数でっていできるので配列。今回は結果１つだけなので長さ1の配列
-	D3D12_ROOT_PARAMETER rootParamerters[4] = {};
+    HRESULT hr_;  ///< 処理結果を格納するHRESULT
 
-	D3D12_STATIC_SAMPLER_DESC staticSamplers[1] = {};
+    /// <summary>
+    /// ルートシグネチャの記述子
+    /// </summary>
+    D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
 
-	D3D12_DESCRIPTOR_RANGE descriptorRange_[1] = {};
-	D3D12_DESCRIPTOR_RANGE descriptorRange2_[1] = {};
-	// InputLayout
-	D3D12_INPUT_ELEMENT_DESC inputElementDescs[3] = {};
-	D3D12_INPUT_LAYOUT_DESC  inputLayoutDesc{};
+    /// <summary>
+    /// ルートパラメータの配列
+    /// </summary>
+    D3D12_ROOT_PARAMETER rootParameters[4] = {};
 
-	// blendStateの設定
-	D3D12_BLEND_DESC blendDesc{};
+    /// <summary>
+    /// スタティックサンプラーディスクリプタ
+    /// </summary>
+    D3D12_STATIC_SAMPLER_DESC staticSamplers[1] = {};
 
-	// RasiterzerStateの設定
-	D3D12_RASTERIZER_DESC rasterizerDesc{};
+    /// <summary>
+    /// ディスクリプタレンジの配列
+    /// </summary>
+    D3D12_DESCRIPTOR_RANGE descriptorRange_[1] = {};
+    D3D12_DESCRIPTOR_RANGE descriptorRange2_[1] = {};
 
-	/*IDxcBlob* vertexShaderBlob;
-	IDxcBlob* pixelShaderBlob;*/
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
-	//実際に生成
-	//ID3D12PipelineState* graphicsPipelineState;
+    /// <summary>
+    /// 入力レイアウトの要素記述子
+    /// </summary>
+    D3D12_INPUT_ELEMENT_DESC inputElementDescs[3] = {};
 
-	// DepthStencilStateの設定
-	D3D12_DEPTH_STENCIL_DESC depthStencilDesc_{};
+    /// <summary>
+    /// 入力レイアウトの記述子
+    /// </summary>
+    D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
 
-	// 描画先のRTVを設定する
-	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle;
+    /// <summary>
+    /// ブレンドステートの設定
+    /// </summary>
+    D3D12_BLEND_DESC blendDesc{};
 
-	PSOProperty property;
+    /// <summary>
+    /// ラスタライザーステートの設定
+    /// </summary>
+    D3D12_RASTERIZER_DESC rasterizerDesc{};
 
+    /// <summary>
+    /// グラフィックスパイプラインステートの記述子
+    /// </summary>
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
+
+    /// <summary>
+    /// デプスステンシルステートの設定
+    /// </summary>
+    D3D12_DEPTH_STENCIL_DESC depthStencilDesc_{};
+
+    /// <summary>
+    /// 描画先のRTVを設定するためのハンドル
+    /// </summary>
+    D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle;
+
+    /// <summary>
+    /// PSOプロパティ
+    /// </summary>
+    PSOProperty property;
 };

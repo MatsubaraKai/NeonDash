@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include <d3d12.h>
 #include <string>
-#include <string>
 #include <format>
 #include <dxgi1_6.h>
 #include <cassert>
@@ -13,58 +12,162 @@
 #pragma comment(lib,"d3d12.lib")
 #pragma comment(lib,"dxgi.lib")
 #pragma comment(lib,"dxcompiler.lib")
-// テクスチャ1枚分のデータ
-struct TextureData {
-	DirectX::TexMetadata metaData;
-	Microsoft::WRL::ComPtr<ID3D12Resource> resource;
-	uint32_t srvIndex;
-	D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU;
-	D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU;
 
+/// <summary>
+/// @file TextureManager.h
+/// @brief テクスチャの管理を行うクラスの宣言と定義。
+/// </summary>
+
+/// <summary>
+/// テクスチャ1枚分のデータを表す構造体。
+/// </summary>
+struct TextureData {
+    /// <summary>
+    /// テクスチャのメタデータ。
+    /// </summary>
+    DirectX::TexMetadata metaData;
+
+    /// <summary>
+    /// テクスチャのリソース。
+    /// </summary>
+    Microsoft::WRL::ComPtr<ID3D12Resource> resource;
+
+    /// <summary>
+    /// シェーダーリソースビュー（SRV）のインデックス。
+    /// </summary>
+    uint32_t srvIndex;
+
+    /// <summary>
+    /// テクスチャのCPUディスクリプタハンドル。
+    /// </summary>
+    D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU;
+
+    /// <summary>
+    /// テクスチャのGPUディスクリプタハンドル。
+    /// </summary>
+    D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU;
 };
+
 /*----------------------------------------------------------
    このクラスはシングルトンパターンを元に設計する
---------------------------------------------------------------*/
+----------------------------------------------------------*/
+
+/// <summary>
+/// テクスチャの読み込みや管理を行うクラス。
+/// </summary>
 class TextureManager
 {
 public:
-	void Init();
+    /// <summary>
+    /// テクスチャマネージャーを初期化する関数。
+    /// </summary>
+    void Init();
+
 private:
-	TextureManager() = default;
-	~TextureManager() = default;
-	const TextureManager& operator=(const TextureManager&) = delete;
+    /// <summary>
+    /// コンストラクタ（プライベート）。
+    /// </summary>
+    TextureManager() = default;
+
+    /// <summary>
+    /// デストラクタ。
+    /// </summary>
+    ~TextureManager() = default;
+
+    /// <summary>
+    /// コピー代入演算子を削除（コピー不可）。
+    /// </summary>
+    const TextureManager& operator=(const TextureManager&) = delete;
+
 public:
-	static TextureManager* GetInstance();
-	static int PlusIndex();
-	// 格納しその保管番号を返す
-	static int StoreTexture(const std::string& filePath);
-	void Release();
+    /// <summary>
+    /// シングルトンインスタンスを取得する関数。
+    /// </summary>
+    /// <returns>TextureManagerのインスタンス。</returns>
+    static TextureManager* GetInstance();
 
-	// メタデータを取得
-	const DirectX::TexMetadata& GetMetaData(const std::string& filePath);
-	static DirectX::ScratchImage LoadTexture(const std::string& filePath);
+    /// <summary>
+    /// パーティクル用のインデックスを増加させる関数。
+    /// </summary>
+    /// <returns>更新後のインデックス。</returns>
+    static int PlusIndex();
 
-	// DirectX12のTextureResourceを作る
-	static Microsoft::WRL::ComPtr <ID3D12Resource> CreateTextureResource(Microsoft::WRL::ComPtr <ID3D12Device> device, const DirectX::TexMetadata& matdata);
+    /// <summary>
+    /// テクスチャを読み込み、SRVを作成する関数。
+    /// </summary>
+    /// <param name="filePath">テクスチャファイルのパス。</param>
+    /// <returns>SRVのインデックス。</returns>
+    static int StoreTexture(const std::string& filePath);
 
-	static Microsoft::WRL::ComPtr <ID3D12Resource> UploadTextureData(Microsoft::WRL::ComPtr <ID3D12Resource>, const DirectX::ScratchImage& mipImages);
+    /// <summary>
+    /// テクスチャマネージャーのリソースを解放する関数。
+    /// </summary>
+    void Release();
 
+    /// <summary>
+    /// テクスチャのメタデータを取得する関数。
+    /// </summary>
+    /// <param name="filePath">テクスチャファイルのパス。</param>
+    /// <returns>テクスチャのメタデータ。</returns>
+    const DirectX::TexMetadata& GetMetaData(const std::string& filePath);
 
+    /// <summary>
+    /// テクスチャファイルを読み込み、ミップマップを作成する関数。
+    /// </summary>
+    /// <param name="filePath">テクスチャファイルのパス。</param>
+    /// <returns>読み込んだテクスチャのScratchImageオブジェクト。</returns>
+    static DirectX::ScratchImage LoadTexture(const std::string& filePath);
 
-	uint32_t GetIndex() { return  kParIndez; }
+    /// <summary>
+    /// DirectX12のテクスチャリソースを作成する関数。
+    /// </summary>
+    /// <param name="device">D3D12デバイス。</param>
+    /// <param name="metadata">テクスチャのメタデータ。</param>
+    /// <returns>作成されたテクスチャリソース。</returns>
+    static Microsoft::WRL::ComPtr<ID3D12Resource> CreateTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> device, const DirectX::TexMetadata& matdata);
+
+    /// <summary>
+    /// テクスチャデータをGPUにアップロードする関数。
+    /// </summary>
+    /// <param name="texture">アップロード先のテクスチャリソース。</param>
+    /// <param name="mipImages">ミップマップ付きのテクスチャデータ。</param>
+    /// <returns>中間リソース（アップロード用バッファ）。</returns>
+    static Microsoft::WRL::ComPtr<ID3D12Resource> UploadTextureData(Microsoft::WRL::ComPtr<ID3D12Resource>, const DirectX::ScratchImage& mipImages);
+
+    /// <summary>
+    /// パーティクル用のインデックスを取得する関数。
+    /// </summary>
+    /// <returns>現在のパーティクル用インデックス。</returns>
+    uint32_t GetIndex() { return kParIndez; }
+
 private:
-	// デスクリプタ―の数
-	static const size_t kNumDescriptors = 256;
+    /// <summary>
+    /// ディスクリプタの最大数。
+    /// </summary>
+    static const size_t kNumDescriptors = 256;
 
-	// エラー検知用変数
-	HRESULT hr_;
+    /// <summary>
+    /// エラー検知用のHRESULT変数。
+    /// </summary>
+    HRESULT hr_;
 
-	// 現在空白のHeap位置を表す
-	static int kSRVIndexTop;
-	static int kParIndez;
+    /// <summary>
+    /// 現在空白のディスクリプタヒープ位置を表すインデックス。
+    /// </summary>
+    static int kSRVIndexTop;
 
-	// テクスチャデータ
-	static std::unordered_map<std::string, TextureData> textureDatas_;
-	static Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource_[kNumDescriptors];
+    /// <summary>
+    /// パーティクル用のインデックス。
+    /// </summary>
+    static int kParIndez;
+
+    /// <summary>
+    /// テクスチャデータのマップ。キーはファイルパス。
+    /// </summary>
+    static std::unordered_map<std::string, TextureData> textureDatas_;
+
+    /// <summary>
+    /// 中間リソースの配列（テクスチャデータ転送用）。
+    /// </summary>
+    static Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource_[kNumDescriptors];
 };
-

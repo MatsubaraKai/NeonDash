@@ -157,7 +157,7 @@ void Skybox::Init(const Material& material)
 void Skybox::Draw(uint32_t texture, const Material& material, const DirectionalLight& dire)
 {
 
-	PSOSkybox* pso_ = PSOSkybox::GatInstance();
+	PSOSkybox* pso_ = PSOSkybox::GetInstance();
 
 
 	TextureManager* textureManager_ = TextureManager::GetInstance();
