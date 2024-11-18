@@ -64,6 +64,7 @@ private:
 	//変数
 	uint32_t FADEtextureHandle;
 	uint32_t FADE2textureHandle;
+	uint32_t FADE3textureHandle;
 	uint32_t WHITEtextureHandle;
 	uint32_t BLUEtextureHandle;
 	uint32_t MENUMEDItextureHandle;

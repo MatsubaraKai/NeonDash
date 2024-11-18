@@ -23,6 +23,7 @@ void STAGE2::Init()
 	TENQtextureHandle = TextureManager::StoreTexture("Resources/game/world2.png");
 	FADEtextureHandle = TextureManager::StoreTexture("Resources/black.png");
 	FADE2textureHandle = TextureManager::StoreTexture("Resources/black2.png");
+	FADE3textureHandle = TextureManager::StoreTexture("Resources/black3.png");
 	GRIDtextureHandle = TextureManager::StoreTexture("Resources/cian.png");
 	STARtextureHandle = TextureManager::StoreTexture("Resources/game/star.png");
 	AudioStarGetSEhandle_ = Audio::SoundLoadWave("Resources/game/Audio/GetSE.wav");
@@ -401,7 +402,12 @@ void STAGE2::Update()
 		camera->Move(menucount);
 	}
 	if (!isFadeInStarted && isClear == true) {
-		fade->SetTexture(FADEtextureHandle);
+		if (collider->CheckCollision(camera->transform_.translate, worldTransformPa.translation_, 2.5f, 4.0f, 2.5f, 2.0f) && starCount == 0) {
+			fade->SetTexture(FADE3textureHandle);
+		}
+		else {
+			fade->SetTexture(FADEtextureHandle);
+		}
 		fade->StartFadeIn();    // FadeInを開始
 		isFadeInStarted = true; // フラグを立てて一度だけ実行されるようにする
 	}
