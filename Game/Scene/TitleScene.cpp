@@ -18,6 +18,9 @@ void TitleScene::Init()
 	camera->Initialize();
 	input = Input::GetInstance();
 	WHITEtextureHandle = TextureManager::StoreTexture("Resources/white.png");
+	PARTICLERED = TextureManager::StoreTexture("Resources/particlered.png");
+	PARTICLESTAR = TextureManager::StoreTexture("Resources/particlestar.png");
+	PARTICLEBLUE = TextureManager::StoreTexture("Resources/particleblue.png");
 	BLUEtextureHandle = TextureManager::StoreTexture("Resources/blue.png");
 	FADEtextureHandle = TextureManager::StoreTexture("Resources/black.png");
 	MENUMEDItextureHandle = TextureManager::StoreTexture("Resources/game/menumedi.png");
@@ -54,7 +57,7 @@ void TitleScene::Init()
 		Loder::LoadJsonFileNumber("Resources", "TitleNumber", TitleNumberObject_);
 		Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), AudioBGMhandle_, true, 0.05f);
 		TitleRoop = true;
-	}	
+	}
 	for (size_t i = 0; i < ConeObject_.size() - 1; i++) {
 		previousPos[i] = ConeObject_[i]->worldTransform_.translation_;
 	}
@@ -92,22 +95,35 @@ void TitleScene::Init()
 	TenQOBJ->SetModel("world.obj");
 	PositionOBJ->SetModel("position.obj");
 
+	particleSystem_ = new Particle();
 	particle = new Particle();
 	particle1 = new Particle();
 	particle2 = new Particle();
 	particle3 = new Particle();
+
+	isClear = false;
+	isMenu = false;
+
+	emitter_.transform.scale = { 0.2f,0.2f,0.2f }; // スケール
+	emitter_.transform.translate = { 0.0f, -1.0f, 0.0f }; // 初期位置
+	emitter_.frequency = 0.2f; // 生成頻度
+	emitter_.count = 8; // 一度に生成するパーティクル数
+
+	randRange_.rangeX = { -50.0f, 50.0f };
+	randRange_.rangeY = { 0.5f, 2.0f };
+	randRange_.rangeZ = { -65.0f, 38.0f };
+
 	demoRandPro = {
 		{1.0f,4.0f},
 		{1.0f,4.0f},
 		{1.0f,4.0f}
 	};
-	isClear = false;
-	isMenu = false;
 
 	ParticleEmitter_.count = 6;
 	ParticleEmitter_.frequency = 0.02f;
 	ParticleEmitter_.frequencyTime = 0.0f;
 	ParticleEmitter_.transform.scale = { 0.5f,0.5f,0.5f };
+	particleSystem_->Initialize(emitter_);
 	particle->Initialize(ParticleEmitter_);
 	particle1->Initialize(ParticleEmitter_);
 	particle2->Initialize(ParticleEmitter_);
@@ -170,12 +186,14 @@ void TitleScene::Update()
 	}
 	if (sceneTime == 180) {
 		effect = true;
-	}else {
+	}
+	else {
 		effect = false;
 	}
 	if (sceneTime == 360) {
 		effect2 = true;
-	}else {
+	}
+	else {
 		effect2 = false;
 	}
 	if (effect == true) {
@@ -204,7 +222,7 @@ void TitleScene::Update()
 	}
 
 	TenQOBJ->worldTransform_.rotation_.y += 0.0005f;
-	
+
 	//各ステージのクリアタイムのNumModelをSet
 	for (int i = 0; i < 4; ++i) {
 		std::string modelFileName = std::to_string(DemoTime[i]) + ".obj";
@@ -311,55 +329,55 @@ void TitleScene::Update()
 	}
 	for (size_t i = 0; i < ConeObject_.size() - 1; i++) {
 		float previousFloorHeight = playerPos.y; // 初期化しておく
-			// オブジェクトの座標とサイズを取得
-			Vector3 floorPos = ConeObject_[i]->worldTransform_.translation_;
-			Vector3 floorSize = ConeObject_[i]->worldTransform_.scale_;
-			std::string label = "JSONmodel" + std::to_string(i);
+		// オブジェクトの座標とサイズを取得
+		Vector3 floorPos = ConeObject_[i]->worldTransform_.translation_;
+		Vector3 floorSize = ConeObject_[i]->worldTransform_.scale_;
+		std::string label = "JSONmodel" + std::to_string(i);
 #ifdef _DEBUG
-			
-			ImGui::Begin("OnFloorDebug");
-			ImGui::Text(label.c_str());
-			ImGui::Text("floor : %f %f %f", floorPos.x, floorPos.y, floorPos.z);
-			ImGui::Text("size : %f %f %f", floorSize.x, floorSize.y, floorSize.z);
-			ImGui::Text("isOnx : %f %f", playerPos.x, floorPos.x - floorSize.x);
-			ImGui::Text("isOnx : %f %f", playerPos.x, floorPos.x + floorSize.x);
-			ImGui::Text("isOnz : %f %f", playerPos.z, floorPos.z - floorSize.z);
-			ImGui::Text("isOnz : %f %f", playerPos.z, floorPos.z + floorSize.z);
-			ImGui::Text("isOny : %f %f", playerPos.y, abs(floorPos.y + floorSize.y + 3.0f));
-			ImGui::Text("isOnyy : %f", abs(playerPos.y - (floorPos.y + floorSize.y + 3.0f)));
-			ImGui::End();
+
+		ImGui::Begin("OnFloorDebug");
+		ImGui::Text(label.c_str());
+		ImGui::Text("floor : %f %f %f", floorPos.x, floorPos.y, floorPos.z);
+		ImGui::Text("size : %f %f %f", floorSize.x, floorSize.y, floorSize.z);
+		ImGui::Text("isOnx : %f %f", playerPos.x, floorPos.x - floorSize.x);
+		ImGui::Text("isOnx : %f %f", playerPos.x, floorPos.x + floorSize.x);
+		ImGui::Text("isOnz : %f %f", playerPos.z, floorPos.z - floorSize.z);
+		ImGui::Text("isOnz : %f %f", playerPos.z, floorPos.z + floorSize.z);
+		ImGui::Text("isOny : %f %f", playerPos.y, abs(floorPos.y + floorSize.y + 3.0f));
+		ImGui::Text("isOnyy : %f", abs(playerPos.y - (floorPos.y + floorSize.y + 3.0f)));
+		ImGui::End();
 #endif
-			// プレイヤーがオブジェクトの上にいるか判定
-			if (playerPos.x >= floorPos.x - floorSize.x &&
-				playerPos.x <= floorPos.x + floorSize.x &&
-				playerPos.z >= floorPos.z - floorSize.z &&
-				playerPos.z <= floorPos.z + floorSize.z &&
-				playerPos.y >= floorPos.y + floorSize.y - 1.0f &&
-				playerPos.y <= floorPos.y + floorSize.y + 3.0f) {
-				
-				// 床の上昇分を計算
-				float floorHeightChange = floorPos.y + floorSize.y - previousFloorHeight;
-				camera->transform_.translate.y = playerPos.y += floorHeightChange + 3.0f;  // プレイヤーの高さを更新
-				previousFloorHeight = floorPos.y + floorSize.y; // 次フレームのために保存
+		// プレイヤーがオブジェクトの上にいるか判定
+		if (playerPos.x >= floorPos.x - floorSize.x &&
+			playerPos.x <= floorPos.x + floorSize.x &&
+			playerPos.z >= floorPos.z - floorSize.z &&
+			playerPos.z <= floorPos.z + floorSize.z &&
+			playerPos.y >= floorPos.y + floorSize.y - 1.0f &&
+			playerPos.y <= floorPos.y + floorSize.y + 3.0f) {
 
-				// x軸、z軸の移動分を計算してプレイヤーに反映
-				Vector3 floorMovement;
-				floorMovement.x = floorPos.x - previousPos[i].x;
-				floorMovement.z = floorPos.z - previousPos[i].z;
+			// 床の上昇分を計算
+			float floorHeightChange = floorPos.y + floorSize.y - previousFloorHeight;
+			camera->transform_.translate.y = playerPos.y += floorHeightChange + 3.0f;  // プレイヤーの高さを更新
+			previousFloorHeight = floorPos.y + floorSize.y; // 次フレームのために保存
 
-				camera->transform_.translate.x += floorMovement.x;
-				camera->transform_.translate.z += floorMovement.z;
+			// x軸、z軸の移動分を計算してプレイヤーに反映
+			Vector3 floorMovement;
+			floorMovement.x = floorPos.x - previousPos[i].x;
+			floorMovement.z = floorPos.z - previousPos[i].z;
 
-				// 現在のオブジェクト位置を次のフレームで使用するため保存
-				previousPos[i] = floorPos;
+			camera->transform_.translate.x += floorMovement.x;
+			camera->transform_.translate.z += floorMovement.z;
 
-				isOnFloor = true;
-				break;  // どれかのオブジェクト上にいる場合は判定を終了
-			}
-			else {
-				isOnFloor = false;
-				previousPos[i] = floorPos;
-			}
+			// 現在のオブジェクト位置を次のフレームで使用するため保存
+			previousPos[i] = floorPos;
+
+			isOnFloor = true;
+			break;  // どれかのオブジェクト上にいる場合は判定を終了
+		}
+		else {
+			isOnFloor = false;
+			previousPos[i] = floorPos;
+		}
 	}
 
 	for (std::vector<Object3d*>::iterator itr = ConeObject_.begin(); itr != ConeObject_.end(); itr++) {
@@ -389,7 +407,8 @@ void TitleScene::Update()
 		playerPos.z <= 20.0f && DemoRoop == false
 		) {
 		TitleTextObject_[6]->worldTransform_.translation_.y = Lerp(TitleTextObject_[6]->worldTransform_.translation_.y, 1.3f, 0.1f);
-	}else {
+	}
+	else {
 		TitleTextObject_[6]->worldTransform_.translation_.y = Lerp(TitleTextObject_[6]->worldTransform_.translation_.y, 0.0f, 0.1f);
 	}
 	if (DemoRoop == false) {
@@ -454,7 +473,7 @@ void TitleScene::Update()
 	ImGui::Text("Time : %d", timer.elapsedTensOfSeconds());//十秒単位
 	ImGui::Text("Time : %d", timer.elapsedMinutesOnly());//一分単位
 	ImGui::Text("Time : %d", timer.elapsedTensOfMinutes());//十分単位
-	ImGui::Text("Time : %d%d:%d%d", DemoTime[0],DemoTime[1],DemoTime[2],DemoTime[3]);
+	ImGui::Text("Time : %d%d:%d%d", DemoTime[0], DemoTime[1], DemoTime[2], DemoTime[3]);
 
 	if (ImGui::Button("start")) {
 		timer.start();
@@ -515,10 +534,11 @@ void TitleScene::Draw()
 	if (menuposition == true) {
 		PositionOBJ->Draw(POSITIONtextureHandle, camera);
 	}
-	particle->Draw(ParticleEmitter_, { worldTransformPa.translation_.x,worldTransformPa.translation_.y,worldTransformPa.translation_.z }, WHITEtextureHandle, camera, demoRandPro, false);
-	particle1->Draw(ParticleEmitter_, { worldTransformPa1.translation_.x,worldTransformPa1.translation_.y,worldTransformPa1.translation_.z }, WHITEtextureHandle, camera, demoRandPro, false);
-	particle2->Draw(ParticleEmitter_, { worldTransformPa2.translation_.x,worldTransformPa2.translation_.y,worldTransformPa2.translation_.z }, WHITEtextureHandle, camera, demoRandPro, false);
-	particle3->Draw(ParticleEmitter_, { worldTransformPa3.translation_.x,worldTransformPa3.translation_.y,worldTransformPa3.translation_.z }, WHITEtextureHandle, camera, demoRandPro, false);
+	particleSystem_->Draw(emitter_, emitter_.transform.translate, PARTICLEBLUE, camera, randRange_, false, 0.5f, 0.8f);
+	particle->Draw(ParticleEmitter_, { worldTransformPa.translation_.x,worldTransformPa.translation_.y,worldTransformPa.translation_.z }, WHITEtextureHandle, camera, demoRandPro, false, 0.2f, 0.4f);
+	particle1->Draw(ParticleEmitter_, { worldTransformPa1.translation_.x,worldTransformPa1.translation_.y,worldTransformPa1.translation_.z }, WHITEtextureHandle, camera, demoRandPro, false, 0.2f, 0.4f);
+	particle2->Draw(ParticleEmitter_, { worldTransformPa2.translation_.x,worldTransformPa2.translation_.y,worldTransformPa2.translation_.z }, WHITEtextureHandle, camera, demoRandPro, false, 0.2f, 0.4f);
+	particle3->Draw(ParticleEmitter_, { worldTransformPa3.translation_.x,worldTransformPa3.translation_.y,worldTransformPa3.translation_.z }, WHITEtextureHandle, camera, demoRandPro, false, 0.2f, 0.4f);
 	if (isMenu) {
 		menu->Draw();
 	}

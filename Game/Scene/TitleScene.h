@@ -14,6 +14,7 @@
 #include "Timer.h"
 #include "Collider.h"
 #include "Menu.h"
+#include "random"
 
 class TitleScene : public IScene
 {
@@ -54,12 +55,15 @@ private:
 	std::vector<Object3d*> TitleObject_;
 	std::vector<Object3d*> TitleTextObject_;
 	std::vector<Object3d*> TitleNumberObject_;
-
 	Particle* particle = nullptr;
 	Particle* particle1 = nullptr;
 	Particle* particle2 = nullptr;
 	Particle* particle3 = nullptr;
-
+	Particle* particleSystem_;
+	std::mt19937 randomEngine_;
+	RandRangePro randRange_; //!< ランダム範囲設定
+	Emitter emitter_;
+	
 	PostProcess* postProcess_ = nullptr;
 	//変数
 	uint32_t FADEtextureHandle;
@@ -67,6 +71,11 @@ private:
 	uint32_t MENUHIGHtextureHandle;
 	uint32_t MENULOWtextureHandle;
 	uint32_t WHITEtextureHandle;
+	uint32_t PARTICLERED;
+	uint32_t PARTICLESTAR;
+	uint32_t PARTICLEBLUE;
+	uint32_t PARTICLE3;
+	uint32_t PARTICLE4;
 	uint32_t BLUEtextureHandle;
 	uint32_t CONEtextureHandle;
 	uint32_t GRIDtextureHandle;

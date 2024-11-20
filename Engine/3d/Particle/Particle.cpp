@@ -115,110 +115,148 @@ void Particle::Initialize(Emitter emitter) {
 //
 //};
 
-void Particle::Draw(Emitter emitter, const Vector3& worldTransformPa, uint32_t texture, Camera* camera, const RandRangePro& randRange, bool scaleAddFlag) {
+void Particle::Draw(Emitter emitter, const Vector3& worldTransformPa, uint32_t texture, Camera* camera,
+	const RandRangePro& randRange, bool scaleAddFlag, float minLifetime, float maxLifetime) {
 	pso_ = PSOParticle::GetInstance();
 
 	emitter_.count = emitter.count;
-	emitter_.transform = { emitter.transform.scale,{0.0f,0.0f,0.0f},worldTransformPa };
+	emitter_.transform = { emitter.transform.scale, {0.0f, 0.0f, 0.0f}, worldTransformPa };
 	randRange_ = randRange;
 
-	randRange_ =
-	{
-	{0.3f,0.7f},
-	{0.2f,0.5f},
-	{-0.5f,0.3f}
-	};
-	//materialData->color = {1.0f,1.0f,1.0f,1.0f};
-	Matrix4x4 backToFrontMatrix = MakeRotateYMatrix(std::numbers::pi_v<float>);
-	Matrix4x4 billboardMatrix = Multiply(backToFrontMatrix, camera->GetCameraMatrix());
-	billboardMatrix.m[3][0] = 0.0f;
-	billboardMatrix.m[3][1] = 0.0f;
-	billboardMatrix.m[3][2] = 0.0f;
 	std::random_device seedGenerator;
 	std::mt19937 randomEngine(seedGenerator());
+	std::uniform_real_distribution<float> lifetimeDistribution(minLifetime, maxLifetime);
 
-
-	emitter_.frequencyTime += kDeltaTime;// 時刻を進める
-	if (emitter_.frequency <= emitter_.frequencyTime) {// 頻度より大きいなら発生
-		particles_.splice(particles_.end(), particle->Emission(emitter_, randomEngine, worldTransformPa, randRange));
-		emitter_.frequencyTime -= emitter_.frequency;// 余計に過ぎた時間も加味して頻度計算する
-
+	emitter_.frequencyTime += kDeltaTime;  // 時刻を進める
+	if (emitter_.frequency <= emitter_.frequencyTime) {
+		// 寿命範囲に基づいてパーティクルを生成
+		for (uint32_t count = 0; count < emitter_.count; ++count) {
+			ParticlePro newParticle = MakeNewParticle(randomEngine, emitter_.transform.scale, worldTransformPa, randRange_);
+			newParticle.lifeTime = lifetimeDistribution(randomEngine);  // 寿命をランダム設定
+			particles_.push_back(newParticle);
+		}
+		emitter_.frequencyTime -= emitter_.frequency;  // 頻度計算の余剰を引く
 	}
 
-	uint32_t numInstance = 0;// 描画すべきインスタンス数
-	// Sprite用のWorldViewProjectMatrixを作る
-	for (std::list<ParticlePro>::iterator particleIterator = particles_.begin(); particleIterator != particles_.end();) {
-		if ((*particleIterator).lifeTime <= (*particleIterator).currentTime) {
-			particleIterator = particles_.erase(particleIterator);
+	uint32_t numInstance = 0;  // 描画すべきインスタンス数
+
+	for (auto particleIterator = particles_.begin(); particleIterator != particles_.end();) {
+		if (particleIterator->lifeTime <= particleIterator->currentTime) {
+			particleIterator = particles_.erase(particleIterator);  // 寿命を超えたパーティクルを削除
 			continue;
 		}
 
-		(*particleIterator).transform.translate.x += (*particleIterator).velocity.x * kDeltaTime;
-		(*particleIterator).transform.translate.y += (*particleIterator).velocity.y * kDeltaTime;
-		(*particleIterator).transform.translate.z += (*particleIterator).velocity.z * kDeltaTime;
+		// パーティクルの動き更新
+		particleIterator->transform.translate.x += particleIterator->velocity.x * kDeltaTime;
+		particleIterator->transform.translate.y += particleIterator->velocity.y * kDeltaTime;
+		particleIterator->transform.translate.z += particleIterator->velocity.z * kDeltaTime;
+
 		if (scaleAddFlag) {
-			(*particleIterator).transform.scale = Add((*particleIterator).transform.scale, { 0.1f ,0.1f,0.1f });
+			particleIterator->transform.scale = Add(particleIterator->transform.scale, { 0.1f, 0.1f, 0.1f });
 		}
-		(*particleIterator).currentTime += kDeltaTime;
-		// (*particleIterator).color = { 1.0f,1.0f,1.0f,1.0f };
-		float alpha = 0.5f - ((*particleIterator).currentTime / (*particleIterator).lifeTime);
-		//transforms_[index].rotate.x += 0.1f;
-		Matrix4x4 worldMatrix = Multiply(MakeScaleMatrix((*particleIterator).transform.scale), Multiply(billboardMatrix, MakeTranslateMatrix((*particleIterator).transform.translate)));
-		//Matrix4x4 worldViewProjectionMatrixSprite = Multiply(worldMatrixSprite, Multiply(viewMatrixSprite, projectionMatrixSprite));
+		particleIterator->currentTime += kDeltaTime;
+
+		// アルファ値を寿命に基づいて計算
+		float alpha = 1.0f - (particleIterator->currentTime / particleIterator->lifeTime);
+
+		// ビルボード行列の計算（カメラの方向を向く）
+		Matrix4x4 billboardMatrix = MakeIdentity4x4();
+		billboardMatrix.m[0][0] = camera->GetViewMatrix().m[0][0];
+		billboardMatrix.m[0][1] = camera->GetViewMatrix().m[1][0];
+		billboardMatrix.m[0][2] = camera->GetViewMatrix().m[2][0];
+		billboardMatrix.m[1][0] = camera->GetViewMatrix().m[0][1];
+		billboardMatrix.m[1][1] = camera->GetViewMatrix().m[1][1];
+		billboardMatrix.m[1][2] = camera->GetViewMatrix().m[2][1];
+		billboardMatrix.m[2][0] = camera->GetViewMatrix().m[0][2];
+		billboardMatrix.m[2][1] = camera->GetViewMatrix().m[1][2];
+		billboardMatrix.m[2][2] = camera->GetViewMatrix().m[2][2];
+
+		// ワールド行列の計算
+		Matrix4x4 worldMatrix = Multiply(
+			MakeScaleMatrix(particleIterator->transform.scale),
+			Multiply(billboardMatrix, MakeTranslateMatrix(particleIterator->transform.translate))
+		);
+
+		// ワールド・ビュー・プロジェクション行列の計算
 		Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(camera->GetViewMatrix(), camera->GetProjectionMatrix()));
+
 		if (numInstance < kNumMaxInstance) {
 			instancingData[numInstance].WVP = worldViewProjectionMatrix;
 			instancingData[numInstance].World = worldMatrix;
-			instancingData[numInstance].color = (*particleIterator).color;
+			instancingData[numInstance].color = particleIterator->color;
 			instancingData[numInstance].color.w = alpha;
 		}
-		++numInstance; // 生きているparticluの数を1使うんとする
+
+		++numInstance;
 		++particleIterator;
-		
 	}
+
 	textureManager_ = TextureManager::GetInstance();
+
 	sDirectXCommon->GetCommandList()->SetGraphicsRootSignature(pso_->GetProperty().rootSignature.Get());
-	sDirectXCommon->GetCommandList()->SetPipelineState(pso_->GetProperty().graphicsPipelineState.Get());    //PSOを設定
-	sDirectXCommon->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferViewSprite_); // VBVを設定
+	sDirectXCommon->GetCommandList()->SetPipelineState(pso_->GetProperty().graphicsPipelineState.Get());
+	sDirectXCommon->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferViewSprite_);
 	sDirectXCommon->GetCommandList()->IASetIndexBuffer(&indexBufferViewSprite);
-	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけば良い
 	sDirectXCommon->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	// マテリアルCBufferの場所を設定
+
 	sDirectXCommon->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
-	// TransformationmatrixCBufferの場所を設定
 	sDirectXCommon->GetCommandList()->SetGraphicsRootDescriptorTable(1, instancingSrvHandleGPU);
-	// SRV のDescriptorTableの先頭を設定。2はrootParameter[2]である。
 	sDirectXCommon->GetCommandList()->SetGraphicsRootDescriptorTable(2, SRVManager::GetInstance()->GetGPUDescriptorHandle(texture));
 	sDirectXCommon->GetCommandList()->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
-	// 描画（DrawCall/ドローコール）
-	//sDirectXCommon->GetCommandList()->DrawInstanced(6, 1, 0, 0);
+
 	sDirectXCommon->GetCommandList()->DrawIndexedInstanced(6, numInstance, 0, 0, 0);
 }
-
-
 
 
 Particle::ParticlePro Particle::MakeNewParticle(std::mt19937& randomEngine, const Vector3& scale, const Vector3& translate, const RandRangePro& randRange)
 {
 	RandRangePro ran = randRange;
-	std::uniform_real_distribution<float> distribution(-0.8f, 0.8f);
-	std::uniform_real_distribution<float> distriposX(ran.rangeX.x, ran.rangeX.y);//distriposX(-0.7f, -0.3
-	std::uniform_real_distribution<float> distriposY(ran.rangeY.x, ran.rangeY.y);//  distriposY(0.2f, 0.5f)
-	std::uniform_real_distribution<float> distriposZ(ran.rangeZ.x, ran.rangeZ.y);// distriposZ(-0.5f, 0.3f
-	//std::uniform_real_distribution<float> distColor(0.0f, 1.0f);
-	std::uniform_real_distribution<float> distTime(0.0f, 1.5f);
 
+	// ランダム分布を設定
+	std::uniform_real_distribution<float> velocityDistribution(-2.0f, 2.0f); // 初速をより広い範囲で設定
+	std::uniform_real_distribution<float> distriposX(ran.rangeX.x, ran.rangeX.y);
+	std::uniform_real_distribution<float> distriposY(ran.rangeY.x, ran.rangeY.y);
+	std::uniform_real_distribution<float> distriposZ(ran.rangeZ.x, ran.rangeZ.y);
+	std::uniform_real_distribution<float> distTime(0.3f, 1.0f); // 寿命を延ばして長く動かす
+	std::uniform_real_distribution<float> accelerationDistribution(-0.1f, 0.1f); // 加速度をランダム化
+	std::uniform_real_distribution<float> rotationDistribution(0.0f, 360.0f); // 回転角度
+
+	// パーティクルプロパティを設定
 	Particle::ParticlePro particle;
 	particle.transform.scale = scale;
-	particle.transform.rotate = { 0.0f,0.0f,0.0f };
 
-	// 位置と速度を[-1,1]でランダムに初期化
+	// 初期回転をランダム化
+	particle.transform.rotate = {
+		rotationDistribution(randomEngine),
+		rotationDistribution(randomEngine),
+		rotationDistribution(randomEngine)
+	};
+
+	// ランダム位置を設定
 	Vector3 randomTranslate = { distriposX(randomEngine), distriposY(randomEngine), distriposZ(randomEngine) };
 	particle.transform.translate = Add(translate, randomTranslate);
-	particle.velocity = { distribution(randomEngine),distribution(randomEngine),distribution(randomEngine) };
-	particle.color = { 1.0f,1.0f ,1.0f,0.7f };
+
+	// 初速度を設定（方向性を持たせる）
+	particle.velocity = {
+		velocityDistribution(randomEngine), // X方向の速度
+		velocityDistribution(randomEngine) + 6.0f, // Y方向に上昇する力を追加
+		velocityDistribution(randomEngine) // Z方向の速度
+	};
+
+	// 加速度をランダム化（動きを曲線的にする）
+	Vector3 acceleration = {
+		accelerationDistribution(randomEngine),
+		accelerationDistribution(randomEngine),
+		accelerationDistribution(randomEngine)
+	};
+	particle.color = { 1.0f, 1.0f, 1.0f, 1.0f }; // アルファ値を1.0（完全不透明）に変更
+	// 寿命を設定
 	particle.lifeTime = distTime(randomEngine);
 	particle.currentTime = 0;
+
+	// 動きに加速度を加味
+	particle.velocity = Add(particle.velocity, acceleration);
+
 	return particle;
 }
 
@@ -246,7 +284,7 @@ D3D12_VERTEX_BUFFER_VIEW Particle::CreateBufferView() {
 	return view;
 };
 
-void Particle::Particledebug(const char* name,WorldTransform &worldtransform)
+void Particle::Particledebug(const char* name, WorldTransform& worldtransform)
 {
 	//#ifdef _DEBUG
 	ImGui::PushStyleColor(ImGuiCol_TitleBgActive, ImVec4(0.0f, 0.7f, 0.2f, 0.8f));

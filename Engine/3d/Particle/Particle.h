@@ -92,7 +92,8 @@ public:
     /// <param name="camera">カメラオブジェクトへのポインタ</param>
     /// <param name="randRange">ランダム範囲プロパティ</param>
     /// <param name="scaleAddFlag">スケールを加算するかのフラグ</param>
-    void Draw(Emitter emitter, const Vector3& worldTransformPa, uint32_t texture, Camera* camera, const RandRangePro& randRange, bool scaleAddFlag);
+    void Draw(Emitter emitter, const Vector3& worldTransformPa, uint32_t texture, Camera* camera,
+        const RandRangePro& randRange, bool scaleAddFlag, float minLifetime, float maxLifetime);
 
     /// <summary>
     /// リソースの解放を行う
@@ -139,6 +140,9 @@ public:
     /// <param name="name">デバッグ名</param>
     /// <param name="worldtransform">ワールド変換情報</param>
     void Particledebug(const char* name, WorldTransform& worldtransform);
+    // Δtを定義。とりあえず60fps固定してあるが、実時間を計測して可変fpsで動かせるようにしておくとなお良い
+    const float kDeltaTime = 1.0f / 120.0f;
+    std::list<ParticlePro> particles_;
 
 private:
     const static uint32_t kNumMaxInstance = 10000; // インスタンス数
@@ -179,7 +183,6 @@ private:
     // 頂点リソースにデータを書き込む
     Material* materialData;
 
-    std::list<ParticlePro> particles_;
     std::list<Transform> transforms_;
     ParticleForGPU* instancingData = nullptr;
 
@@ -192,8 +195,7 @@ private:
 
     uint32_t SRVIndex_;
 
-    // Δtを定義。とりあえず60fps固定してあるが、実時間を計測して可変fpsで動かせるようにしておくとなお良い
-    const float kDeltaTime = 1.0f / 120.0f;
+   
 
     Emitter emitter_{};
     RandRangePro randRange_;
