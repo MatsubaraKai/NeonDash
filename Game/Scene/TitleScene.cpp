@@ -137,6 +137,8 @@ int TitleScene::GameClose()
 	return false;
 }
 
+///Refactoring///
+
 ///Init///
 // テクスチャのロード
 void TitleScene::LoadTextures()
