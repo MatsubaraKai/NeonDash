@@ -92,7 +92,7 @@ void TitleScene::Init()
 
 	TenQOBJ->SetModel("world.obj");
 	PositionOBJ->SetModel("position.obj");
-
+	fireworkParticle_ = new FireworkParticle();
 	particle = new Particle();
 	particle1 = new Particle();
 	particle2 = new Particle();
