@@ -81,6 +81,9 @@ void TitleScene::Update() {
 	// プレイヤーと床の衝突処理
 	UpdatePlayerFloorCollision(playerPos);
 
+	// 床の動きとプレイヤーの位置を同期
+	UpdateFloorInteraction();
+
 	// 文字床アニメーション
 	UpdateLerpAnimations(playerPos);
 
@@ -96,36 +99,24 @@ void TitleScene::Update() {
 #endif
 }
 
-
 void TitleScene::Draw()
 {
-	for (std::vector<Object3d*>::iterator itr = ConeObject_.begin(); itr != ConeObject_.end(); itr++) {
-		if ((*itr)->isVisible) {
-			(*itr)->Draw(CONEtextureHandle, camera);
-		}
-	}
-	for (std::vector<Object3d*>::iterator itr = TitleTextObject_.begin(); itr != TitleTextObject_.end(); itr++) {
-		(*itr)->Draw(GRIDtextureHandle, camera);
-		TitleTextObject_[0]->Draw(BLUEtextureHandle, camera);
-		TitleTextObject_[1]->Draw(BLUEtextureHandle, camera);
-	}
-	for (std::vector<Object3d*>::iterator itr = TitleNumberObject_.begin(); itr != TitleNumberObject_.end(); itr++) {
-		(*itr)->Draw(GRIDtextureHandle, camera);
-	}
-	TenQOBJ->Draw(TENQtextureHandle, camera);
-	if (menuposition == true) {
-		PositionOBJ->Draw(POSITIONtextureHandle, camera);
-	}
-	particleSystem_->Draw(emitter_, emitter_.transform.translate, PARTICLEBLUE, camera, randRange_, false, 0.5f, 0.8f);
-	particle->Draw(ParticleEmitter_, { worldTransformPa.translation_.x,worldTransformPa.translation_.y,worldTransformPa.translation_.z }, WHITEtextureHandle, camera, demoRandPro, false, 0.2f, 0.4f);
-	particle1->Draw(ParticleEmitter_, { worldTransformPa1.translation_.x,worldTransformPa1.translation_.y,worldTransformPa1.translation_.z }, WHITEtextureHandle, camera, demoRandPro, false, 0.2f, 0.4f);
-	particle2->Draw(ParticleEmitter_, { worldTransformPa2.translation_.x,worldTransformPa2.translation_.y,worldTransformPa2.translation_.z }, WHITEtextureHandle, camera, demoRandPro, false, 0.2f, 0.4f);
-	particle3->Draw(ParticleEmitter_, { worldTransformPa3.translation_.x,worldTransformPa3.translation_.y,worldTransformPa3.translation_.z }, WHITEtextureHandle, camera, demoRandPro, false, 0.2f, 0.4f);
+	// 各種オブジェクトの描画
+	DrawConeObjects();
+	DrawTitleTextObjects();
+	DrawTitleNumberObjects();
+	DrawSpecialObjects();
+
+	// 特殊効果の描画
+	DrawParticles();
 	if (isMenu) {
 		menu->Draw();
 	}
+
+	// フェード描画
 	fade->Draw();
 }
+
 
 void TitleScene::PostDraw()
 {
@@ -218,7 +209,7 @@ void TitleScene::InitializeData()
 	worldTransformPa3.Initialize();
 	worldTransformPa3.translation_ = { 25.0f, 1.5f, -12.5f };
 
-	camera->transform_.translate = { 0.0f, 15.0f, -15.0f };
+	camera->transform_.translate = { 0.0f, 6.0f, -15.0f };
 	camera->transform_.rotate = { -0.2f, 0.0f, 0.0f };
 
 	isFadeInStarted = false;
@@ -436,6 +427,47 @@ void TitleScene::UpdateLerpAnimations(const Vector3& playerPos) {
 	}
 }
 
+void TitleScene::UpdateFloorInteraction()
+{
+	// プレイヤーの現在位置
+	Vector3 playerPos = camera->transform_.translate;
+
+	// 各床オブジェクトに対してチェック
+	for (size_t i = 0; i < ConeObject_.size(); ++i) {
+		const Vector3& floorPos = ConeObject_[i]->worldTransform_.translation_;
+		const Vector3& floorSize = ConeObject_[i]->worldTransform_.scale_;
+
+		// プレイヤーが床の上にいるかを判定
+		if (playerPos.x >= floorPos.x - floorSize.x &&
+			playerPos.x <= floorPos.x + floorSize.x &&
+			playerPos.z >= floorPos.z - floorSize.z &&
+			playerPos.z <= floorPos.z + floorSize.z &&
+			playerPos.y >= floorPos.y + floorSize.y - 1.0f &&
+			playerPos.y <= floorPos.y + floorSize.y + 3.0f)
+		{
+			// 床の移動量を計算
+			Vector3 floorMovement = floorPos - previousPos[i];
+
+			// プレイヤーに床の移動分を反映
+			camera->transform_.translate.x += floorMovement.x;
+			camera->transform_.translate.z += floorMovement.z;
+
+			// プレイヤーの高さを床に合わせる
+			camera->transform_.translate.y = floorPos.y + floorSize.y + 3.0f;
+
+			// プレイヤーが床の上にいるフラグを設定
+			isOnFloor = true;
+		}
+
+		// 床の現在位置を次フレーム用に保存
+		previousPos[i] = floorPos;
+	}
+
+	// 床の上にいない場合
+	if (!isOnFloor) {
+		isOnFloor = false;
+	}
+}
 
 void TitleScene::UpdateCamera() {
 	// プレイヤーが床の上にいるかどうかでジャンプ処理を実行
@@ -501,6 +533,9 @@ void TitleScene::UpdatePlayerFloorCollision(const Vector3& playerPos) {
 			isOnFloor = true;
 			break;
 		}
+		else {
+			isOnFloor = false;
+		}
 	}
 }
 
@@ -520,7 +555,131 @@ void TitleScene::DisplayDebugInfo(const Vector3& playerPos) {
 	ImGui::Text("Player Position: X=%f, Y=%f, Z=%f", playerPos.x, playerPos.y, playerPos.z);
 	ImGui::Text("On Floor: %d", isOnFloor);
 	ImGui::End();
+	ImGui::Begin("isOnFloor");
+	ImGui::SliderInt("Select Model Index1", &selectedIndex1, 0, static_cast<int>(ConeObject_.size()) - 2);
+	ImGui::Text("OnFloor : %d", isOnFloor);
+	ImGui::Text("Player Pos : %f %f %f", playerPos.x, playerPos.y, playerPos.z);
+	ImGui::End();
+
+	for (size_t i = 0; i < ConeObject_.size() - 1; i++) {
+		float previousFloorHeight = playerPos.y; // 初期化しておく
+		// オブジェクトの座標とサイズを取得
+		Vector3 floorPos = ConeObject_[i]->worldTransform_.translation_;
+		Vector3 floorSize = ConeObject_[i]->worldTransform_.scale_;
+		std::string label = "JSONmodel" + std::to_string(i);
+#ifdef _DEBUG
+
+		ImGui::Begin("OnFloorDebug");
+		ImGui::Text(label.c_str());
+		ImGui::Text("floor : %f %f %f", floorPos.x, floorPos.y, floorPos.z);
+		ImGui::Text("size : %f %f %f", floorSize.x, floorSize.y, floorSize.z);
+		ImGui::Text("isOnx : %f %f", playerPos.x, floorPos.x - floorSize.x);
+		ImGui::Text("isOnx : %f %f", playerPos.x, floorPos.x + floorSize.x);
+		ImGui::Text("isOnz : %f %f", playerPos.z, floorPos.z - floorSize.z);
+		ImGui::Text("isOnz : %f %f", playerPos.z, floorPos.z + floorSize.z);
+		ImGui::Text("isOny : %f %f", playerPos.y, abs(floorPos.y + floorSize.y + 3.0f));
+		ImGui::Text("isOnyy : %f", abs(playerPos.y - (floorPos.y + floorSize.y + 3.0f)));
+		ImGui::End();
+#endif
+		// プレイヤーがオブジェクトの上にいるか判定
+		if (playerPos.x >= floorPos.x - floorSize.x &&
+			playerPos.x <= floorPos.x + floorSize.x &&
+			playerPos.z >= floorPos.z - floorSize.z &&
+			playerPos.z <= floorPos.z + floorSize.z &&
+			playerPos.y >= floorPos.y + floorSize.y - 1.0f &&
+			playerPos.y <= floorPos.y + floorSize.y + 3.0f) {
+			break;
+		}
+		else {
+			isOnFloor = false;
+		}
+	}
 }
 ///Draw///
+void TitleScene::DrawConeObjects()
+{
+	for (auto& cone : ConeObject_) {
+		if (cone->isVisible) {
+			cone->Draw(CONEtextureHandle, camera);
+		}
+	}
+}
+
+void TitleScene::DrawTitleTextObjects()
+{
+	for (size_t i = 0; i < TitleTextObject_.size(); ++i) {
+		auto& textObj = TitleTextObject_[i];
+		if (i == 0 || i == 1) {
+			textObj->Draw(BLUEtextureHandle, camera); // 特定のオブジェクトは異なるテクスチャで描画
+		}
+		else {
+			textObj->Draw(GRIDtextureHandle, camera);
+		}
+	}
+}
+
+void TitleScene::DrawTitleNumberObjects()
+{
+	for (auto& numberObj : TitleNumberObject_) {
+		numberObj->Draw(GRIDtextureHandle, camera);
+	}
+}
+
+void TitleScene::DrawSpecialObjects()
+{
+	TenQOBJ->Draw(TENQtextureHandle, camera);
+	if (menuposition) {
+		PositionOBJ->Draw(POSITIONtextureHandle, camera);
+	}
+}
+
+void TitleScene::DrawParticles()
+{
+	particleSystem_->Draw(emitter_, emitter_.transform.translate, PARTICLEBLUE, camera, randRange_, false, 0.5f, 0.8f);
+
+	particle->Draw(
+		ParticleEmitter_,
+		{ worldTransformPa.translation_.x, worldTransformPa.translation_.y, worldTransformPa.translation_.z },
+		WHITEtextureHandle,
+		camera,
+		demoRandPro,
+		false,
+		0.2f,
+		0.4f
+	);
+
+	particle1->Draw(
+		ParticleEmitter_,
+		{ worldTransformPa1.translation_.x, worldTransformPa1.translation_.y, worldTransformPa1.translation_.z },
+		WHITEtextureHandle,
+		camera,
+		demoRandPro,
+		false,
+		0.2f,
+		0.4f
+	);
+
+	particle2->Draw(
+		ParticleEmitter_,
+		{ worldTransformPa2.translation_.x, worldTransformPa2.translation_.y, worldTransformPa2.translation_.z },
+		WHITEtextureHandle,
+		camera,
+		demoRandPro,
+		false,
+		0.2f,
+		0.4f
+	);
+
+	particle3->Draw(
+		ParticleEmitter_,
+		{ worldTransformPa3.translation_.x, worldTransformPa3.translation_.y, worldTransformPa3.translation_.z },
+		WHITEtextureHandle,
+		camera,
+		demoRandPro,
+		false,
+		0.2f,
+		0.4f
+	);
+}
 
 
