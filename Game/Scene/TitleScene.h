@@ -26,6 +26,13 @@ public:
 	void Release()override;
 	int GameClose()override;
 
+	void LoadTextures();
+	void LoadModels();
+	void LoadAudio();
+	void InitializeData();
+	void InitializeParticles();
+
+
 	WorldTransform worldTransformPa;
 	WorldTransform worldTransformPa1;
 	WorldTransform worldTransformPa2;

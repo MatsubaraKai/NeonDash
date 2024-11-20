@@ -2,136 +2,46 @@
 #include "ImGuiCommon.h"
 #include "TextureManager.h"
 #include "ModelManager.h"
-#include <iostream>
-#include <cmath>
 #include "mathFunction.h"
 #include "PSOPostEffect.h"
 #include "Loder.h"
-#include "PSOPostEffect.h"
 #include "Audio.h"
+#include <iostream>
+#include <cmath>
 #include <DirectXMath.h>
-#include "Vector3.h"
 
+// 初期化関数
 void TitleScene::Init()
 {
+	// カメラの初期化
 	camera = new Camera;
 	camera->Initialize();
 	input = Input::GetInstance();
-	WHITEtextureHandle = TextureManager::StoreTexture("Resources/white.png");
-	PARTICLERED = TextureManager::StoreTexture("Resources/particlered.png");
-	PARTICLESTAR = TextureManager::StoreTexture("Resources/particlestar.png");
-	PARTICLEBLUE = TextureManager::StoreTexture("Resources/particleblue.png");
-	BLUEtextureHandle = TextureManager::StoreTexture("Resources/blue.png");
-	FADEtextureHandle = TextureManager::StoreTexture("Resources/black.png");
-	MENUMEDItextureHandle = TextureManager::StoreTexture("Resources/game/menumedi.png");
-	MENUHIGHtextureHandle = TextureManager::StoreTexture("Resources/game/menuhigh.png");
-	MENULOWtextureHandle = TextureManager::StoreTexture("Resources/game/menulow.png");
-	GRIDtextureHandle = TextureManager::StoreTexture("Resources/cian.png");
-	CONEtextureHandle = TextureManager::StoreTexture("Resources/game/cone.png");
-	TENQtextureHandle = TextureManager::StoreTexture("Resources/game/world.png");
-	POSITIONtextureHandle = TextureManager::StoreTexture("Resources/game/position.png");
 
-	ModelManager::GetInstance()->LoadModel("Resources/game", "world.obj");
-	ModelManager::GetInstance()->LoadModel("Resources/game", "world2.obj");
-	ModelManager::GetInstance()->LoadModel("Resources/game", "position.obj");
-	ModelManager::GetInstance()->LoadModel("Resources/game/Text", "text7.obj");
-	ModelManager::GetInstance()->LoadModel("Resources/game/Number", "0.obj");
-	ModelManager::GetInstance()->LoadModel("Resources/game/Number", "1.obj");
-	ModelManager::GetInstance()->LoadModel("Resources/game/Number", "2.obj");
-	ModelManager::GetInstance()->LoadModel("Resources/game/Number", "3.obj");
-	ModelManager::GetInstance()->LoadModel("Resources/game/Number", "4.obj");
-	ModelManager::GetInstance()->LoadModel("Resources/game/Number", "5.obj");
-	ModelManager::GetInstance()->LoadModel("Resources/game/Number", "6.obj");
-	ModelManager::GetInstance()->LoadModel("Resources/game/Number", "7.obj");
-	ModelManager::GetInstance()->LoadModel("Resources/game/Number", "8.obj");
-	ModelManager::GetInstance()->LoadModel("Resources/game/Number", "9.obj");
-	ModelManager::GetInstance()->LoadModel("Resources/game/Number", "colon.obj");
-	AudioBGMhandle_ = Audio::SoundLoadWave("Resources/game/Audio/BGM.wav");
-	AudioPortalhandle_ = Audio::SoundLoadWave("Resources/game/Audio/portal.wav");
-	AudioTimeCounthandle_ = Audio::SoundLoadWave("Resources/game/Audio/timecount.wav");
-	AudioTimeCount2handle_ = Audio::SoundLoadWave("Resources/game/Audio/timecount2.wav");
+	// テクスチャのロード
+	LoadTextures();
 
-	if (TitleRoop == false) {
-		Loder::LoadJsonFile2("Resources", "TitleCone", ConeObject_);
-		Loder::LoadJsonFileText("Resources", "TitleText", TitleTextObject_);
-		Loder::LoadJsonFileNumber("Resources", "TitleNumber", TitleNumberObject_);
-		Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), AudioBGMhandle_, true, 0.05f);
-		TitleRoop = true;
-	}
-	for (size_t i = 0; i < ConeObject_.size() - 1; i++) {
-		previousPos[i] = ConeObject_[i]->worldTransform_.translation_;
-	}
-	postProcess_ = new PostProcess();
-	postProcess_->SetCamera(camera);
-	postProcess_->Init();
+	// モデルのロード
+	LoadModels();
 
-	TenQOBJ = new Object3d();
-	TenQOBJ->Init();
-	PositionOBJ = new Object3d();
-	PositionOBJ->Init();
+	// オーディオのロード
+	LoadAudio();
 
-	isFadeInStarted = false;
-	portal = 0;
-	TenQTransform.Initialize();
+	// 必要なデータの初期化
+	InitializeData();
 
-	TenQTransform.scale_.x = -100.0f;
-	TenQTransform.scale_.y = 100.0f;
-	TenQTransform.scale_.z = 100.0f;
-	TenQOBJ->SetWorldTransform(TenQTransform);
+	// パーティクルシステムの初期化
+	InitializeParticles();
 
-
-	worldTransformPa.Initialize();
-	worldTransformPa.translation_ = { -25.0f,1.5f,12.5f };//チュートリアルポータル
-	worldTransformPa1.Initialize();
-	worldTransformPa1.translation_ = { 25.0f,1.5f,12.5f };//ゲームシーンポータル
-	worldTransformPa2.Initialize();
-	worldTransformPa2.translation_ = { 25.0f,1.5f,0.0f };//ゲームシーン２ポータル
-	worldTransformPa3.Initialize();
-	worldTransformPa3.translation_ = { 25.0f,1.5f,-12.5f };//ゲームシーン３ポータル
-
-	camera->transform_.translate = { 0.0f,15.0f,-15.0f };
-	camera->transform_.rotate = { -0.2f, 0.0f, 0.0f };
-
-	TenQOBJ->SetModel("world.obj");
-	PositionOBJ->SetModel("position.obj");
-
-	particleSystem_ = new Particle();
-	particle = new Particle();
-	particle1 = new Particle();
-	particle2 = new Particle();
-	particle3 = new Particle();
-
-	isClear = false;
-	isMenu = false;
-
-	emitter_.transform.scale = { 0.2f,0.2f,0.2f }; // スケール
-	emitter_.transform.translate = { 0.0f, -1.0f, 0.0f }; // 初期位置
-	emitter_.frequency = 0.2f; // 生成頻度
-	emitter_.count = 8; // 一度に生成するパーティクル数
-
-	randRange_.rangeX = { -50.0f, 50.0f };
-	randRange_.rangeY = { 0.5f, 2.0f };
-	randRange_.rangeZ = { -65.0f, 38.0f };
-
-	demoRandPro = {
-		{1.0f,4.0f},
-		{1.0f,4.0f},
-		{1.0f,4.0f}
-	};
-
-	ParticleEmitter_.count = 6;
-	ParticleEmitter_.frequency = 0.02f;
-	ParticleEmitter_.frequencyTime = 0.0f;
-	ParticleEmitter_.transform.scale = { 0.5f,0.5f,0.5f };
-	particleSystem_->Initialize(emitter_);
-	particle->Initialize(ParticleEmitter_);
-	particle1->Initialize(ParticleEmitter_);
-	particle2->Initialize(ParticleEmitter_);
-	particle3->Initialize(ParticleEmitter_);
+	// メニューとフェード処理の初期化
 	menu = new Menu();
 	menu->Init(MENUMEDItextureHandle);
 	fade = new Fade();
 	fade->Init(FADEtextureHandle);
+
+	postProcess_ = new PostProcess();
+	postProcess_->SetCamera(camera);
+	postProcess_->Init();
 }
 
 void TitleScene::Update()
@@ -515,6 +425,8 @@ void TitleScene::Update()
 	ImGui::End();
 #endif
 }
+
+
 void TitleScene::Draw()
 {
 	for (std::vector<Object3d*>::iterator itr = ConeObject_.begin(); itr != ConeObject_.end(); itr++) {
@@ -560,3 +472,119 @@ int TitleScene::GameClose()
 {
 	return false;
 }
+
+
+// テクスチャのロード
+void TitleScene::LoadTextures()
+{
+	WHITEtextureHandle = TextureManager::StoreTexture("Resources/white.png");
+	PARTICLERED = TextureManager::StoreTexture("Resources/particlered.png");
+	PARTICLESTAR = TextureManager::StoreTexture("Resources/particlestar.png");
+	PARTICLEBLUE = TextureManager::StoreTexture("Resources/particleblue.png");
+	BLUEtextureHandle = TextureManager::StoreTexture("Resources/blue.png");
+	FADEtextureHandle = TextureManager::StoreTexture("Resources/black.png");
+	MENUMEDItextureHandle = TextureManager::StoreTexture("Resources/game/menumedi.png");
+	MENUHIGHtextureHandle = TextureManager::StoreTexture("Resources/game/menuhigh.png");
+	MENULOWtextureHandle = TextureManager::StoreTexture("Resources/game/menulow.png");
+	GRIDtextureHandle = TextureManager::StoreTexture("Resources/cian.png");
+	CONEtextureHandle = TextureManager::StoreTexture("Resources/game/cone.png");
+	TENQtextureHandle = TextureManager::StoreTexture("Resources/game/world.png");
+	POSITIONtextureHandle = TextureManager::StoreTexture("Resources/game/position.png");
+}
+
+// モデルのロード
+void TitleScene::LoadModels()
+{
+	ModelManager::GetInstance()->LoadModel("Resources/game", "world.obj");
+	ModelManager::GetInstance()->LoadModel("Resources/game", "world2.obj");
+	ModelManager::GetInstance()->LoadModel("Resources/game", "position.obj");
+	ModelManager::GetInstance()->LoadModel("Resources/game/Text", "text7.obj");
+
+	for (int i = 0; i <= 9; i++) {
+		ModelManager::GetInstance()->LoadModel("Resources/game/Number", std::to_string(i) + ".obj");
+	}
+	ModelManager::GetInstance()->LoadModel("Resources/game/Number", "colon.obj");
+}
+
+// オーディオのロード
+void TitleScene::LoadAudio()
+{
+	AudioBGMhandle_ = Audio::SoundLoadWave("Resources/game/Audio/BGM.wav");
+	AudioPortalhandle_ = Audio::SoundLoadWave("Resources/game/Audio/portal.wav");
+	AudioTimeCounthandle_ = Audio::SoundLoadWave("Resources/game/Audio/timecount.wav");
+	AudioTimeCount2handle_ = Audio::SoundLoadWave("Resources/game/Audio/timecount2.wav");
+}
+
+// 初期化データのセットアップ
+void TitleScene::InitializeData()
+{
+	if (!TitleRoop) {
+		Loder::LoadJsonFile2("Resources", "TitleCone", ConeObject_);
+		Loder::LoadJsonFileText("Resources", "TitleText", TitleTextObject_);
+		Loder::LoadJsonFileNumber("Resources", "TitleNumber", TitleNumberObject_);
+		Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), AudioBGMhandle_, true, 0.05f);
+		TitleRoop = true;
+	}
+
+	for (size_t i = 0; i < ConeObject_.size() - 1; i++) {
+		previousPos[i] = ConeObject_[i]->worldTransform_.translation_;
+	}
+
+	TenQOBJ = new Object3d();
+	TenQOBJ->Init();
+	PositionOBJ = new Object3d();
+	PositionOBJ->Init();
+	PositionOBJ->SetModel("position.obj");
+	TenQTransform.Initialize();
+	TenQTransform.scale_ = { -100.0f, 100.0f, 100.0f };
+	TenQOBJ->SetWorldTransform(TenQTransform);
+	TenQOBJ->SetModel("world.obj");
+	worldTransformPa.Initialize();
+	worldTransformPa.translation_ = { -25.0f, 1.5f, 12.5f };
+	worldTransformPa1.Initialize();
+	worldTransformPa1.translation_ = { 25.0f, 1.5f, 12.5f };
+	worldTransformPa2.Initialize();
+	worldTransformPa2.translation_ = { 25.0f, 1.5f, 0.0f };
+	worldTransformPa3.Initialize();
+	worldTransformPa3.translation_ = { 25.0f, 1.5f, -12.5f };
+
+	camera->transform_.translate = { 0.0f, 15.0f, -15.0f };
+	camera->transform_.rotate = { -0.2f, 0.0f, 0.0f };
+
+	isFadeInStarted = false;
+	portal = 0;
+	isClear = false;
+	isMenu = false;
+}
+
+// パーティクルシステムの初期化
+void TitleScene::InitializeParticles()
+{
+	emitter_.transform.scale = { 0.2f, 0.2f, 0.2f };
+	emitter_.transform.translate = { 0.0f, -1.0f, 0.0f };
+	emitter_.frequency = 0.2f;
+	emitter_.count = 8;
+
+	randRange_.rangeX = { -50.0f, 50.0f };
+	randRange_.rangeY = { 1.0f, 1.0f };
+	randRange_.rangeZ = { -65.0f, 38.0f };
+
+	demoRandPro = { {1.0f, 4.0f}, {1.0f, 4.0f}, {1.0f, 4.0f} };
+
+	ParticleEmitter_.count = 6;
+	ParticleEmitter_.frequency = 0.02f;
+	ParticleEmitter_.frequencyTime = 0.0f;
+	ParticleEmitter_.transform.scale = { 0.5f, 0.5f, 0.5f };
+
+	particleSystem_ = new Particle();
+	particleSystem_->Initialize(emitter_);
+	particle = new Particle();
+	particle->Initialize(ParticleEmitter_);
+	particle1 = new Particle();
+	particle1->Initialize(ParticleEmitter_);
+	particle2 = new Particle();
+	particle2->Initialize(ParticleEmitter_);
+	particle3 = new Particle();
+	particle3->Initialize(ParticleEmitter_);
+}
+
