@@ -44,385 +44,55 @@ void TitleScene::Init()
 	postProcess_->Init();
 }
 
-void TitleScene::Update()
-{
+void TitleScene::Update() {
+	// フェード処理の更新
 	fade->UpdateFade();
-	PSOPostEffect* pSOPostEffect = PSOPostEffect::GetInstance();
 
-	// プレイヤーの座標
+	// プレイヤーの座標を取得
 	Vector3 playerPos = camera->transform_.translate;
 
+	// PositionOBJをプレイヤーの位置に合わせる
 	PositionOBJ->worldTransform_.translation_ = playerPos;
-	PositionOBJ->worldTransform_.translation_.y = camera->transform_.translate.y - 2.99f;
+	PositionOBJ->worldTransform_.translation_.y -= 2.99f;
 
-	if (collider->CheckCollision(camera->transform_.translate, worldTransformPa.translation_, 2.5f, 4.0f, 2.5f, 2.0f)) {
-		// 衝突している
-		portal++;
-		isDemo = true;
-		isClear = true;
-	}
-	else {
-		isDemo = false;
-	}
-	if (collider->CheckCollision(camera->transform_.translate, worldTransformPa1.translation_, 2.5f, 4.0f, 2.5f, 2.0f)) {
-		// 衝突している
-		portal++;
-		isGame = true;
-		isClear = true;
-	}
-	else {
-		isGame = false;
-	}
-	if (collider->CheckCollision(camera->transform_.translate, worldTransformPa2.translation_, 2.5f, 4.0f, 2.5f, 2.0f)) {
-		// 衝突している
-		portal++;
-		isGame2 = true;
-		isClear = true;
-	}
-	else {
-		isGame2 = false;
-	}
-	if (collider->CheckCollision(camera->transform_.translate, worldTransformPa3.translation_, 2.5f, 4.0f, 2.5f, 2.0f)) {
-		// 衝突している
-		portal++;
-		isGame3 = true;
-		isClear = true;
-	}
-	else {
-		isGame3 = false;
-	}
-	if (portal == 1) {
-		Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), AudioPortalhandle_, false, 0.1f);
-	}
-	if (sceneTime == 180) {
-		effect = true;
-	}
-	else {
-		effect = false;
-	}
-	if (sceneTime == 360) {
-		effect2 = true;
-	}
-	else {
-		effect2 = false;
-	}
-	if (effect == true) {
-		IPostEffectState::SetEffectNo(kOutlinePurple);
-	}
-	if (effect2 == true) {
-		IPostEffectState::SetEffectNo(kOutlineBlue);
-	}
-	if (sceneTime >= 360 || sceneTime1 >= 360) {
-		sceneTime = 0;
-		sceneTime1 = 0;
-	}
+	// ポータル判定
+	UpdatePortalCollision(playerPos);
+
+	// エフェクト管理
+	UpdateEffects();
+
+	// フェードアウト完了時のシーン遷移
 	if (fade->IsFadeOutComplete()) {
-		if (isDemo) {
-			SetSceneNo(1);
-		}
-		else if (isGame) {
-			SetSceneNo(2);
-		}
-		else if (isGame2) {
-			SetSceneNo(3);
-		}
-		else if (isGame3) {
-			SetSceneNo(4);
-		}
+		HandleSceneTransition();
 	}
 
+	// TenQOBJの回転更新
 	TenQOBJ->worldTransform_.rotation_.y += 0.0005f;
 
-	//各ステージのクリアタイムのNumModelをSet
-	for (int i = 0; i < 4; ++i) {
-		std::string modelFileName = std::to_string(DemoTime[i]) + ".obj";
-		TitleNumberObject_[indices[i]]->SetModel(modelFileName.c_str());
-		std::string modelFileName1 = std::to_string(SCENE1Time[i]) + ".obj";
-		TitleNumberObject_[indices[i] + 5]->SetModel(modelFileName1.c_str());
-		std::string modelFileName2 = std::to_string(SCENE2Time[i]) + ".obj";
-		TitleNumberObject_[indices[i] + 10]->SetModel(modelFileName2.c_str());
-		std::string modelFileName3 = std::to_string(SCENE3Time[i]) + ".obj";
-		TitleNumberObject_[indices[i] + 15]->SetModel(modelFileName3.c_str());
-	}
-	//各オブジェクトをカメラに向ける
-	for (std::vector<Object3d*>::iterator itr = TitleTextObject_.begin(); itr != TitleTextObject_.end(); itr++) {
-		(*itr)->worldTransform_.rotation_.y = camera->Face2Face(camera->transform_.translate, (*itr)->worldTransform_.translation_) + 3.14f;
-	}
-	for (std::vector<Object3d*>::iterator itr = TitleNumberObject_.begin(); itr != TitleNumberObject_.end(); itr++) {
-		(*itr)->worldTransform_.rotation_.y = camera->Face2Face(camera->transform_.translate, (*itr)->worldTransform_.translation_) + 3.14f;
-	}
-	// ゲームパッドの状態取得
-	XINPUT_STATE joyState;
-	if (Input::GetInstance()->GetJoystickState(joyState))
-	{
-		// START ボタンが押された場合
-		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_START) {
-			// ボタンが押された状態で、前回押されていなかった場合のみトグル
-			if (!startButtonPressed) {
-				isMenu = !isMenu;           // isMenu の値を反転させる
-				startButtonPressed = true;   // ボタンが押された状態にする
-			}
-		}
-		else {
-			// ボタンが離されたらフラグをリセット
-			startButtonPressed = false;
-		}
-		if (isMenu) {
-			// 前回のボタンの状態を保持する変数を用意
-			static WORD previousButtons = 0;
+	// ステージタイムのモデル設定
+	UpdateStageTimes();
 
-			// 現在のボタンの状態を取得
-			WORD currentButtons = joyState.Gamepad.wButtons;
+	// 各オブジェクトをカメラに向ける
+	AlignObjectsToCamera();
 
-			// 左肩ボタンが「押された瞬間」を検出
-			if ((currentButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) && !(previousButtons & XINPUT_GAMEPAD_LEFT_SHOULDER)) {
-				if (menucount > 0) {
-					menucount--;
-					menu->SE();
-				}
-			}
-			if ((currentButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) && !(previousButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER)) {
-				if (menucount < 2) {
-					menucount++;
-					menu->SE();
-				}
-			}
-			if ((currentButtons & XINPUT_GAMEPAD_Y) && !(previousButtons & XINPUT_GAMEPAD_Y)) {
-				menuposition = !menuposition;
-				menu->SE();
-			}
-			// 前回のボタンの状態を更新
-			previousButtons = currentButtons;
-			if (menucount == 0) {
-				menu->ChangeTex(MENULOWtextureHandle);
-			}
-			if (menucount == 1) {
-				menu->ChangeTex(MENUMEDItextureHandle);
-			}
-			if (menucount == 2) {
-				menu->ChangeTex(MENUHIGHtextureHandle);
-			}
-		}
-		// 左スティックによる移動
-		Vector3 moveLeftStick = { 0, 0, 0 };
-		Vector3 move = { 0.0f, 0.0f, 0.0f };
-		const float leftStickDeadZone = 0.2f;
-		if (std::abs(joyState.Gamepad.sThumbLX) > leftStickDeadZone * SHRT_MAX ||
-			std::abs(joyState.Gamepad.sThumbLY) > leftStickDeadZone * SHRT_MAX)
-		{
-			moveLeftStick = {
-				(float)joyState.Gamepad.sThumbLX / SHRT_MAX,
-				0.0f,
-				(float)joyState.Gamepad.sThumbLY / SHRT_MAX
-			};
+	// ゲームパッド入力処理
+	HandleGamePadInput();
 
-			float inputMagnitude = Length(moveLeftStick);
-			if (inputMagnitude > leftStickDeadZone)
-			{
-				moveLeftStick.x *= 0.004f;
-				moveLeftStick.z *= 0.004f;
-			}
-		}
-		float desiredFOV = camera->fovY_;  // 現在のFOVを基準にする
+	// プレイヤーと床の衝突処理
+	UpdatePlayerFloorCollision(playerPos);
 
-		if (moveLeftStick.z > 0.00001f) {  // スティックがある程度前に倒されたとき
-			desiredFOV = 1.0f;  // 前進時のFOV
-		}
-		else {
-			desiredFOV = 0.8f;  // デフォルトのFOV
-		}
+	// 文字床アニメーション
+	UpdateLerpAnimations(playerPos);
 
-		// 現在のFOVと目的のFOVが異なる場合のみLerpを行う
-		if (camera->fovY_ != desiredFOV) {
-			camera->SetFOV(Lerp(camera->fovY_, desiredFOV, 0.1f));
-		}
-	}
-	for (size_t i = 0; i < ConeObject_.size() - 1; i++) {
-		float previousFloorHeight = playerPos.y; // 初期化しておく
-		// オブジェクトの座標とサイズを取得
-		Vector3 floorPos = ConeObject_[i]->worldTransform_.translation_;
-		Vector3 floorSize = ConeObject_[i]->worldTransform_.scale_;
-		std::string label = "JSONmodel" + std::to_string(i);
+	// オブジェクトの更新処理
+	UpdateObjects();
+
+	// カメラ更新
+	UpdateCamera();
+
+	// デバッグ情報の表示
 #ifdef _DEBUG
-
-		ImGui::Begin("OnFloorDebug");
-		ImGui::Text(label.c_str());
-		ImGui::Text("floor : %f %f %f", floorPos.x, floorPos.y, floorPos.z);
-		ImGui::Text("size : %f %f %f", floorSize.x, floorSize.y, floorSize.z);
-		ImGui::Text("isOnx : %f %f", playerPos.x, floorPos.x - floorSize.x);
-		ImGui::Text("isOnx : %f %f", playerPos.x, floorPos.x + floorSize.x);
-		ImGui::Text("isOnz : %f %f", playerPos.z, floorPos.z - floorSize.z);
-		ImGui::Text("isOnz : %f %f", playerPos.z, floorPos.z + floorSize.z);
-		ImGui::Text("isOny : %f %f", playerPos.y, abs(floorPos.y + floorSize.y + 3.0f));
-		ImGui::Text("isOnyy : %f", abs(playerPos.y - (floorPos.y + floorSize.y + 3.0f)));
-		ImGui::End();
-#endif
-		// プレイヤーがオブジェクトの上にいるか判定
-		if (playerPos.x >= floorPos.x - floorSize.x &&
-			playerPos.x <= floorPos.x + floorSize.x &&
-			playerPos.z >= floorPos.z - floorSize.z &&
-			playerPos.z <= floorPos.z + floorSize.z &&
-			playerPos.y >= floorPos.y + floorSize.y - 1.0f &&
-			playerPos.y <= floorPos.y + floorSize.y + 3.0f) {
-
-			// 床の上昇分を計算
-			float floorHeightChange = floorPos.y + floorSize.y - previousFloorHeight;
-			camera->transform_.translate.y = playerPos.y += floorHeightChange + 3.0f;  // プレイヤーの高さを更新
-			previousFloorHeight = floorPos.y + floorSize.y; // 次フレームのために保存
-
-			// x軸、z軸の移動分を計算してプレイヤーに反映
-			Vector3 floorMovement;
-			floorMovement.x = floorPos.x - previousPos[i].x;
-			floorMovement.z = floorPos.z - previousPos[i].z;
-
-			camera->transform_.translate.x += floorMovement.x;
-			camera->transform_.translate.z += floorMovement.z;
-
-			// 現在のオブジェクト位置を次のフレームで使用するため保存
-			previousPos[i] = floorPos;
-
-			isOnFloor = true;
-			break;  // どれかのオブジェクト上にいる場合は判定を終了
-		}
-		else {
-			isOnFloor = false;
-			previousPos[i] = floorPos;
-		}
-	}
-
-	for (std::vector<Object3d*>::iterator itr = ConeObject_.begin(); itr != ConeObject_.end(); itr++) {
-		(*itr)->Update();
-	}
-	for (std::vector<Object3d*>::iterator itr = TitleTextObject_.begin(); itr != TitleTextObject_.end(); itr++) {
-		(*itr)->Update();
-	}
-	for (std::vector<Object3d*>::iterator itr = TitleNumberObject_.begin(); itr != TitleNumberObject_.end(); itr++) {
-		(*itr)->Update();
-	}
-	if (isClear == false && isMenu == false) {
-		camera->Jump(isOnFloor);
-		camera->Move(menucount);
-	}
-	if (!isFadeInStarted && isClear == true) {
-		fade->StartFadeIn();    // FadeInを開始
-		isFadeInStarted = true; // フラグを立てて一度だけ実行されるようにする
-	}
-	camera->Update();
-	TenQOBJ->Update();
-	PositionOBJ->Update();
-
-	if (playerPos.x >= -20.0f &&
-		playerPos.x <= 20.0f &&
-		playerPos.z >= -20.0f &&
-		playerPos.z <= 20.0f && DemoRoop == false
-		) {
-		TitleTextObject_[6]->worldTransform_.translation_.y = Lerp(TitleTextObject_[6]->worldTransform_.translation_.y, 1.3f, 0.1f);
-	}
-	else {
-		TitleTextObject_[6]->worldTransform_.translation_.y = Lerp(TitleTextObject_[6]->worldTransform_.translation_.y, 0.0f, 0.1f);
-	}
-	if (DemoRoop == false) {
-		TitleTextObject_[7]->worldTransform_.translation_.y = Lerp(TitleTextObject_[7]->worldTransform_.translation_.y, 2.0f, 0.1f);
-	}
-	else {
-		TitleTextObject_[7]->worldTransform_.translation_.y = Lerp(TitleTextObject_[7]->worldTransform_.translation_.y, 0.0f, 0.1f);
-	}
-	if (sceneTime1 == 0) {
-
-	}
-	if (sceneTime1 < 180) {
-		ConeObject_[17]->worldTransform_.translation_.y = Lerp(ConeObject_[17]->worldTransform_.translation_.y, 60.0f, 0.03f);
-		ConeObject_[18]->worldTransform_.translation_.x = Lerp(ConeObject_[18]->worldTransform_.translation_.x, 55.0f, 0.03f);
-		for (int i = 0; i < 6; i++) {
-			TitleTextObject_[i]->worldTransform_.translation_.y = Lerp(TitleTextObject_[i]->worldTransform_.translation_.y, Textlerpindices[i], 0.01f);
-		}
-		for (std::vector<Object3d*>::iterator itr = TitleNumberObject_.begin(); itr != TitleNumberObject_.end(); itr++) {
-			(*itr)->worldTransform_.translation_.y = Lerp((*itr)->worldTransform_.translation_.y, 8.5f, 0.01f);
-		}
-	}
-	if (sceneTime1 > 180 && sceneTime1 < 360) {
-		ConeObject_[17]->worldTransform_.translation_.y = Lerp(ConeObject_[17]->worldTransform_.translation_.y, -4.0f, 0.03f);
-		ConeObject_[18]->worldTransform_.translation_.x = Lerp(ConeObject_[18]->worldTransform_.translation_.x, -50.0f, 0.03f);
-
-		for (int i = 0; i < 6; i++) {
-			TitleTextObject_[i]->worldTransform_.translation_.y = Lerp(TitleTextObject_[i]->worldTransform_.translation_.y, textlerpindices[i], 0.01f);
-		}
-		for (std::vector<Object3d*>::iterator itr = TitleNumberObject_.begin(); itr != TitleNumberObject_.end(); itr++) {
-			(*itr)->worldTransform_.translation_.y = Lerp((*itr)->worldTransform_.translation_.y, 7.5f, 0.01f);
-		}
-	}
-
-	if (effectFlag == true && isMenu == false) {
-		sceneTime++;
-	}
-	if (isMenu == false) {
-		sceneTime1++;
-	}
-	///////////////Debug///////////////
-#ifdef _DEBUG
-
-	camera->CameraDebug();
-	// 選択されたインデックスに応じたモデルのデバッグを実行
-	std::string label1 = "JSONConemodel" + std::to_string(selectedIndex1);
-	std::string label2 = "JSONTextmodel" + std::to_string(selectedIndex2);
-	std::string label3 = "JSONNumbermodel" + std::to_string(selectedIndex3);
-	ConeObject_[selectedIndex1]->ModelDebug(label1.c_str());
-	TitleTextObject_[selectedIndex2]->ModelDebug(label2.c_str());
-	TitleNumberObject_[selectedIndex3]->ModelDebug(label3.c_str());
-
-	TenQOBJ->ModelDebug("TenQ");
-	PositionOBJ->ModelDebug("positionOBJ");
-
-	particle->Particledebug("white", worldTransformPa);
-	particle1->Particledebug("white1", worldTransformPa1);
-	particle2->Particledebug("white2", worldTransformPa2);
-	particle3->Particledebug("white3", worldTransformPa3);
-	ImGui::Begin("Time");
-	ImGui::Text("Time : %f", timer.elapsedSeconds());
-	ImGui::Text("Time : %d", timer.elapsedSecondsOnly());//一秒単位
-	ImGui::Text("Time : %d", timer.elapsedTensOfSeconds());//十秒単位
-	ImGui::Text("Time : %d", timer.elapsedMinutesOnly());//一分単位
-	ImGui::Text("Time : %d", timer.elapsedTensOfMinutes());//十分単位
-	ImGui::Text("Time : %d%d:%d%d", DemoTime[0], DemoTime[1], DemoTime[2], DemoTime[3]);
-
-	if (ImGui::Button("start")) {
-		timer.start();
-	}
-	if (ImGui::Button("stop")) {
-		timer.stop();
-	}
-	ImGui::End();
-	ImGui::Begin("isOnFloor");
-	ImGui::SliderInt("Select Model Index1", &selectedIndex1, 0, static_cast<int>(ConeObject_.size()) - 2);
-	ImGui::SliderInt("Select Model Index2", &selectedIndex2, 0, static_cast<int>(TitleTextObject_.size()) - 2);
-	ImGui::SliderInt("Select Model Index3", &selectedIndex3, 0, static_cast<int>(TitleNumberObject_.size()) - 2);
-	ImGui::Text("OnFloor : %d", isOnFloor);
-	ImGui::Text("Player Pos : %f %f %f", playerPos.x, playerPos.y, playerPos.z);
-	ImGui::End();
-	ImGui::Begin("color", nullptr, ImGuiWindowFlags_MenuBar);
-	//float color[4] = { fade->material.color.x,fade->material.color.y,fade->material.color.z,fade->material.color.w };
-	//ImGui::DragFloat4("color", color, 0.01f);
-	//fade->material.color = { color[0],color[1],color[2],color[3] };
-	//いつか使う用に↓
-	if (ImGui::BeginMenuBar()) {
-		if (ImGui::BeginMenu("File")) {
-			if (ImGui::MenuItem("Save")) {
-
-			}
-			if (ImGui::MenuItem("Load")) {
-
-			}
-
-			ImGui::EndMenu();
-		}
-		ImGui::EndMenuBar();
-	}
-	ImGui::End();
-	ImGui::Begin("Imgui");
-	ImGui::Checkbox("EffectFlag", &effectFlag);
-	ImGui::Text("Now Scene : %d", sceneNo);
-	ImGui::Text("roop : %d", TitleRoop);
-	ImGui::End();
+	DisplayDebugInfo(playerPos);
 #endif
 }
 
@@ -466,7 +136,7 @@ void TitleScene::Release() {
 	Audio::SoundStopWave(Audio::GetInstance()->GetIXAudio().Get(), AudioBGMhandle_);
 	Audio::SoundUnload(AudioBGMhandle_);
 }
-
+///Init///
 // ゲームを終了
 int TitleScene::GameClose()
 {
@@ -587,4 +257,270 @@ void TitleScene::InitializeParticles()
 	particle3 = new Particle();
 	particle3->Initialize(ParticleEmitter_);
 }
+///Update///
+// ポータル判定
+void TitleScene::UpdatePortalCollision(const Vector3& playerPos) {
+	isDemo = collider->CheckCollision(playerPos, worldTransformPa.translation_, 2.5f, 4.0f, 2.5f, 2.0f);
+	isGame = collider->CheckCollision(playerPos, worldTransformPa1.translation_, 2.5f, 4.0f, 2.5f, 2.0f);
+	isGame2 = collider->CheckCollision(playerPos, worldTransformPa2.translation_, 2.5f, 4.0f, 2.5f, 2.0f);
+	isGame3 = collider->CheckCollision(playerPos, worldTransformPa3.translation_, 2.5f, 4.0f, 2.5f, 2.0f);
+
+	// ポータルが一度だけ発動する処理
+	if (isDemo || isGame || isGame2 || isGame3) {
+		if (portal == 0) {
+			Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), AudioPortalhandle_, false, 0.1f);
+		}
+		portal++;
+		isClear = true;
+	}
+	else {
+		isClear = false;
+	}
+}
+
+// エフェクト管理
+void TitleScene::UpdateEffects() {
+	effect = (sceneTime == 180);
+	effect2 = (sceneTime == 360);
+
+	if (effect) IPostEffectState::SetEffectNo(kOutlinePurple);
+	if (effect2) IPostEffectState::SetEffectNo(kOutlineBlue);
+
+	if (sceneTime >= 360) sceneTime = 0;
+	if (sceneTime1 >= 360) sceneTime1 = 0;
+
+	if (!isMenu) {
+		sceneTime++;
+		sceneTime1++;
+	}
+}
+
+// シーン遷移処理
+void TitleScene::HandleSceneTransition() {
+	if (isDemo) SetSceneNo(1);
+	else if (isGame) SetSceneNo(2);
+	else if (isGame2) SetSceneNo(3);
+	else if (isGame3) SetSceneNo(4);
+}
+
+// ステージタイムのモデル設定
+void TitleScene::UpdateStageTimes() {
+	for (int i = 0; i < 4; ++i) {
+		TitleNumberObject_[indices[i]]->SetModel((std::to_string(DemoTime[i]) + ".obj").c_str());
+		TitleNumberObject_[indices[i] + 5]->SetModel((std::to_string(SCENE1Time[i]) + ".obj").c_str());
+		TitleNumberObject_[indices[i] + 10]->SetModel((std::to_string(SCENE2Time[i]) + ".obj").c_str());
+		TitleNumberObject_[indices[i] + 15]->SetModel((std::to_string(SCENE3Time[i]) + ".obj").c_str());
+	}
+}
+
+// 各オブジェクトをカメラに向ける
+void TitleScene::AlignObjectsToCamera() {
+	for (auto& obj : TitleTextObject_) {
+		obj->worldTransform_.rotation_.y = camera->Face2Face(camera->transform_.translate, obj->worldTransform_.translation_) + 3.14f;
+	}
+	for (auto& obj : TitleNumberObject_) {
+		obj->worldTransform_.rotation_.y = camera->Face2Face(camera->transform_.translate, obj->worldTransform_.translation_) + 3.14f;
+	}
+}
+
+// ゲームパッド入力処理
+void TitleScene::HandleGamePadInput() {
+	XINPUT_STATE joyState;
+	if (Input::GetInstance()->GetJoystickState(joyState)) {
+		HandleStartButton(joyState);
+		if (isMenu) HandleMenuNavigation(joyState);
+		else UpdateCameraFOV(joyState);
+	}
+}
+
+void TitleScene::HandleStartButton(const XINPUT_STATE& joyState) {
+	if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_START) {
+		if (!startButtonPressed) {
+			isMenu = !isMenu;
+			startButtonPressed = true;
+		}
+	}
+	else {
+		startButtonPressed = false;
+	}
+}
+
+void TitleScene::HandleMenuNavigation(const XINPUT_STATE& joyState) {
+	static WORD previousButtons = 0;
+	WORD currentButtons = joyState.Gamepad.wButtons;
+
+	if ((currentButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) && !(previousButtons & XINPUT_GAMEPAD_LEFT_SHOULDER)) {
+		if (menucount > 0) {
+			menucount--;
+			menu->SE();
+		}
+	}
+	if ((currentButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) && !(previousButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER)) {
+		if (menucount < 2) {
+			menucount++;
+			menu->SE();
+		}
+	}
+	if ((currentButtons & XINPUT_GAMEPAD_Y) && !(previousButtons & XINPUT_GAMEPAD_Y)) {
+		menuposition = !menuposition;
+		menu->SE();
+	}
+	previousButtons = currentButtons;
+
+	menu->ChangeTex((menucount == 0) ? MENULOWtextureHandle :
+		(menucount == 1) ? MENUMEDItextureHandle : MENUHIGHtextureHandle);
+}
+
+void TitleScene::UpdateLerpAnimations(const Vector3& playerPos) {
+	// プレイヤーが指定範囲内にいる場合の処理
+	if (playerPos.x >= -20.0f && playerPos.x <= 20.0f &&
+		playerPos.z >= -20.0f && playerPos.z <= 20.0f && DemoRoop == false) {
+		// TitleTextObject_[6]を徐々に高さ 1.3 に
+		TitleTextObject_[6]->worldTransform_.translation_.y =
+			Lerp(TitleTextObject_[6]->worldTransform_.translation_.y, 1.3f, 0.1f);
+	}
+	else {
+		// TitleTextObject_[6]を徐々に高さ 0.0 に戻す
+		TitleTextObject_[6]->worldTransform_.translation_.y =
+			Lerp(TitleTextObject_[6]->worldTransform_.translation_.y, 0.0f, 0.1f);
+	}
+
+	// DemoRoop に応じた TitleTextObject_[7] の高さ変更
+	if (DemoRoop == false) {
+		TitleTextObject_[7]->worldTransform_.translation_.y =
+			Lerp(TitleTextObject_[7]->worldTransform_.translation_.y, 2.0f, 0.1f);
+	}
+	else {
+		TitleTextObject_[7]->worldTransform_.translation_.y =
+			Lerp(TitleTextObject_[7]->worldTransform_.translation_.y, 0.0f, 0.1f);
+	}
+
+	// シーンタイムによるアニメーション
+	if (sceneTime1 < 180) {
+		// ConeObject_[17]と[18]の座標をそれぞれの目標位置に向けて移動
+		ConeObject_[17]->worldTransform_.translation_.y =
+			Lerp(ConeObject_[17]->worldTransform_.translation_.y, 60.0f, 0.03f);
+		ConeObject_[18]->worldTransform_.translation_.x =
+			Lerp(ConeObject_[18]->worldTransform_.translation_.x, 55.0f, 0.03f);
+
+		// TitleTextObject_ の各インデックスを目標の高さに移動
+		for (int i = 0; i < 6; i++) {
+			TitleTextObject_[i]->worldTransform_.translation_.y =
+				Lerp(TitleTextObject_[i]->worldTransform_.translation_.y, Textlerpindices[i], 0.01f);
+		}
+
+		// TitleNumberObject_ の各オブジェクトを高さ 8.5 に移動
+		for (auto& obj : TitleNumberObject_) {
+			obj->worldTransform_.translation_.y =
+				Lerp(obj->worldTransform_.translation_.y, 8.5f, 0.01f);
+		}
+	}
+	else if (sceneTime1 > 180 && sceneTime1 < 360) {
+		// ConeObject_[17]と[18]を別の位置に移動
+		ConeObject_[17]->worldTransform_.translation_.y =
+			Lerp(ConeObject_[17]->worldTransform_.translation_.y, -4.0f, 0.03f);
+		ConeObject_[18]->worldTransform_.translation_.x =
+			Lerp(ConeObject_[18]->worldTransform_.translation_.x, -50.0f, 0.03f);
+
+		// TitleTextObject_ を別の目標位置に移動
+		for (int i = 0; i < 6; i++) {
+			TitleTextObject_[i]->worldTransform_.translation_.y =
+				Lerp(TitleTextObject_[i]->worldTransform_.translation_.y, textlerpindices[i], 0.01f);
+		}
+
+		// TitleNumberObject_ の各オブジェクトを高さ 7.5 に移動
+		for (auto& obj : TitleNumberObject_) {
+			obj->worldTransform_.translation_.y =
+				Lerp(obj->worldTransform_.translation_.y, 7.5f, 0.01f);
+		}
+	}
+}
+
+
+void TitleScene::UpdateCamera() {
+	// プレイヤーが床の上にいるかどうかでジャンプ処理を実行
+	if (isClear == false && isMenu == false) {
+		camera->Jump(isOnFloor);
+		camera->Move(menucount);
+	}
+	
+	// フェードイン中であればカメラの移動を制御
+	if (!isFadeInStarted && isClear == true) {
+		fade->StartFadeIn();    // フェードインを開始
+		isFadeInStarted = true; // フラグを立て、一度だけ実行
+	}
+
+	// カメラの更新処理を呼び出す
+	camera->Update();
+}
+
+
+void TitleScene::UpdateCameraFOV(const XINPUT_STATE& joyState) {
+	// 左スティックの入力値を取得
+	Vector3 moveLeftStick = {
+		(float)joyState.Gamepad.sThumbLX / SHRT_MAX,
+		0.0f,
+		(float)joyState.Gamepad.sThumbLY / SHRT_MAX
+	};
+
+	// 入力の強度を計算
+	float inputMagnitude = Length(moveLeftStick);
+
+	// デッドゾーンを調整（スティックがある程度倒された場合のみ反応）
+	const float deadZone = 0.2f; // スティック感度調整用の閾値
+	if (inputMagnitude > deadZone) {
+		moveLeftStick.x *= 0.004f;
+		moveLeftStick.z *= 0.004f;
+	}
+	else {
+		// デッドゾーン内なら FOV をデフォルト値に戻す
+		moveLeftStick = { 0.0f, 0.0f, 0.0f };
+	}
+
+	// 前進入力が十分大きい場合のみ FOV を変更
+	const float forwardThreshold = 0.00002f; // 前進入力の閾値
+	float desiredFOV = (moveLeftStick.z > forwardThreshold) ? 1.0f : 0.8f;
+
+	// FOV をスムーズに遷移
+	camera->SetFOV(Lerp(camera->fovY_, desiredFOV, 0.1f));
+}
+
+// プレイヤーと床の衝突処理
+void TitleScene::UpdatePlayerFloorCollision(const Vector3& playerPos) {
+	isOnFloor = false;
+	for (size_t i = 0; i < ConeObject_.size(); ++i) {
+		Vector3 floorPos = ConeObject_[i]->worldTransform_.translation_;
+		Vector3 floorSize = ConeObject_[i]->worldTransform_.scale_;
+
+		if (playerPos.x >= floorPos.x - floorSize.x && playerPos.x <= floorPos.x + floorSize.x &&
+			playerPos.z >= floorPos.z - floorSize.z && playerPos.z <= floorPos.z + floorSize.z &&
+			playerPos.y >= floorPos.y + floorSize.y - 1.0f && playerPos.y <= floorPos.y + floorSize.y + 3.0f) {
+
+			float floorHeightChange = floorPos.y + floorSize.y - playerPos.y;
+			camera->transform_.translate.y += floorHeightChange + 3.0f;
+			isOnFloor = true;
+			break;
+		}
+	}
+}
+
+// オブジェクトの更新処理
+void TitleScene::UpdateObjects() {
+	for (auto& obj : ConeObject_) obj->Update();
+	for (auto& obj : TitleTextObject_) obj->Update();
+	for (auto& obj : TitleNumberObject_) obj->Update();
+
+	TenQOBJ->Update();
+	PositionOBJ->Update();
+}
+
+// デバッグ情報の表示
+void TitleScene::DisplayDebugInfo(const Vector3& playerPos) {
+	ImGui::Begin("Debug Info");
+	ImGui::Text("Player Position: X=%f, Y=%f, Z=%f", playerPos.x, playerPos.y, playerPos.z);
+	ImGui::Text("On Floor: %d", isOnFloor);
+	ImGui::End();
+}
+///Draw///
+
 

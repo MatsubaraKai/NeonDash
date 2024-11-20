@@ -32,6 +32,23 @@ public:
 	void InitializeData();
 	void InitializeParticles();
 
+	void UpdatePortalCollision(const Vector3& playerPos);
+	void UpdateEffects();
+	void HandleSceneTransition();
+	void UpdateStageTimes();
+	void AlignObjectsToCamera();
+	void HandleGamePadInput();
+	void UpdatePlayerFloorCollision(const Vector3& playerPos);
+	void UpdateLerpAnimations(const Vector3& playerPos);
+	void UpdateObjects();
+	void UpdateCamera();
+	void HandleStartButton(const XINPUT_STATE& joyState);
+	void HandleMenuNavigation(const XINPUT_STATE& joyState);
+	void UpdateCameraFOV(const XINPUT_STATE& joyState);
+	void DisplayDebugInfo(const Vector3& playerPos);
+
+
+
 
 	WorldTransform worldTransformPa;
 	WorldTransform worldTransformPa1;

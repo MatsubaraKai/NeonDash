@@ -599,6 +599,9 @@
     <ClInclude Include="Engine\Externals\json.hpp">
       <Filter>Externals</Filter>
     </ClInclude>
+    <ClInclude Include="test.h">
+      <Filter>Application\scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="imgui\imgui.ini">
