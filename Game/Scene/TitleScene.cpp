@@ -44,6 +44,7 @@ void TitleScene::Init()
 	postProcess_->Init();
 }
 
+// シーン更新関数
 void TitleScene::Update() {
 	// フェード処理の更新
 	fade->UpdateFade();
@@ -99,6 +100,7 @@ void TitleScene::Update() {
 #endif
 }
 
+// 描画関数
 void TitleScene::Draw()
 {
 	// 各種オブジェクトの描画
@@ -117,24 +119,25 @@ void TitleScene::Draw()
 	fade->Draw();
 }
 
-
+// ポストエフェクト描画関数
 void TitleScene::PostDraw()
 {
 	postProcess_->Draw();
 }
 
+// リソース解放関数
 void TitleScene::Release() {
 	Audio::SoundStopWave(Audio::GetInstance()->GetIXAudio().Get(), AudioBGMhandle_);
 	Audio::SoundUnload(AudioBGMhandle_);
 }
-///Init///
-// ゲームを終了
+
+// ゲーム終了判定関数
 int TitleScene::GameClose()
 {
 	return false;
 }
 
-
+///Init///
 // テクスチャのロード
 void TitleScene::LoadTextures()
 {
@@ -248,6 +251,7 @@ void TitleScene::InitializeParticles()
 	particle3 = new Particle();
 	particle3->Initialize(ParticleEmitter_);
 }
+
 ///Update///
 // ポータル判定
 void TitleScene::UpdatePortalCollision(const Vector3& playerPos) {
@@ -324,6 +328,7 @@ void TitleScene::HandleGamePadInput() {
 	}
 }
 
+// STARTボタンの入力を処理
 void TitleScene::HandleStartButton(const XINPUT_STATE& joyState) {
 	if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_START) {
 		if (!startButtonPressed) {
@@ -336,6 +341,7 @@ void TitleScene::HandleStartButton(const XINPUT_STATE& joyState) {
 	}
 }
 
+// メニュー操作の処理
 void TitleScene::HandleMenuNavigation(const XINPUT_STATE& joyState) {
 	static WORD previousButtons = 0;
 	WORD currentButtons = joyState.Gamepad.wButtons;
@@ -362,6 +368,7 @@ void TitleScene::HandleMenuNavigation(const XINPUT_STATE& joyState) {
 		(menucount == 1) ? MENUMEDItextureHandle : MENUHIGHtextureHandle);
 }
 
+// 床の移動アニメーションを更新
 void TitleScene::UpdateLerpAnimations(const Vector3& playerPos) {
 	// プレイヤーが指定範囲内にいる場合の処理
 	if (playerPos.x >= -20.0f && playerPos.x <= 20.0f &&
@@ -427,6 +434,7 @@ void TitleScene::UpdateLerpAnimations(const Vector3& playerPos) {
 	}
 }
 
+// 床とのインタラクション処理
 void TitleScene::UpdateFloorInteraction()
 {
 	// プレイヤーの現在位置
@@ -469,6 +477,7 @@ void TitleScene::UpdateFloorInteraction()
 	}
 }
 
+// カメラの更新
 void TitleScene::UpdateCamera() {
 	// プレイヤーが床の上にいるかどうかでジャンプ処理を実行
 	if (isClear == false && isMenu == false) {
@@ -486,7 +495,7 @@ void TitleScene::UpdateCamera() {
 	camera->Update();
 }
 
-
+// FOV（視野角）の更新
 void TitleScene::UpdateCameraFOV(const XINPUT_STATE& joyState) {
 	// 左スティックの入力値を取得
 	Vector3 moveLeftStick = {
@@ -595,7 +604,9 @@ void TitleScene::DisplayDebugInfo(const Vector3& playerPos) {
 		}
 	}
 }
+
 ///Draw///
+// コーンオブジェクトの描画
 void TitleScene::DrawConeObjects()
 {
 	for (auto& cone : ConeObject_) {
@@ -605,6 +616,7 @@ void TitleScene::DrawConeObjects()
 	}
 }
 
+// タイトルテキストの描画
 void TitleScene::DrawTitleTextObjects()
 {
 	for (size_t i = 0; i < TitleTextObject_.size(); ++i) {
@@ -618,6 +630,7 @@ void TitleScene::DrawTitleTextObjects()
 	}
 }
 
+// タイトルナンバーの描画
 void TitleScene::DrawTitleNumberObjects()
 {
 	for (auto& numberObj : TitleNumberObject_) {
@@ -625,6 +638,7 @@ void TitleScene::DrawTitleNumberObjects()
 	}
 }
 
+// 特殊オブジェクトの描画
 void TitleScene::DrawSpecialObjects()
 {
 	TenQOBJ->Draw(TENQtextureHandle, camera);
@@ -633,6 +647,7 @@ void TitleScene::DrawSpecialObjects()
 	}
 }
 
+// パーティクルの描画
 void TitleScene::DrawParticles()
 {
 	particleSystem_->Draw(emitter_, emitter_.transform.translate, PARTICLEBLUE, camera, randRange_, false, 0.5f, 0.8f);
