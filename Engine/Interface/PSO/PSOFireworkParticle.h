@@ -1,41 +1,42 @@
+﻿// PSOFireworkParticle.h
 #pragma once
 #include <d3d12.h>
 #include "DirectXCommon.h"
 #include "PSOProperty.h"
 
 /**
- * @file PSOParticle.h
- * @brief パーティクル用のパイプラインステートオブジェクトを管理するクラス
+ * @file PSOFireworkParticle.h
+ * @brief 花火用のパイプラインステートオブジェクトを管理するクラス
  */
 
  /// <summary>
- /// パーティクル用のパイプラインステートオブジェクトを管理するクラス
+ /// 花火用のパイプラインステートオブジェクトを管理するクラス
  /// </summary>
-class PSOParticle : public PSOProperty
+class PSOFireworkParticle : public PSOProperty
 {
 public:
     /// <summary>
     /// シングルトンのインスタンスを取得する
     /// </summary>
-    /// <returns>PSOParticleクラスのインスタンス</returns>
-    static PSOParticle* GetInstance();
+    /// <returns>PSOFireworkParticleクラスのインスタンス</returns>
+    static PSOFireworkParticle* GetInstance();
 
     /// <summary>
     /// コンストラクタ
     /// </summary>
-    PSOParticle() = default;
+    PSOFireworkParticle() = default;
 
     /// <summary>
     /// デストラクタ
     /// </summary>
-    ~PSOParticle() = default;
+    ~PSOFireworkParticle() = default;
 
     /// <summary>
     /// コピー代入演算子を削除（コピー不可）
     /// </summary>
     /// <param name="other">コピー元のオブジェクト</param>
     /// <returns>コピー不可</returns>
-    const PSOParticle& operator=(const PSOParticle&) = delete;
+    const PSOFireworkParticle& operator=(const PSOFireworkParticle&) = delete;
 
     /// <summary>
     /// 描画に関する設定をまとめる関数

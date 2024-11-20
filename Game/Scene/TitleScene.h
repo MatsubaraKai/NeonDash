@@ -5,6 +5,7 @@
 #include "Input.h"
 #include "Xinput.h"
 #include "Particle.h"
+#include "FireworkParticle.h"
 #include "Sprite.h"
 #include "Object3d.h"
 #include "Model.h"
@@ -59,6 +60,7 @@ private:
 	Particle* particle1 = nullptr;
 	Particle* particle2 = nullptr;
 	Particle* particle3 = nullptr;
+	FireworkParticle* fireworkParticle_ = nullptr;
 
 	PostProcess* postProcess_ = nullptr;
 	//変数
@@ -76,8 +78,10 @@ private:
 	uint32_t AudioPortalhandle_;
 	uint32_t AudioTimeCounthandle_;
 	uint32_t AudioTimeCount2handle_;
+	uint32_t fireworkTextureHandle_;
 
 	Emitter ParticleEmitter_;
+	FireEmitter fireworkEmitter;
 	RandRangePro demoRandPro;
 	float rotateSize_ = 1.057f;
 	bool effectFlag = true;

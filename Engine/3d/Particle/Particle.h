@@ -56,6 +56,23 @@ struct RandRangePro {
     Vector2 rangeZ;
 };
 
+enum class ParticlePhase {
+    Launch,
+    Explosion,
+    Fading
+};
+
+struct ParticlePro {
+    Transform transform;
+    Vector3 velocity;
+    Vector4 color;
+    float lifeTime;
+    float currentTime;
+    ParticlePhase phase;
+    // 花火の頂点高度を保持
+    float peakHeight;
+};
+
 class Particle
 {
 public:
@@ -142,7 +159,7 @@ public:
 
 private:
     const static uint32_t kNumMaxInstance = 10000; // インスタンス数
-
+    
     // Instancing用のTransformMatrixリソースを作る
     Microsoft::WRL::ComPtr<ID3D12Resource> instancingResorce = nullptr;
 

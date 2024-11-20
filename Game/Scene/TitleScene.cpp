@@ -27,6 +27,7 @@ void TitleScene::Init()
 	CONEtextureHandle = TextureManager::StoreTexture("Resources/game/cone.png");
 	TENQtextureHandle = TextureManager::StoreTexture("Resources/game/world.png");
 	POSITIONtextureHandle = TextureManager::StoreTexture("Resources/game/position.png");
+	fireworkTextureHandle_ = TextureManager::StoreTexture("Resources/white.png");
 
 	ModelManager::GetInstance()->LoadModel("Resources/game", "world.obj");
 	ModelManager::GetInstance()->LoadModel("Resources/game", "world2.obj");
@@ -108,6 +109,18 @@ void TitleScene::Init()
 	ParticleEmitter_.frequency = 0.02f;
 	ParticleEmitter_.frequencyTime = 0.0f;
 	ParticleEmitter_.transform.scale = { 0.5f,0.5f,0.5f };
+
+	fireworkEmitter.count = 6;
+	fireworkEmitter.frequency = 0.5f;       // 花火の発射間隔（秒）
+	fireworkEmitter.frequencyTime = 0.0f;   // 発射タイマーの初期化
+	fireworkEmitter.transform.scale = { 1.0f, 1.0f, 1.0f };
+	fireworkParticle_->Initialize(fireworkEmitter);
+	Vector3 launchPosition = {
+			fireworkParticle_->GetRandomFloat(-10.0f, 10.0f),
+			0.0f,
+			fireworkParticle_->GetRandomFloat(-10.0f, 10.0f)
+	};
+	fireworkParticle_->LaunchFirework(launchPosition);
 	particle->Initialize(ParticleEmitter_);
 	particle1->Initialize(ParticleEmitter_);
 	particle2->Initialize(ParticleEmitter_);
@@ -382,7 +395,7 @@ void TitleScene::Update()
 	camera->Update();
 	TenQOBJ->Update();
 	PositionOBJ->Update();
-
+	fireworkParticle_->Update(camera);
 	if (playerPos.x >= -20.0f &&
 		playerPos.x <= 20.0f &&
 		playerPos.z >= -20.0f &&
@@ -515,6 +528,7 @@ void TitleScene::Draw()
 	if (menuposition == true) {
 		PositionOBJ->Draw(POSITIONtextureHandle, camera);
 	}
+	fireworkParticle_->Draw(fireworkTextureHandle_, camera);
 	particle->Draw(ParticleEmitter_, { worldTransformPa.translation_.x,worldTransformPa.translation_.y,worldTransformPa.translation_.z }, WHITEtextureHandle, camera, demoRandPro, false);
 	particle1->Draw(ParticleEmitter_, { worldTransformPa1.translation_.x,worldTransformPa1.translation_.y,worldTransformPa1.translation_.z }, WHITEtextureHandle, camera, demoRandPro, false);
 	particle2->Draw(ParticleEmitter_, { worldTransformPa2.translation_.x,worldTransformPa2.translation_.y,worldTransformPa2.translation_.z }, WHITEtextureHandle, camera, demoRandPro, false);

@@ -13,6 +13,7 @@
 * @brief Particle
 */
 
+
 Particle::Particle() {};
 Particle::~Particle() {};
 void Particle::Initialize(Emitter emitter) {
@@ -174,7 +175,7 @@ void Particle::Draw(Emitter emitter, const Vector3& worldTransformPa, uint32_t t
 		}
 		++numInstance; // 生きているparticluの数を1使うんとする
 		++particleIterator;
-		
+
 	}
 	textureManager_ = TextureManager::GetInstance();
 	sDirectXCommon->GetCommandList()->SetGraphicsRootSignature(pso_->GetProperty().rootSignature.Get());
@@ -194,9 +195,6 @@ void Particle::Draw(Emitter emitter, const Vector3& worldTransformPa, uint32_t t
 	//sDirectXCommon->GetCommandList()->DrawInstanced(6, 1, 0, 0);
 	sDirectXCommon->GetCommandList()->DrawIndexedInstanced(6, numInstance, 0, 0, 0);
 }
-
-
-
 
 Particle::ParticlePro Particle::MakeNewParticle(std::mt19937& randomEngine, const Vector3& scale, const Vector3& translate, const RandRangePro& randRange)
 {
@@ -246,7 +244,7 @@ D3D12_VERTEX_BUFFER_VIEW Particle::CreateBufferView() {
 	return view;
 };
 
-void Particle::Particledebug(const char* name,WorldTransform &worldtransform)
+void Particle::Particledebug(const char* name, WorldTransform& worldtransform)
 {
 	//#ifdef _DEBUG
 	ImGui::PushStyleColor(ImGuiCol_TitleBgActive, ImVec4(0.0f, 0.7f, 0.2f, 0.8f));

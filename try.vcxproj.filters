@@ -320,6 +320,12 @@
     <ClCompile Include="Engine\2d\PostEffect\Effect\Vignette.cpp">
       <Filter>Engine\2d\PostEffect\Effect</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\3d\Particle\FireworkParticle.cpp">
+      <Filter>Engine\3d\Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Interface\PSO\PSOFireworkParticle.cpp">
+      <Filter>Engine\Interface\PSO</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Interface\DirectXCommon.h">
@@ -599,6 +605,15 @@
     <ClInclude Include="Engine\Externals\json.hpp">
       <Filter>Externals</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\3d\Particle\FireworkParticle.h">
+      <Filter>Engine\3d\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib\math\Emitter.h">
+      <Filter>Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Interface\PSO\PSOFireworkParticle.h">
+      <Filter>Engine\Interface\PSO</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="imgui\imgui.ini">
@@ -724,6 +739,12 @@
       <Filter>Resource\Shader</Filter>
     </FxCompile>
     <FxCompile Include="Resources\shader\Vignetting.PS.hlsl">
+      <Filter>Resource\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\shader\FireworkParticle.VS.hlsl">
+      <Filter>Resource\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\shader\FireworkParticle.PS.hlsl">
       <Filter>Resource\Shader</Filter>
     </FxCompile>
   </ItemGroup>
