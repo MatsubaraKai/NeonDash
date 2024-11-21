@@ -29,12 +29,7 @@ public:
     void PostDraw() override;
     void Release() override;
     int GameClose() override;
-    // World transforms
-    WorldTransform worldTransformPa;
-    WorldTransform worldTransformPa1;
-    WorldTransform worldTransformPa2;
-    WorldTransform worldTransformPa3;
-    WorldTransform TenQTransform;
+ 
 private:
     // Initialization methods
     void LoadTextures();
@@ -68,7 +63,12 @@ private:
     void DrawParticles();
 
     // Member variables
- 
+    // World transforms
+    WorldTransform worldTransformPa;
+    WorldTransform worldTransformPa1;
+    WorldTransform worldTransformPa2;
+    WorldTransform worldTransformPa3;
+    WorldTransform TenQTransform;
 
     // Scene state variables
     int sceneTime = 0;
