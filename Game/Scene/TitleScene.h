@@ -113,15 +113,15 @@ private:
     std::vector<Object3d*> TitleNumberObject_;
 
     // Particle system
-    Particle* particleSystem_ = nullptr;
-    Particle* particle = nullptr;
-    Particle* particle1 = nullptr;
-    Particle* particle2 = nullptr;
-    Particle* particle3 = nullptr;
-    Emitter emitter_;
-    Emitter ParticleEmitter_;
-    RandRangePro randRange_;
-    RandRangePro demoRandPro;
+    Engine::Particle* particleSystem_ = nullptr;
+    Engine::Particle* particle = nullptr;
+    Engine::Particle* particle1 = nullptr;
+    Engine::Particle* particle2 = nullptr;
+    Engine::Particle* particle3 = nullptr;
+    Engine::Emitter emitter_;
+    Engine::Emitter ParticleEmitter_;
+    Engine::RandRangePro randRange_;
+    Engine::RandRangePro demoRandPro;
     float rotateSize_ = 1.057f;
 
     // Post-processing

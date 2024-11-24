@@ -61,9 +61,9 @@ private:
 
 	Object3d* Number = nullptr;
 
-	Particle* particle = nullptr;
-	Particle* particle2 = nullptr;
-	Particle* particle3 = nullptr;
+	Engine::Particle* particle = nullptr;
+	Engine::Particle* particle2 = nullptr;
+	Engine::Particle* particle3 = nullptr;
 
 	PostProcess* postProcess_ = nullptr;
 	//変数
@@ -85,8 +85,8 @@ private:
 	uint32_t AudioTimeCounthandle_;
 	uint32_t AudioTimeCount2handle_;
 
-	Emitter ParticleEmitter_;
-	RandRangePro demoRandPro;
+	Engine::Emitter ParticleEmitter_;
+	Engine::RandRangePro demoRandPro;
 	float rotateSize_ = 1.057f;
 	bool effectFlag = true;
 	bool effect = false;

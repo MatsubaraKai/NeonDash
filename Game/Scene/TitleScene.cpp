@@ -242,15 +242,15 @@ void TitleScene::InitializeParticles()
 	ParticleEmitter_.frequencyTime = 0.0f;
 	ParticleEmitter_.transform.scale = { 0.5f, 0.5f, 0.5f };
 
-	particleSystem_ = new Particle();
+	particleSystem_ = new Engine::Particle();
 	particleSystem_->Initialize(emitter_);
-	particle = new Particle();
+	particle = new Engine::Particle();
 	particle->Initialize(ParticleEmitter_);
-	particle1 = new Particle();
+	particle1 = new Engine::Particle();
 	particle1->Initialize(ParticleEmitter_);
-	particle2 = new Particle();
+	particle2 = new Engine::Particle();
 	particle2->Initialize(ParticleEmitter_);
-	particle3 = new Particle();
+	particle3 = new Engine::Particle();
 	particle3->Initialize(ParticleEmitter_);
 }
 
@@ -359,7 +359,7 @@ void TitleScene::HandleMenuNavigation(const XINPUT_STATE& joyState) {
 			menucount++;
 			menu->SE();
 		}
-	}
+	}		  
 	if ((currentButtons & XINPUT_GAMEPAD_Y) && !(previousButtons & XINPUT_GAMEPAD_Y)) {
 		menuposition = !menuposition;
 		menu->SE();

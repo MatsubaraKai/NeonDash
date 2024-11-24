@@ -81,8 +81,8 @@ void STAGE1::Init()
 	TenQOBJ->SetModel("world2.obj");
 	TextOBJ->SetModel("text7.obj");
 	PositionOBJ->SetModel("position.obj");
-	particle = new Particle();				
-	particle2 = new Particle();
+	particle = new Engine::Particle();
+	particle2 = new Engine::Particle();
 	demoRandPro = {
 		{1.0f,4.0f},
 		{1.0f,4.0f},

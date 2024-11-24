@@ -27,176 +27,177 @@
 #pragma comment(lib,"d3d12.lib")
 #pragma comment(lib,"dxgi.lib")
 #pragma comment(lib,"dxcompiler.lib")
+    /**
+    * @file Particle.h
+    * @brief Particle class
+    */
+    class WinAPI;
+    class DirectXCommon;
+    class Camera;
+    class Mesh;
+    namespace Engine {
 
-/**
-* @file Particle.h
-* @brief Particle class
-*/
-class WinAPI;
-class DirectXCommon;
-class Camera;
-class Mesh;
-
-struct ParticleForGPU {
-    Matrix4x4 WVP;
-    Matrix4x4 World;
-    Vector4 color;
-};
-
-struct Emitter {
-    Transform transform; //!< エミッタのTransform
-    uint32_t count; //!< 発生数
-    float frequency; //!< 発生頻度
-    float frequencyTime; //!< 頻度用時刻
-};
-
-struct RandRangePro {
-    Vector2 rangeX;
-    Vector2 rangeY;
-    Vector2 rangeZ;
-};
-
-class Particle
-{
-public:
-    struct ParticlePro { // プロパティ
-        Transform transform;
-        Vector3 velocity;
+    struct ParticleForGPU {
+        Matrix4x4 WVP;
+        Matrix4x4 World;
         Vector4 color;
-        float lifeTime;
-        float currentTime;
     };
 
-    /// <summary>
-    /// コンストラクタ
-    /// </summary>
-    Particle();
+    struct Emitter {
+        Transform transform; //!< エミッタのTransform
+        uint32_t count; //!< 発生数
+        float frequency; //!< 発生頻度
+        float frequencyTime; //!< 頻度用時刻
+    };
 
-    /// <summary>
-    /// デストラクタ
-    /// </summary>
-    ~Particle();
+    struct RandRangePro {
+        Vector2 rangeX;
+        Vector2 rangeY;
+        Vector2 rangeZ;
+    };
 
-    /// <summary>
-    /// パーティクルの初期化を行う
-    /// </summary>
-    /// <param name="emitter">エミッタ情報</param>
-    void Initialize(Emitter emitter);
+    class Particle
+    {
+    public:
+        struct ParticlePro { // プロパティ
+            Transform transform;
+            Vector3 velocity;
+            Vector4 color;
+            float lifeTime;
+            float currentTime;
+        };
 
-    /// <summary>
-    /// パーティクルの描画を行う
-    /// </summary>
-    /// <param name="emitter">エミッタ情報</param>
-    /// <param name="worldTransformPa">ワールド変換パラメータ</param>
-    /// <param name="texture">使用するテクスチャハンドル</param>
-    /// <param name="camera">カメラオブジェクトへのポインタ</param>
-    /// <param name="randRange">ランダム範囲プロパティ</param>
-    /// <param name="scaleAddFlag">スケールを加算するかのフラグ</param>
-    void Draw(Emitter emitter, const Vector3& worldTransformPa, uint32_t texture, Camera* camera,
-        const RandRangePro& randRange, bool scaleAddFlag, float minLifetime, float maxLifetime);
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        Particle();
 
-    /// <summary>
-    /// リソースの解放を行う
-    /// </summary>
-    void Release();
+        /// <summary>
+        /// デストラクタ
+        /// </summary>
+        ~Particle();
 
-    /// <summary>
-    /// テクスチャマネージャーを設定する
-    /// </summary>
-    /// <param name="textureManager">テクスチャマネージャーのポインタ</param>
-    void SetTextureManager(TextureManager* textureManager) {
-        textureManager_ = textureManager;
-    }
+        /// <summary>
+        /// パーティクルの初期化を行う
+        /// </summary>
+        /// <param name="emitter">エミッタ情報</param>
+        void Initialize(Emitter emitter);
 
-    /// <summary>
-    /// 新しいパーティクルを生成する
-    /// </summary>
-    /// <param name="randomEngine">乱数エンジン</param>
-    /// <param name="scale">スケールベクトル</param>
-    /// <param name="translate">平行移動ベクトル</param>
-    /// <param name="randRange">ランダム範囲プロパティ</param>
-    /// <returns>生成されたパーティクルプロパティ</returns>
-    ParticlePro MakeNewParticle(std::mt19937& randomEngine, const Vector3& scale, const Vector3& translate, const RandRangePro& randRange);
+        /// <summary>
+        /// パーティクルの描画を行う
+        /// </summary>
+        /// <param name="emitter">エミッタ情報</param>
+        /// <param name="worldTransformPa">ワールド変換パラメータ</param>
+        /// <param name="texture">使用するテクスチャハンドル</param>
+        /// <param name="camera">カメラオブジェクトへのポインタ</param>
+        /// <param name="randRange">ランダム範囲プロパティ</param>
+        /// <param name="scaleAddFlag">スケールを加算するかのフラグ</param>
+        void Draw(Emitter emitter, const Vector3& worldTransformPa, uint32_t texture, Camera* camera,
+            const RandRangePro& randRange, bool scaleAddFlag, float minLifetime, float maxLifetime);
 
-    /// <summary>
-    /// パーティクルを発生させる
-    /// </summary>
-    /// <param name="emitter">エミッタ情報</param>
-    /// <param name="randEngine">乱数エンジン</param>
-    /// <param name="worldTransformPa">ワールド変換パラメータ</param>
-    /// <param name="randRange">ランダム範囲プロパティ</param>
-    /// <returns>生成されたパーティクルのリスト</returns>
-    std::list<ParticlePro> Emission(const Emitter& emitter, std::mt19937& randEngine, const Vector3& worldTransformPa, const RandRangePro& randRange);
+        /// <summary>
+        /// リソースの解放を行う
+        /// </summary>
+        void Release();
 
-    /// <summary>
-    /// 頂点バッファビューを作成する
-    /// </summary>
-    /// <returns>作成された頂点バッファビュー</returns>
-    D3D12_VERTEX_BUFFER_VIEW CreateBufferView();
+        /// <summary>
+        /// テクスチャマネージャーを設定する
+        /// </summary>
+        /// <param name="textureManager">テクスチャマネージャーのポインタ</param>
+        void SetTextureManager(TextureManager* textureManager) {
+            textureManager_ = textureManager;
+        }
 
-    /// <summary>
-    /// パーティクルのデバッグ情報を表示する
-    /// </summary>
-    /// <param name="name">デバッグ名</param>
-    /// <param name="worldtransform">ワールド変換情報</param>
-    void Particledebug(const char* name, WorldTransform& worldtransform);
-    // Δtを定義。とりあえず60fps固定してあるが、実時間を計測して可変fpsで動かせるようにしておくとなお良い
-    const float kDeltaTime = 1.0f / 120.0f;
-    std::list<ParticlePro> particles_;
+        /// <summary>
+        /// 新しいパーティクルを生成する
+        /// </summary>
+        /// <param name="randomEngine">乱数エンジン</param>
+        /// <param name="scale">スケールベクトル</param>
+        /// <param name="translate">平行移動ベクトル</param>
+        /// <param name="randRange">ランダム範囲プロパティ</param>
+        /// <returns>生成されたパーティクルプロパティ</returns>
+        ParticlePro MakeNewParticle(std::mt19937& randomEngine, const Vector3& scale, const Vector3& translate, const RandRangePro& randRange);
 
-private:
-    const static uint32_t kNumMaxInstance = 10000; // インスタンス数
+        /// <summary>
+        /// パーティクルを発生させる
+        /// </summary>
+        /// <param name="emitter">エミッタ情報</param>
+        /// <param name="randEngine">乱数エンジン</param>
+        /// <param name="worldTransformPa">ワールド変換パラメータ</param>
+        /// <param name="randRange">ランダム範囲プロパティ</param>
+        /// <returns>生成されたパーティクルのリスト</returns>
+        std::list<ParticlePro> Emission(const Emitter& emitter, std::mt19937& randEngine, const Vector3& worldTransformPa, const RandRangePro& randRange);
 
-    // Instancing用のTransformMatrixリソースを作る
-    Microsoft::WRL::ComPtr<ID3D12Resource> instancingResorce = nullptr;
+        /// <summary>
+        /// 頂点バッファビューを作成する
+        /// </summary>
+        /// <returns>作成された頂点バッファビュー</returns>
+        D3D12_VERTEX_BUFFER_VIEW CreateBufferView();
 
-    PSOParticle* pso_ = nullptr;
-    Microsoft::WRL::ComPtr<ID3D12Resource> vertexResourceSprite_ = nullptr;
-    WinAPI* sWinAPI;
-    DirectXCommon* sDirectXCommon;
-    Mesh* mesh_;
-    TextureManager* textureManager_ = nullptr;
+        /// <summary>
+        /// パーティクルのデバッグ情報を表示する
+        /// </summary>
+        /// <param name="name">デバッグ名</param>
+        /// <param name="worldtransform">ワールド変換情報</param>
+        void Particledebug(const char* name, WorldTransform& worldtransform);
+        // Δtを定義。とりあえず60fps固定してあるが、実時間を計測して可変fpsで動かせるようにしておくとなお良い
+        const float kDeltaTime = 1.0f / 120.0f;
+        std::list<ParticlePro> particles_;
 
-    // 頂点バッファビューを作成する
-    D3D12_VERTEX_BUFFER_VIEW vertexBufferViewSprite_{};
+    private:
+        const static uint32_t kNumMaxInstance = 10000; // インスタンス数
 
-    VertexData* vertexDataSprite_ = nullptr;
+        // Instancing用のTransformMatrixリソースを作る
+        Microsoft::WRL::ComPtr<ID3D12Resource> instancingResorce = nullptr;
 
-    // Sprite用のTransformationMatrix用のリソースを作る。Matrix4x4 1つ分のサイズを用意する
-    Microsoft::WRL::ComPtr<ID3D12Resource> transformationMatrixResouceSprite;
+        PSOParticle* pso_ = nullptr;
+        Microsoft::WRL::ComPtr<ID3D12Resource> vertexResourceSprite_ = nullptr;
+        WinAPI* sWinAPI;
+        DirectXCommon* sDirectXCommon;
+        Mesh* mesh_;
+        TextureManager* textureManager_ = nullptr;
 
-    D3D12_CPU_DESCRIPTOR_HANDLE instancingSrvHandleCPU;
-    D3D12_GPU_DESCRIPTOR_HANDLE instancingSrvHandleGPU;
+        // 頂点バッファビューを作成する
+        D3D12_VERTEX_BUFFER_VIEW vertexBufferViewSprite_{};
 
-    Particle* particle = nullptr;
+        VertexData* vertexDataSprite_ = nullptr;
 
-    uint32_t* indexDataSprite;
-    Microsoft::WRL::ComPtr<ID3D12Resource> indexResourceSprite;
-    D3D12_INDEX_BUFFER_VIEW indexBufferViewSprite{};
+        // Sprite用のTransformationMatrix用のリソースを作る。Matrix4x4 1つ分のサイズを用意する
+        Microsoft::WRL::ComPtr<ID3D12Resource> transformationMatrixResouceSprite;
 
-    // 実際に頂点リソースを作る
-    Microsoft::WRL::ComPtr<ID3D12Resource> materialResource;
+        D3D12_CPU_DESCRIPTOR_HANDLE instancingSrvHandleCPU;
+        D3D12_GPU_DESCRIPTOR_HANDLE instancingSrvHandleGPU;
 
-    // 頂点バッファビューを作成する
-    D3D12_VERTEX_BUFFER_VIEW materialBufferView{};
+        Particle* particle = nullptr;
 
-    // 頂点リソースにデータを書き込む
-    Material* materialData;
+        uint32_t* indexDataSprite;
+        Microsoft::WRL::ComPtr<ID3D12Resource> indexResourceSprite;
+        D3D12_INDEX_BUFFER_VIEW indexBufferViewSprite{};
 
-    std::list<Transform> transforms_;
-    ParticleForGPU* instancingData = nullptr;
+        // 実際に頂点リソースを作る
+        Microsoft::WRL::ComPtr<ID3D12Resource> materialResource;
 
-    // 平行光源用
-    Microsoft::WRL::ComPtr<ID3D12Resource> directionalLightResource;
+        // 頂点バッファビューを作成する
+        D3D12_VERTEX_BUFFER_VIEW materialBufferView{};
 
-    // データを書き込む
-    DirectionalLight* directionalLightData;
-    Transform transformUv;
+        // 頂点リソースにデータを書き込む
+        Material* materialData;
 
-    uint32_t SRVIndex_;
+        std::list<Transform> transforms_;
+        ParticleForGPU* instancingData = nullptr;
 
-   
+        // 平行光源用
+        Microsoft::WRL::ComPtr<ID3D12Resource> directionalLightResource;
 
-    Emitter emitter_{};
-    RandRangePro randRange_;
-};
+        // データを書き込む
+        DirectionalLight* directionalLightData;
+        Transform transformUv;
+
+        uint32_t SRVIndex_;
+
+
+
+        Emitter emitter_{};
+        RandRangePro randRange_;
+    };
+}

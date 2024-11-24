@@ -89,9 +89,9 @@ void DemoScene::Init()
 	PositionOBJ->SetModel("position.obj");
 
 
-	particle = new Particle();
-	particle2 = new Particle();
-	particle3 = new Particle();
+	particle = new Engine::Particle();
+	particle2 = new Engine::Particle();
+	particle3 = new Engine::Particle();
 
 	demoRandPro = {
 		{1.0f,4.0f},
