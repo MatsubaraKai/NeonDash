@@ -48,12 +48,13 @@
         uint32_t count; //!< 発生数
         float frequency; //!< 発生頻度
         float frequencyTime; //!< 頻度用時刻
+        Transform initialPosition;  //!< 初期位置
     };
 
     struct RandRangePro {
-        Vector2 rangeX;
-        Vector2 rangeY;
-        Vector2 rangeZ;
+        Vector2 rangeX;  //!< X軸のランダム範囲
+        Vector2 rangeY;  //!< Y軸のランダム範囲
+        Vector2 rangeZ;  //!< Z軸のランダム範囲
     };
 
     class Particle
@@ -94,6 +95,11 @@
         /// <param name="scaleAddFlag">スケールを加算するかのフラグ</param>
         void Draw(Emitter emitter, const Vector3& worldTransformPa, uint32_t texture, Camera* camera,
             const RandRangePro& randRange, bool scaleAddFlag, float minLifetime, float maxLifetime);
+
+        /// <summary>
+        /// 花火のような動きをさせる
+        /// </summary>
+        void CreateFireworkEffect(Emitter& emitter, RandRangePro& randRange, float transitionTimeState0, float transitionTimeState1, float transitionTimeState2);
 
         /// <summary>
         /// リソースの解放を行う
@@ -196,6 +202,8 @@
         uint32_t SRVIndex_;
 
 
+        float elapsedTime = 0.0f;  // 各インスタンスごとの経過時間
+        int state = 0;             // 各インスタンスごとの状態管理（0: 初期, 1: 変化1, 2: 変化2）
 
         Emitter emitter_{};
         RandRangePro randRange_;

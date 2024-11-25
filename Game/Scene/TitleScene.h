@@ -118,10 +118,16 @@ private:
     Engine::Particle* particle1 = nullptr;
     Engine::Particle* particle2 = nullptr;
     Engine::Particle* particle3 = nullptr;
+    Engine::Particle* firework = nullptr;
+    Engine::Particle* firework2 = nullptr;
     Engine::Emitter emitter_;
     Engine::Emitter ParticleEmitter_;
+    Engine::Emitter fireworkEmitter_;
+    Engine::Emitter fireworkEmitter_2;
     Engine::RandRangePro randRange_;
     Engine::RandRangePro demoRandPro;
+    Engine::RandRangePro fireworkRange_;
+    Engine::RandRangePro fireworkRange_2;
     float rotateSize_ = 1.057f;
 
     // Post-processing

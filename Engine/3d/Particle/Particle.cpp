@@ -7,10 +7,13 @@
 #include "Mesh.h"
 #include "SRVManager.h"
 #include <numbers>
-	/**
-	* @file Particle.cpp
-	* @brief Particle
-	*/
+#define EXPAND_RANGE(range, offset) \
+    range.x -= offset;              \
+    range.y += offset;
+/**
+* @file Particle.cpp
+* @brief Particle
+*/
 namespace Engine {
 	Particle::Particle() {};
 	Particle::~Particle() {};
@@ -282,6 +285,72 @@ namespace Engine {
 
 		return view;
 	};
+
+	void Particle::CreateFireworkEffect(Emitter& emitter, RandRangePro& randRange,
+		float transitionTimeState0, float transitionTimeState1,
+		float transitionTimeState2) {
+
+		// ランダム生成器の準備
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_real_distribution<float> dis(-1.0f, 25.0f);  // ±1秒の範囲
+		std::uniform_real_distribution<float> dis2(0.0f, 1.0f);
+		// transitionTimeState1をランダムに±1秒変更
+		float randomTransition1 = static_cast<float>(transitionTimeState1 + dis(gen));
+
+		// deltaTimeを取得（時間の進行はフレーム単位で渡す）
+		float deltaTime = 0.016f; // フレーム間隔を仮定 (60FPSなら約16ms)
+		elapsedTime += deltaTime;  // インスタンスごとに経過時間を更新
+
+		// 初期状態を保存（state == 0 のときのみ）
+		if (state == 0 && elapsedTime == deltaTime) {
+			emitter.initialPosition.translate = emitter.transform.translate;  // 初期位置を保存
+			emitter.initialPosition.scale = emitter.transform.scale;          // 初期スケールを保存
+		}
+
+		// 状態による処理
+		if (state == 0) {
+			if (elapsedTime > transitionTimeState0) {  // ランダム化された遷移時間
+				state = 1;
+				elapsedTime = 0.0f;
+			}
+		}
+		else if (state == 1) {
+			// 状態1
+			emitter.transform.translate.y += 0.4f;  // Y軸の増加量はそのまま
+
+			// ランダムな微調整
+			float randomXOffset = (static_cast<float>(dis2(gen)) - 0.5f) * 1.0f;  // X軸の微調整: ±0.05
+			float randomZOffset = (static_cast<float>(dis2(gen)) - 0.5f) * 1.0f;  // Z軸の微調整: ±0.05
+
+			// translateにランダムオフセットを加える
+			emitter.transform.translate.x += randomXOffset;  // X軸にランダムオフセット
+			emitter.transform.translate.z += randomZOffset;  // Z軸にランダムオフセット
+
+			if (elapsedTime > randomTransition1) {  // ランダム化された遷移時間
+				state = 2;
+				elapsedTime = 0.0f;
+			}
+		}
+		else if (state == 2) {
+			// 状態2
+			emitter.transform.scale = { 2.0f, 2.0f, 2.0f };
+			float offset = 0.1f;
+			EXPAND_RANGE(randRange.rangeX, offset);
+			EXPAND_RANGE(randRange.rangeY, offset);
+			EXPAND_RANGE(randRange.rangeZ, offset);
+
+			if (elapsedTime > transitionTimeState2) {  // ランダム化された遷移時間
+				state = 0;
+				elapsedTime = 0.0f;
+
+				// 初期状態にリセット
+				emitter.transform.translate = emitter.initialPosition.translate;
+				emitter.transform.scale = emitter.initialPosition.scale;
+				randRange = { {1.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 1.0f} };  // 初期範囲に戻す
+			}
+		}
+	}
 
 	void Particle::Particledebug(const char* name, WorldTransform& worldtransform)
 	{

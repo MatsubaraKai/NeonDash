@@ -88,6 +88,9 @@ void TitleScene::Update() {
 	// 文字床アニメーション
 	UpdateLerpAnimations(playerPos);
 
+	firework->CreateFireworkEffect(fireworkEmitter_, fireworkRange_, 0.0f, 1.5f, 1.5f);
+	firework2->CreateFireworkEffect(fireworkEmitter_2, fireworkRange_2, 0.0f, 1.5f, 1.5f);
+													
 	// オブジェクトの更新処理
 	UpdateObjects();
 
@@ -226,14 +229,12 @@ void TitleScene::InitializeData()
 // パーティクルシステムの初期化
 void TitleScene::InitializeParticles()
 {
+	randRange_ = { { -50.0f, 50.0f }, { 1.0f, 1.0f },{ -65.0f, 38.0f } };
+
+	emitter_.count = 8;
+	emitter_.frequency = 0.2f;
 	emitter_.transform.scale = { 0.2f, 0.2f, 0.2f };
 	emitter_.transform.translate = { 0.0f, -1.0f, 0.0f };
-	emitter_.frequency = 0.2f;
-	emitter_.count = 8;
-
-	randRange_.rangeX = { -50.0f, 50.0f };
-	randRange_.rangeY = { 1.0f, 1.0f };
-	randRange_.rangeZ = { -65.0f, 38.0f };
 
 	demoRandPro = { {1.0f, 4.0f}, {1.0f, 4.0f}, {1.0f, 4.0f} };
 
@@ -241,6 +242,28 @@ void TitleScene::InitializeParticles()
 	ParticleEmitter_.frequency = 0.02f;
 	ParticleEmitter_.frequencyTime = 0.0f;
 	ParticleEmitter_.transform.scale = { 0.5f, 0.5f, 0.5f };
+
+	fireworkRange_ = { {1.0f,1.0f},{1.0f,1.0f},{1.0f,1.0f} };
+
+	fireworkEmitter_.count = 6;
+	fireworkEmitter_.frequency = 0.02f;
+	fireworkEmitter_.frequencyTime = 0.0f;
+	fireworkEmitter_.transform.translate = { -30.0f,0.0f,40.0f };
+	fireworkEmitter_.transform.scale = { 0.1f, 0.1f, 0.1f };
+	fireworkEmitter_.initialPosition.translate = { -30.0f,0.0f,40.0f };
+	fireworkEmitter_.initialPosition.scale = { 0.1f, 0.1f, 0.1f };
+
+
+	fireworkRange_2 = { {1.0f,1.0f},{1.0f,1.0f},{1.0f,1.0f} };
+
+	fireworkEmitter_2.count = 6;
+	fireworkEmitter_2.frequency = 0.02f;
+	fireworkEmitter_2.frequencyTime = 0.0f;
+	fireworkEmitter_2.transform.translate = { 30.0f,0.0f,40.0f };
+	fireworkEmitter_2.transform.scale = { 0.1f, 0.1f, 0.1f };
+	fireworkEmitter_2.initialPosition.translate = { 30.0f,0.0f,40.0f };
+	fireworkEmitter_2.initialPosition.scale = { 0.1f, 0.1f, 0.1f };
+
 
 	particleSystem_ = new Engine::Particle();
 	particleSystem_->Initialize(emitter_);
@@ -252,6 +275,10 @@ void TitleScene::InitializeParticles()
 	particle2->Initialize(ParticleEmitter_);
 	particle3 = new Engine::Particle();
 	particle3->Initialize(ParticleEmitter_);
+	firework = new Engine::Particle();
+	firework->Initialize(fireworkEmitter_);
+	firework2 = new Engine::Particle();
+	firework2->Initialize(fireworkEmitter_2);
 }
 
 ///Update///
@@ -697,6 +724,9 @@ void TitleScene::DrawParticles()
 		0.2f,
 		0.4f
 	);
+
+	firework->Draw(fireworkEmitter_, fireworkEmitter_.transform.translate, WHITEtextureHandle, camera, fireworkRange_, false, 0.1f, 0.1f);
+	firework2->Draw(fireworkEmitter_2, fireworkEmitter_2.transform.translate, WHITEtextureHandle, camera, fireworkRange_2, false, 0.1f, 0.1f);
 }
 
 
