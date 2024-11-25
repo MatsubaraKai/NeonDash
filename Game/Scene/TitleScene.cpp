@@ -245,25 +245,28 @@ void TitleScene::InitializeParticles()
 
 	fireworkRange_ = { {1.0f,1.0f},{1.0f,1.0f},{1.0f,1.0f} };
 
-	fireworkEmitter_.count = 6;
+	fireworkEmitter_.count = 8;
 	fireworkEmitter_.frequency = 0.02f;
 	fireworkEmitter_.frequencyTime = 0.0f;
 	fireworkEmitter_.transform.translate = { -30.0f,0.0f,40.0f };
-	fireworkEmitter_.transform.scale = { 0.1f, 0.1f, 0.1f };
+	fireworkEmitter_.transform.scale = { 0.3f, 0.3f, 0.3f };
 	fireworkEmitter_.initialPosition.translate = { -30.0f,0.0f,40.0f };
-	fireworkEmitter_.initialPosition.scale = { 0.1f, 0.1f, 0.1f };
+	fireworkEmitter_.initialPosition.scale = { 0.3f, 0.3f, 0.3f };
 
 
 	fireworkRange_2 = { {1.0f,1.0f},{1.0f,1.0f},{1.0f,1.0f} };
 
-	fireworkEmitter_2.count = 6;
+	fireworkEmitter_2.count = 8;
 	fireworkEmitter_2.frequency = 0.02f;
 	fireworkEmitter_2.frequencyTime = 0.0f;
 	fireworkEmitter_2.transform.translate = { 30.0f,0.0f,40.0f };
-	fireworkEmitter_2.transform.scale = { 0.1f, 0.1f, 0.1f };
+	fireworkEmitter_2.transform.scale = { 0.3f, 0.3f, 0.3f };
 	fireworkEmitter_2.initialPosition.translate = { 30.0f,0.0f,40.0f };
-	fireworkEmitter_2.initialPosition.scale = { 0.1f, 0.1f, 0.1f };
-
+	fireworkEmitter_2.initialPosition.scale = { 0.3f, 0.3f, 0.3f };
+	firework = new Engine::Particle();
+	firework->Initialize(fireworkEmitter_);
+	firework2 = new Engine::Particle();
+	firework2->Initialize(fireworkEmitter_2);
 
 	particleSystem_ = new Engine::Particle();
 	particleSystem_->Initialize(emitter_);
@@ -275,10 +278,7 @@ void TitleScene::InitializeParticles()
 	particle2->Initialize(ParticleEmitter_);
 	particle3 = new Engine::Particle();
 	particle3->Initialize(ParticleEmitter_);
-	firework = new Engine::Particle();
-	firework->Initialize(fireworkEmitter_);
-	firework2 = new Engine::Particle();
-	firework2->Initialize(fireworkEmitter_2);
+	
 }
 
 ///Update///
@@ -725,8 +725,8 @@ void TitleScene::DrawParticles()
 		0.4f
 	);
 
-	firework->Draw(fireworkEmitter_, fireworkEmitter_.transform.translate, WHITEtextureHandle, camera, fireworkRange_, false, 0.1f, 0.1f);
-	firework2->Draw(fireworkEmitter_2, fireworkEmitter_2.transform.translate, WHITEtextureHandle, camera, fireworkRange_2, false, 0.1f, 0.1f);
+	firework->Draw(fireworkEmitter_, fireworkEmitter_.transform.translate, PARTICLESTAR, camera, fireworkRange_, false, 0.1f, 0.1f);
+	firework2->Draw(fireworkEmitter_2, fireworkEmitter_2.transform.translate, PARTICLESTAR, camera, fireworkRange_2, false, 0.1f, 0.1f);
 }
 
 

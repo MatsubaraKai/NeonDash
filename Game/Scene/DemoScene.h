@@ -64,7 +64,30 @@ private:
 	Engine::Particle* particle = nullptr;
 	Engine::Particle* particle2 = nullptr;
 	Engine::Particle* particle3 = nullptr;
-
+	Engine::Particle* firework = nullptr;
+	Engine::Particle* firework2 = nullptr;
+	Engine::Particle* firework3 = nullptr;
+	Engine::Particle* firework4 = nullptr;
+	Engine::Particle* firework5 = nullptr;
+	Engine::Particle* firework6 = nullptr;
+	Engine::Particle* firework7 = nullptr;
+	Engine::Particle* firework8 = nullptr;
+	Engine::Emitter fireworkEmitter_;
+	Engine::Emitter fireworkEmitter_2;
+	Engine::Emitter fireworkEmitter_3;
+	Engine::Emitter fireworkEmitter_4;
+	Engine::Emitter fireworkEmitter_5;
+	Engine::Emitter fireworkEmitter_6;
+	Engine::Emitter fireworkEmitter_7;
+	Engine::Emitter fireworkEmitter_8;
+	Engine::RandRangePro fireworkRange_;
+	Engine::RandRangePro fireworkRange_2;
+	Engine::RandRangePro fireworkRange_3;
+	Engine::RandRangePro fireworkRange_4;
+	Engine::RandRangePro fireworkRange_5;
+	Engine::RandRangePro fireworkRange_6;
+	Engine::RandRangePro fireworkRange_7;
+	Engine::RandRangePro fireworkRange_8;
 	PostProcess* postProcess_ = nullptr;
 	//変数
 	uint32_t FADEtextureHandle;
@@ -79,6 +102,7 @@ private:
 	uint32_t TENQtextureHandle;
 	uint32_t GRIDtextureHandle;
 	uint32_t STARtextureHandle;
+	uint32_t PARTICLESTAR;
 	uint32_t POSITIONtextureHandle;
 	uint32_t AudioStarGetSEhandle_;
 	uint32_t AudioPortalhandle_;

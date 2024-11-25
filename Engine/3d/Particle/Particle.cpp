@@ -10,6 +10,11 @@
 #define EXPAND_RANGE(range, offset) \
     range.x -= offset;              \
     range.y += offset;
+#define EXPAND_SCALE(scale, offset) \
+    scale.x += offset;              \
+    scale.y += offset;				\
+    scale.z += offset;				
+
 /**
 * @file Particle.cpp
 * @brief Particle
@@ -334,11 +339,11 @@ namespace Engine {
 		}
 		else if (state == 2) {
 			// 状態2
-			emitter.transform.scale = { 2.0f, 2.0f, 2.0f };
 			float offset = 0.1f;
 			EXPAND_RANGE(randRange.rangeX, offset);
 			EXPAND_RANGE(randRange.rangeY, offset);
 			EXPAND_RANGE(randRange.rangeZ, offset);
+			EXPAND_SCALE(emitter.transform.scale, offset/3);
 
 			if (elapsedTime > transitionTimeState2) {  // ランダム化された遷移時間
 				state = 0;
