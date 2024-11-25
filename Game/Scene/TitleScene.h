@@ -155,6 +155,7 @@ private:
     uint32_t AudioPortalhandle_;
     uint32_t AudioTimeCounthandle_;
     uint32_t AudioTimeCount2handle_;
+    uint32_t explosionSound;
 
     // Debug variables
     Vector3 previousPos[99];

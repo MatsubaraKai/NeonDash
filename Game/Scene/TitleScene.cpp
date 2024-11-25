@@ -88,8 +88,8 @@ void TitleScene::Update() {
 	// 文字床アニメーション
 	UpdateLerpAnimations(playerPos);
 
-	firework->CreateFireworkEffect(fireworkEmitter_, fireworkRange_, 0.0f, 1.5f, 1.5f);
-	firework2->CreateFireworkEffect(fireworkEmitter_2, fireworkRange_2, 0.0f, 1.5f, 1.5f);
+	firework->CreateFireworkEffect(fireworkEmitter_, fireworkRange_, 0.0f, 1.5f, 1.5f, explosionSound);
+	firework2->CreateFireworkEffect(fireworkEmitter_2, fireworkRange_2, 0.0f, 1.5f, 1.5f, explosionSound);
 													
 	// オブジェクトの更新処理
 	UpdateObjects();
@@ -182,6 +182,7 @@ void TitleScene::LoadAudio()
 	AudioPortalhandle_ = Audio::SoundLoadWave("Resources/game/Audio/portal.wav");
 	AudioTimeCounthandle_ = Audio::SoundLoadWave("Resources/game/Audio/timecount.wav");
 	AudioTimeCount2handle_ = Audio::SoundLoadWave("Resources/game/Audio/timecount2.wav");
+	explosionSound = Audio::SoundLoadWave("Resources/game/Audio/firework.wav");
 }
 
 // 初期化データのセットアップ

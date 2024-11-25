@@ -10,9 +10,10 @@
 #include <cassert>
 #include <dxcapi.h>
 #include <random>
-
-#include "function.h"
 #include <wrl.h>
+
+#include "Audio.h"
+#include "function.h"
 #include "Transform.h"
 #include "VertexData.h"
 #include "Vector4.h"
@@ -99,7 +100,7 @@
         /// <summary>
         /// 花火のような動きをさせる
         /// </summary>
-        void CreateFireworkEffect(Emitter& emitter, RandRangePro& randRange, float transitionTimeState0, float transitionTimeState1, float transitionTimeState2);
+        void CreateFireworkEffect(Emitter& emitter, RandRangePro& randRange, float transitionTimeState0, float transitionTimeState1, float transitionTimeState2,uint32_t explosionSound);
 
         /// <summary>
         /// リソースの解放を行う

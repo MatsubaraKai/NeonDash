@@ -30,6 +30,7 @@ void DemoScene::Init()
 	AudioPortalhandle_ = Audio::SoundLoadWave("Resources/game/Audio/portal.wav");
 	AudioTimeCounthandle_ = Audio::SoundLoadWave("Resources/game/Audio/timecount.wav");
 	AudioTimeCount2handle_ = Audio::SoundLoadWave("Resources/game/Audio/timecount2.wav");
+	explosionSound = Audio::SoundLoadWave("Resources/game/Audio/firework.wav");
 	POSITIONtextureHandle = TextureManager::StoreTexture("Resources/game/position.png");
 	PARTICLESTAR = TextureManager::StoreTexture("Resources/particlestar.png");
 
@@ -38,9 +39,9 @@ void DemoScene::Init()
 	fireworkEmitter_.count = 8;
 	fireworkEmitter_.frequency = 0.02f;
 	fireworkEmitter_.frequencyTime = 0.0f;
-	fireworkEmitter_.transform.translate = { -30.0f,0.0f,40.0f };
+	fireworkEmitter_.transform.translate = { -70.0f,0.0f,40.0f };
 	fireworkEmitter_.transform.scale = { 0.3f, 0.3f, 0.3f };
-	fireworkEmitter_.initialPosition.translate = { -30.0f,0.0f,40.0f };
+	fireworkEmitter_.initialPosition.translate = { -70.0f,0.0f,40.0f };
 	fireworkEmitter_.initialPosition.scale = { 0.3f, 0.3f, 0.3f };
 
 
@@ -49,9 +50,9 @@ void DemoScene::Init()
 	fireworkEmitter_2.count = 8;
 	fireworkEmitter_2.frequency = 0.02f;
 	fireworkEmitter_2.frequencyTime = 0.0f;
-	fireworkEmitter_2.transform.translate = { 30.0f,0.0f,40.0f };
+	fireworkEmitter_2.transform.translate = { 70.0f,0.0f,40.0f };
 	fireworkEmitter_2.transform.scale = { 0.3f, 0.3f, 0.3f };
-	fireworkEmitter_2.initialPosition.translate = { 30.0f,0.0f,40.0f };
+	fireworkEmitter_2.initialPosition.translate = { 70.0f,0.0f,40.0f };
 	fireworkEmitter_2.initialPosition.scale = { 0.3f, 0.3f, 0.3f };
 
 	fireworkRange_3 = { {1.0f,1.0f},{1.0f,1.0f},{1.0f,1.0f} };
@@ -59,9 +60,9 @@ void DemoScene::Init()
 	fireworkEmitter_3.count = 8;
 	fireworkEmitter_3.frequency = 0.02f;
 	fireworkEmitter_3.frequencyTime = 0.0f;
-	fireworkEmitter_3.transform.translate = { -30.0f,0.0f,80.0f };
+	fireworkEmitter_3.transform.translate = { -70.0f,0.0f,80.0f };
 	fireworkEmitter_3.transform.scale = { 0.3f, 0.3f, 0.3f };
-	fireworkEmitter_3.initialPosition.translate = { -30.0f,0.0f,80.0f };
+	fireworkEmitter_3.initialPosition.translate = { -70.0f,0.0f,80.0f };
 	fireworkEmitter_3.initialPosition.scale = { 0.3f, 0.3f, 0.3f };
 
 	fireworkRange_4 = { {1.0f,1.0f},{1.0f,1.0f},{1.0f,1.0f} };
@@ -69,9 +70,9 @@ void DemoScene::Init()
 	fireworkEmitter_4.count = 8;
 	fireworkEmitter_4.frequency = 0.02f;
 	fireworkEmitter_4.frequencyTime = 0.0f;
-	fireworkEmitter_4.transform.translate = { 30.0f,0.0f,80.0f };
+	fireworkEmitter_4.transform.translate = { 70.0f,0.0f,80.0f };
 	fireworkEmitter_4.transform.scale = { 0.3f, 0.3f, 0.3f };
-	fireworkEmitter_4.initialPosition.translate = { 30.0f,0.0f,80.0f };
+	fireworkEmitter_4.initialPosition.translate = { 70.0f,0.0f,80.0f };
 	fireworkEmitter_4.initialPosition.scale = { 0.3f, 0.3f, 0.3f };
 
 	fireworkRange_5 = { {1.0f,1.0f},{1.0f,1.0f},{1.0f,1.0f} };
@@ -79,9 +80,9 @@ void DemoScene::Init()
 	fireworkEmitter_5.count = 8;
 	fireworkEmitter_5.frequency = 0.02f;
 	fireworkEmitter_5.frequencyTime = 0.0f;
-	fireworkEmitter_5.transform.translate = { -30.0f,0.0f,120.0f };
+	fireworkEmitter_5.transform.translate = { -70.0f,0.0f,120.0f };
 	fireworkEmitter_5.transform.scale = { 0.3f, 0.3f, 0.3f };
-	fireworkEmitter_5.initialPosition.translate = { -30.0f,0.0f,120.0f };
+	fireworkEmitter_5.initialPosition.translate = { -70.0f,0.0f,120.0f };
 	fireworkEmitter_5.initialPosition.scale = { 0.3f, 0.3f, 0.3f };
 
 	fireworkRange_6 = { {1.0f,1.0f},{1.0f,1.0f},{1.0f,1.0f} };
@@ -89,9 +90,9 @@ void DemoScene::Init()
 	fireworkEmitter_6.count = 8;
 	fireworkEmitter_6.frequency = 0.02f;
 	fireworkEmitter_6.frequencyTime = 0.0f;
-	fireworkEmitter_6.transform.translate = { 30.0f,0.0f,120.0f };
+	fireworkEmitter_6.transform.translate = { 70.0f,0.0f,120.0f };
 	fireworkEmitter_6.transform.scale = { 0.3f, 0.3f, 0.3f };
-	fireworkEmitter_6.initialPosition.translate = { 30.0f,0.0f,120.0f };
+	fireworkEmitter_6.initialPosition.translate = { 70.0f,0.0f,120.0f };
 	fireworkEmitter_6.initialPosition.scale = { 0.3f, 0.3f, 0.3f };
 
 	fireworkRange_7 = { {1.0f,1.0f},{1.0f,1.0f},{1.0f,1.0f} };
@@ -99,9 +100,9 @@ void DemoScene::Init()
 	fireworkEmitter_7.count = 8;
 	fireworkEmitter_7.frequency = 0.02f;
 	fireworkEmitter_7.frequencyTime = 0.0f;
-	fireworkEmitter_7.transform.translate = { -30.0f,0.0f,160.0f };
+	fireworkEmitter_7.transform.translate = { -70.0f,0.0f,160.0f };
 	fireworkEmitter_7.transform.scale = { 0.3f, 0.3f, 0.3f };
-	fireworkEmitter_7.initialPosition.translate = { -30.0f,0.0f,160.0f };
+	fireworkEmitter_7.initialPosition.translate = { -70.0f,0.0f,160.0f };
 	fireworkEmitter_7.initialPosition.scale = { 0.3f, 0.3f, 0.3f };
 
 	fireworkRange_8 = { {1.0f,1.0f},{1.0f,1.0f},{1.0f,1.0f} };
@@ -109,9 +110,9 @@ void DemoScene::Init()
 	fireworkEmitter_8.count = 8;
 	fireworkEmitter_8.frequency = 0.02f;
 	fireworkEmitter_8.frequencyTime = 0.0f;
-	fireworkEmitter_8.transform.translate = { 30.0f,0.0f,160.0f };
+	fireworkEmitter_8.transform.translate = { 70.0f,0.0f,160.0f };
 	fireworkEmitter_8.transform.scale = { 0.3f, 0.3f, 0.3f };
-	fireworkEmitter_8.initialPosition.translate = { 30.0f,0.0f,160.0f };
+	fireworkEmitter_8.initialPosition.translate = { 70.0f,0.0f,160.0f };
 	fireworkEmitter_8.initialPosition.scale = { 0.3f, 0.3f, 0.3f };
 	firework = new Engine::Particle();
 	firework->Initialize(fireworkEmitter_);
@@ -225,14 +226,14 @@ void DemoScene::Update()
 	Vector3 playerPos = camera->transform_.translate;
 	PositionOBJ->worldTransform_.translation_ = playerPos;
 	PositionOBJ->worldTransform_.translation_.y = camera->transform_.translate.y - 2.99f;
-	firework->CreateFireworkEffect(fireworkEmitter_, fireworkRange_, 0.0f, 1.5f, 1.5f);
-	firework2->CreateFireworkEffect(fireworkEmitter_2, fireworkRange_2, 0.0f, 1.5f, 1.5f);
-	firework3->CreateFireworkEffect(fireworkEmitter_3, fireworkRange_3, 0.0f, 1.5f, 1.5f);
-	firework4->CreateFireworkEffect(fireworkEmitter_4, fireworkRange_4, 0.0f, 1.5f, 1.5f);
-	firework5->CreateFireworkEffect(fireworkEmitter_5, fireworkRange_5, 0.0f, 1.5f, 1.5f);
-	firework6->CreateFireworkEffect(fireworkEmitter_6, fireworkRange_6, 0.0f, 1.5f, 1.5f);
-	firework7->CreateFireworkEffect(fireworkEmitter_7, fireworkRange_7, 0.0f, 1.5f, 1.5f);
-	firework8->CreateFireworkEffect(fireworkEmitter_8, fireworkRange_8, 0.0f, 1.5f, 1.5f);
+	firework->CreateFireworkEffect(fireworkEmitter_, fireworkRange_, 0.0f, 1.5f, 1.5f,explosionSound);
+	firework2->CreateFireworkEffect(fireworkEmitter_2, fireworkRange_2, 0.0f, 1.5f, 1.5f, explosionSound);
+	firework3->CreateFireworkEffect(fireworkEmitter_3, fireworkRange_3, 0.0f, 1.5f, 1.5f, explosionSound);
+	firework4->CreateFireworkEffect(fireworkEmitter_4, fireworkRange_4, 0.0f, 1.5f, 1.5f, explosionSound);
+	firework5->CreateFireworkEffect(fireworkEmitter_5, fireworkRange_5, 0.0f, 1.5f, 1.5f, explosionSound);
+	firework6->CreateFireworkEffect(fireworkEmitter_6, fireworkRange_6, 0.0f, 1.5f, 1.5f, explosionSound);
+	firework7->CreateFireworkEffect(fireworkEmitter_7, fireworkRange_7, 0.0f, 1.5f, 1.5f, explosionSound);
+	firework8->CreateFireworkEffect(fireworkEmitter_8, fireworkRange_8, 0.0f, 1.5f, 1.5f, explosionSound);
 
 	if (collider->CheckCollision(camera->transform_.translate, worldTransformPa2.translation_, 2.5f, 4.0f, 2.5f, 2.0f) && starCount == 0) {
 		// 衝突している

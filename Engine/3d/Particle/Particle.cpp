@@ -293,7 +293,7 @@ namespace Engine {
 
 	void Particle::CreateFireworkEffect(Emitter& emitter, RandRangePro& randRange,
 		float transitionTimeState0, float transitionTimeState1,
-		float transitionTimeState2) {
+		float transitionTimeState2, uint32_t explosionSound) {
 
 		// ランダム生成器の準備
 		std::random_device rd;
@@ -335,6 +335,13 @@ namespace Engine {
 			if (elapsedTime > randomTransition1) {  // ランダム化された遷移時間
 				state = 2;
 				elapsedTime = 0.0f;
+				// ランダムな音量を生成
+				std::random_device rd;                         // ランダムデバイス
+				std::mt19937 gen(rd());                        // メルセンヌ・ツイスタ生成器
+				std::uniform_real_distribution<float> dis(0.1f, 0.5f); // 0.1f 〜 0.5f の範囲でランダム生成
+				float randomVolume = dis(gen); // ランダムな音量を生成
+
+				Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), explosionSound, false, randomVolume);
 			}
 		}
 		else if (state == 2) {

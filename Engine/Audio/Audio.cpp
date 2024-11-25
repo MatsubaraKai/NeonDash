@@ -73,7 +73,7 @@ uint32_t Audio::SoundLoadWave(const char* filename)
 		file.read((char*)&data, sizeof(data));
 	}
 
-	if (strncmp(data.id, "data",4) != 0) {
+	if (strncmp(data.id, "data", 4) != 0) {
 		assert(0);
 	}
 
