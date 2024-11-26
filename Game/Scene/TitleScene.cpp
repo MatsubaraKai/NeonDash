@@ -88,8 +88,8 @@ void TitleScene::Update() {
 	// 文字床アニメーション
 	UpdateLerpAnimations(playerPos);
 
-	firework->CreateFireworkEffect(fireworkEmitter_, fireworkRange_, 0.0f, 1.5f, 1.5f, explosionSound);
-	firework2->CreateFireworkEffect(fireworkEmitter_2, fireworkRange_2, 0.0f, 1.5f, 1.5f, explosionSound);
+	firework->CreateFireworkEffect(fireworkEmitter_, fireworkRange_, 1.0f, 2.0f, 1.5f, explosionSound, camera->GetTranslate());
+	firework2->CreateFireworkEffect(fireworkEmitter_2, fireworkRange_2, 1.0f, 2.0f, 1.5f, explosionSound, camera->GetTranslate());
 													
 	// オブジェクトの更新処理
 	UpdateObjects();
@@ -206,7 +206,7 @@ void TitleScene::InitializeData()
 	PositionOBJ->Init();
 	PositionOBJ->SetModel("position.obj");
 	TenQTransform.Initialize();
-	TenQTransform.scale_ = { -100.0f, 100.0f, 100.0f };
+	TenQTransform.scale_ = { -300.0f, 300.0f, 300.0f };
 	TenQOBJ->SetWorldTransform(TenQTransform);
 	TenQOBJ->SetModel("world.obj");
 	worldTransformPa.Initialize();
@@ -244,26 +244,26 @@ void TitleScene::InitializeParticles()
 	ParticleEmitter_.frequencyTime = 0.0f;
 	ParticleEmitter_.transform.scale = { 0.5f, 0.5f, 0.5f };
 
-	fireworkRange_ = { {1.0f,1.0f},{1.0f,1.0f},{1.0f,1.0f} };
+	fireworkRange_ = { {-0.2f, 0.2f}, {-0.2f, 0.2f}, {-0.2f, 0.2f} };
 
 	fireworkEmitter_.count = 8;
 	fireworkEmitter_.frequency = 0.02f;
 	fireworkEmitter_.frequencyTime = 0.0f;
 	fireworkEmitter_.transform.translate = { -30.0f,0.0f,40.0f };
-	fireworkEmitter_.transform.scale = { 0.3f, 0.3f, 0.3f };
+	fireworkEmitter_.transform.scale = { 0.5f, 0.5f, 0.5f };
 	fireworkEmitter_.initialPosition.translate = { -30.0f,0.0f,40.0f };
-	fireworkEmitter_.initialPosition.scale = { 0.3f, 0.3f, 0.3f };
+	fireworkEmitter_.initialPosition.scale = { 0.5f, 0.5f, 0.5f };
 
 
-	fireworkRange_2 = { {1.0f,1.0f},{1.0f,1.0f},{1.0f,1.0f} };
+	fireworkRange_2 = { {-0.2f, 0.2f}, {-0.2f, 0.2f}, {-0.2f, 0.2f} };
 
 	fireworkEmitter_2.count = 8;
 	fireworkEmitter_2.frequency = 0.02f;
 	fireworkEmitter_2.frequencyTime = 0.0f;
 	fireworkEmitter_2.transform.translate = { 30.0f,0.0f,40.0f };
-	fireworkEmitter_2.transform.scale = { 0.3f, 0.3f, 0.3f };
+	fireworkEmitter_2.transform.scale = { 0.5f, 0.5f, 0.5f };
 	fireworkEmitter_2.initialPosition.translate = { 30.0f,0.0f,40.0f };
-	fireworkEmitter_2.initialPosition.scale = { 0.3f, 0.3f, 0.3f };
+	fireworkEmitter_2.initialPosition.scale = { 0.5f, 0.5f, 0.5f };
 	firework = new Engine::Particle();
 	firework->Initialize(fireworkEmitter_);
 	firework2 = new Engine::Particle();
@@ -726,8 +726,8 @@ void TitleScene::DrawParticles()
 		0.4f
 	);
 
-	firework->Draw(fireworkEmitter_, fireworkEmitter_.transform.translate, PARTICLESTAR, camera, fireworkRange_, false, 0.1f, 0.1f);
-	firework2->Draw(fireworkEmitter_2, fireworkEmitter_2.transform.translate, PARTICLESTAR, camera, fireworkRange_2, false, 0.1f, 0.1f);
+	firework->Draw(fireworkEmitter_, fireworkEmitter_.transform.translate, PARTICLESTAR, camera, fireworkRange_, false, 0.1f, 0.6f);
+	firework2->Draw(fireworkEmitter_2, fireworkEmitter_2.transform.translate, PARTICLESTAR, camera, fireworkRange_2, false, 0.1f, 0.6f);
 }
 
 

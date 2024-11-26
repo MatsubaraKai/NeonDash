@@ -11,7 +11,8 @@
 #include <dxcapi.h>
 #include <random>
 #include <wrl.h>
-
+#include <cmath>
+#include <algorithm>
 #include "Audio.h"
 #include "function.h"
 #include "Transform.h"
@@ -100,7 +101,7 @@
         /// <summary>
         /// 花火のような動きをさせる
         /// </summary>
-        void CreateFireworkEffect(Emitter& emitter, RandRangePro& randRange, float transitionTimeState0, float transitionTimeState1, float transitionTimeState2,uint32_t explosionSound);
+        void CreateFireworkEffect(Emitter& emitter, RandRangePro& randRange, float transitionTimeState0, float transitionTimeState1, float transitionTimeState2,uint32_t explosionSound, const Vector3& playerPosition);
 
         /// <summary>
         /// リソースの解放を行う

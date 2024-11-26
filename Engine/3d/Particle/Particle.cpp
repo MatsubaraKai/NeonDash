@@ -10,10 +10,13 @@
 #define EXPAND_RANGE(range, offset) \
     range.x -= offset;              \
     range.y += offset;
-#define EXPAND_SCALE(scale, offset) \
-    scale.x += offset;              \
-    scale.y += offset;				\
-    scale.z += offset;				
+#define EXPAND_SCALE_UNIFORM(scale, baseOffset, randomRange) \
+    { \
+        float randomOffset = baseOffset + ((rand() / (float)RAND_MAX) * 2.0f - 1.0f) * randomRange; \
+        scale.x += randomOffset; \
+        scale.y += randomOffset; \
+        scale.z += randomOffset; \
+    }
 
 /**
 * @file Particle.cpp
@@ -293,7 +296,7 @@ namespace Engine {
 
 	void Particle::CreateFireworkEffect(Emitter& emitter, RandRangePro& randRange,
 		float transitionTimeState0, float transitionTimeState1,
-		float transitionTimeState2, uint32_t explosionSound) {
+		float transitionTimeState2, uint32_t explosionSound, const Vector3& playerPosition) {
 
 		// ランダム生成器の準備
 		std::random_device rd;
@@ -335,22 +338,49 @@ namespace Engine {
 			if (elapsedTime > randomTransition1) {  // ランダム化された遷移時間
 				state = 2;
 				elapsedTime = 0.0f;
-				// ランダムな音量を生成
-				std::random_device rd;                         // ランダムデバイス
-				std::mt19937 gen(rd());                        // メルセンヌ・ツイスタ生成器
-				std::uniform_real_distribution<float> dis(0.1f, 0.5f); // 0.1f 〜 0.5f の範囲でランダム生成
-				float randomVolume = dis(gen); // ランダムな音量を生成
 
-				Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), explosionSound, false, randomVolume);
+				// プレイヤーとエミッターの距離を計算
+				Vector3 emitterPosition = emitter.transform.translate;
+				float distance = (playerPosition - emitterPosition).Length();  // 正しく距離を計算
+
+				// maxDistanceをfloat型として定義
+				float maxDistance = 100.0f;  // 音量が最小になる最大距離
+				float minDistance = 20.0f;   // 音量が最大になる最小距離
+
+				// 距離に応じて音量を調整
+				float volume = 1.0f - (distance - minDistance) / (maxDistance - minDistance);
+
+				// 音量が範囲外にならないように調整
+				if (volume > 1.0f) {
+					volume = 1.0f;  // 距離が近すぎる場合、最大音量
+				}
+				else if (volume < 0.0f) {
+					volume = 0.0f;  // 距離が遠すぎる場合、最小音量
+				}
+
+				// 音量をそのまま使用
+				Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), explosionSound, false, volume);
 			}
+
+
 		}
 		else if (state == 2) {
 			// 状態2
-			float offset = 0.1f;
+			float offset = 0.15f;
+			float baseOffset = 0.15f / 8.0f; // 基本的な拡大率
+			float randomRange = 0.2f;       // ランダムなばらつきの範囲 (±0.02)
+
 			EXPAND_RANGE(randRange.rangeX, offset);
 			EXPAND_RANGE(randRange.rangeY, offset);
 			EXPAND_RANGE(randRange.rangeZ, offset);
-			EXPAND_SCALE(emitter.transform.scale, offset/3);
+			// スケールを拡大し、ランダム要素を加える
+			std::random_device rd;
+			std::mt19937 gen(rd());
+			std::uniform_real_distribution<float> randomDistribution(-randomRange, randomRange);
+			float randomOffset = baseOffset + randomDistribution(gen);
+			emitter.transform.scale.x += randomOffset;
+			emitter.transform.scale.y += randomOffset;
+			emitter.transform.scale.z += randomOffset;
 
 			if (elapsedTime > transitionTimeState2) {  // ランダム化された遷移時間
 				state = 0;
@@ -359,7 +389,7 @@ namespace Engine {
 				// 初期状態にリセット
 				emitter.transform.translate = emitter.initialPosition.translate;
 				emitter.transform.scale = emitter.initialPosition.scale;
-				randRange = { {1.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 1.0f} };  // 初期範囲に戻す
+				randRange = { {-0.2f, 0.2f}, {-0.2f, 0.2f}, {-0.2f, 0.2f} }; // 初期範囲に戻す
 			}
 		}
 	}

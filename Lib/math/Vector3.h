@@ -31,5 +31,10 @@ struct Vector3 final {
     Vector3 operator+(const Vector3& other) const {
         return Vector3(x + other.x, y + other.y, z + other.z);
     }
-   
+
+    // ベクトルの長さ（Magnitude）を計算する関数
+    float Length() const {
+        return std::sqrt(x * x + y * y + z * z);
+    }
+
 };
