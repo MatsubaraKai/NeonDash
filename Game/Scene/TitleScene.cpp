@@ -590,6 +590,8 @@ void TitleScene::UpdateObjects() {
 
 // デバッグ情報の表示
 void TitleScene::DisplayDebugInfo(const Vector3& playerPos) {
+#ifdef _DEBUG
+
 	ImGui::Begin("Debug Info");
 	ImGui::Text("Player Position: X=%f, Y=%f, Z=%f", playerPos.x, playerPos.y, playerPos.z);
 	ImGui::Text("On Floor: %d", isOnFloor);
@@ -606,7 +608,6 @@ void TitleScene::DisplayDebugInfo(const Vector3& playerPos) {
 		Vector3 floorPos = ConeObject_[i]->worldTransform_.translation_;
 		Vector3 floorSize = ConeObject_[i]->worldTransform_.scale_;
 		std::string label = "JSONmodel" + std::to_string(i);
-#ifdef _DEBUG
 
 		ImGui::Begin("OnFloorDebug");
 		ImGui::Text(label.c_str());
@@ -619,7 +620,6 @@ void TitleScene::DisplayDebugInfo(const Vector3& playerPos) {
 		ImGui::Text("isOny : %f %f", playerPos.y, abs(floorPos.y + floorSize.y + 3.0f));
 		ImGui::Text("isOnyy : %f", abs(playerPos.y - (floorPos.y + floorSize.y + 3.0f)));
 		ImGui::End();
-#endif
 		// プレイヤーがオブジェクトの上にいるか判定
 		if (playerPos.x >= floorPos.x - floorSize.x &&
 			playerPos.x <= floorPos.x + floorSize.x &&
@@ -633,6 +633,9 @@ void TitleScene::DisplayDebugInfo(const Vector3& playerPos) {
 			isOnFloor = false;
 		}
 	}
+	camera->CameraDebug();
+#endif
+
 }
 
 ///Draw///
@@ -730,4 +733,6 @@ void TitleScene::DrawParticles()
 	firework2->Draw(fireworkEmitter_2, fireworkEmitter_2.transform.translate, PARTICLESTAR, camera, fireworkRange_2, false, 0.1f, 0.6f);
 }
 
+void TitleScene::ImguiDebug() {
+}
 

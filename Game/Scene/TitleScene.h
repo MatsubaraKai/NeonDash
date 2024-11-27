@@ -54,6 +54,7 @@ private:
     void UpdateCameraFOV(const XINPUT_STATE& joyState);
     void DisplayDebugInfo(const Vector3& playerPos);
     void UpdateFloorInteraction();
+    void ImguiDebug();
 
     // Draw methods
     void DrawConeObjects();
