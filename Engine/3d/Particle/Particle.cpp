@@ -344,8 +344,8 @@ namespace Engine {
 				float distance = (playerPosition - emitterPosition).Length();  // 正しく距離を計算
 
 				// maxDistanceをfloat型として定義
-				float maxDistance = 100.0f;  // 音量が最小になる最大距離
-				float minDistance = 20.0f;   // 音量が最大になる最小距離
+				float maxDistance = 130.0f;  // 音量が最小になる最大距離
+				float minDistance = 50.0f;   // 音量が最大になる最小距離
 
 				// 距離に応じて音量を調整
 				float volume = 1.0f - (distance - minDistance) / (maxDistance - minDistance);
@@ -354,8 +354,8 @@ namespace Engine {
 				if (volume > 1.0f) {
 					volume = 1.0f;  // 距離が近すぎる場合、最大音量
 				}
-				else if (volume < 0.0f) {
-					volume = 0.0f;  // 距離が遠すぎる場合、最小音量
+				else if (volume < 0.1f) {
+					volume = 0.1f;  // 距離が遠すぎる場合、最小音量
 				}
 
 				// 音量をそのまま使用

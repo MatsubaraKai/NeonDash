@@ -22,6 +22,9 @@ void Camera::Update() {
     viewMatrix_ = Inverse(cameraMatrix_);
     projectionMatrix_ = MakePerspectiveFovMatrix(fovY_, asepectRatio_, nearClip_, farClip_);
     viewProjectionMatrix_ = Multiply(viewMatrix_, projectionMatrix_);
+    if (transform_.rotate.y >= 6.283f || transform_.rotate.y <= -6.283f) {
+        transform_.rotate.y = 0.0f;
+    }
 }
 
 /// <summary>
