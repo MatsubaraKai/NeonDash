@@ -170,6 +170,18 @@ void Camera::Jump(bool isOnFloor)
 
     if (isDie) {
         if (easingProgress == 0.0f) {
+            // バイブレーションを有効にする
+            XINPUT_VIBRATION vibration = {};
+            vibration.wLeftMotorSpeed = 6553; // 最大速度    65535
+            vibration.wRightMotorSpeed = 6553; // 最大速度
+            XInputSetState(0, &vibration); // コントローラー0を対象（必要に応じて変更）
+
+            // 一定時間後に振動を停止するためのスレッドを起動（非同期処理）
+            std::thread([]() {
+                std::this_thread::sleep_for(std::chrono::milliseconds(5000)); // 5000ms振動
+                XINPUT_VIBRATION stopVibration = {};
+                XInputSetState(0, &stopVibration); // 振動停止
+                }).detach();
             Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), AudioPortalhandle_, false, 0.30f);
         }
         jumpVelocity = 0.0f;
@@ -252,6 +264,7 @@ void Camera::HandleGamepadJump(bool isOnFloor)
             isJumping = true;
             jumpVelocity = JumpSpeed;
             Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), AudioJumphandle_, false, 0.30f);
+           
         }
 
 #ifdef _DEBUG

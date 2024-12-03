@@ -199,6 +199,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Game\Scene\STAGE3.cpp" />
     <ClCompile Include="Game\Utilty\Timer.cpp" />
     <ClCompile Include="Game\Utilty\Menu.cpp" />
+    <ClCompile Include="SceneBase.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\2d\PostEffect\Effect\ChromaticAberration.h" />
@@ -294,6 +295,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Game\Scene\STAGE3.h" />
     <ClInclude Include="Game\Utilty\Timer.h" />
     <ClInclude Include="Game\Utilty\Menu.h" />
+    <ClInclude Include="SceneBase.h" />
     <ClInclude Include="test.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>

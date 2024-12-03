@@ -19,6 +19,8 @@ protected:
 	static int SCENE4Time[5];
 	static int menucount;
 	static bool menuposition;
+	// シーン番号を管理する変数
+	int sceneNo = TITLE;
 public:
 	// 継承先で実装される関数
 	/// 抽象クラスなので純粋仮想関数とする
@@ -32,9 +34,9 @@ public:
 	// 仮想デストラクタを用意しないと警告される
 	virtual ~IScene();
 
-	// シーン番号のゲッター
-	static int GetSceneNo();
-	static void SetSceneNo(int sceneno);
+	// シーン番号のゲッターとセッター
+	int GetSceneNo() const { return sceneNo; }
+	void SetSceneNo(int newSceneNo) { sceneNo = newSceneNo; }
 
 
 };
