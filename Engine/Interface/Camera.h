@@ -9,7 +9,7 @@
 #include "Input.h"
 #include "Audio.h"
 #include "IScene.h"
-
+#include <thread>
 /// <summary>
 /// @file Camera.h
 /// @brief カメラクラスの宣言

@@ -358,9 +358,32 @@ namespace Engine {
 					volume = 0.1f;  // 距離が遠すぎる場合、最小音量
 				}
 
-				// 音量をそのまま使用
-				Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), explosionSound, false, volume);
+				// 距離に応じて振動の強さを調整
+				float vibrationStrength = 1.0f - (distance - minDistance) / (maxDistance - minDistance);
+				if (vibrationStrength > 1.0f) {
+					vibrationStrength = 1.0f;  // 最大振動
+				}
+				else if (vibrationStrength < 0.0f) {
+					vibrationStrength = 0.0f;  // 振動なし
+				}
+
+				// 振動の値を設定
+				XINPUT_VIBRATION vibration = {};
+				vibration.wLeftMotorSpeed = static_cast<WORD>(vibrationStrength * 65535); // 左モーターの強さ
+				vibration.wRightMotorSpeed = static_cast<WORD>(vibrationStrength * 65535); // 右モーターの強さ
+				XInputSetState(0, &vibration); // コントローラー0を対象（必要に応じて変更）
+
+				// 一定時間後に振動を停止するためのスレッドを起動（非同期処理）
+				std::thread([]() {
+					std::this_thread::sleep_for(std::chrono::milliseconds(200)); // 200ms振動
+					XINPUT_VIBRATION stopVibration = {};
+					XInputSetState(0, &stopVibration); // 振動停止
+					}).detach();
+
+					// 音量をそのまま使用
+					Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), explosionSound, false, volume);
 			}
+
 
 
 		}
