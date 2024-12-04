@@ -1,42 +1,27 @@
 #pragma once
-//シーン名を列挙型(Enum)で定義
-enum SCENE { TITLE, DEMO, Stage1, Stage2, Stage3 };
+#include <iostream>
 
 // シーン内での処理を行う基底クラス
 class IScene {
 protected:
-	// シーン番号を管理する変数
-	static int sceneNo;
-	static bool TitleRoop;
-	static bool DemoRoop;
-	static bool GameRoop;
-	static bool Game2Roop;
-	static bool Game3Roop;
-	static int DemoTime[5];
-	static int SCENE1Time[5];
-	static int SCENE2Time[5];
-	static int SCENE3Time[5];
-	static int SCENE4Time[5];
-	static int menucount;
-	static bool menuposition;
-	// シーン番号を管理する変数
-	int sceneNo = TITLE;
+    static int sceneNo;  // 現在のシーン番号
+
 public:
-	// 継承先で実装される関数
-	/// 抽象クラスなので純粋仮想関数とする
-	virtual void Init() = 0;
-	virtual void Update() = 0;
-	virtual void Draw() = 0;
-	virtual void PostDraw() = 0;
-	virtual void Release() = 0;
-	virtual int GameClose() = 0;
+    IScene() = default;
 
-	// 仮想デストラクタを用意しないと警告される
-	virtual ~IScene();
+    // 仮想関数として定義することで、派生クラスが具体的に実装を提供する
+    virtual void Init() = 0;
+    virtual void Update() = 0;
+    virtual void Draw() = 0;
+    virtual void PostDraw() = 0;
+    virtual void Release() = 0;
+    virtual int GameClose() = 0;
 
-	// シーン番号のゲッターとセッター
-	int GetSceneNo() const { return sceneNo; }
-	void SetSceneNo(int newSceneNo) { sceneNo = newSceneNo; }
+    // 仮想デストラクタを用意することで、ポインタ経由で破棄されるときに派生クラスのデストラクタも呼ばれる
+    virtual ~IScene() = default;
 
-
+    // シーン番号のゲッターとセッター
+    static int GetSceneNo() { return sceneNo; }
+    static void SetSceneNo(int newSceneNo) { sceneNo = newSceneNo; }
 };
+

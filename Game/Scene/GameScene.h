@@ -1,5 +1,5 @@
 ﻿#pragma once
-
+#include <iostream>
 #include "IScene.h"
 #include "Triangle.h"
 #include "WorldTransform.h"
@@ -18,11 +18,20 @@
 #include "random"
 #include <vector>
 #include <string>
+#include <map>
+#include <memory>
 
-class TitleScene : public IScene
-{
+enum StageID {
+    Stage_Title,
+    Stage_1,
+    Stage_2,
+    Stage_3
+};
+
+class GameScene : public IScene {
+
 public:
-    // Public methods
+    GameScene();
     void Init() override;
     void Update() override;
     void Draw() override;
@@ -30,38 +39,22 @@ public:
     void Release() override;
     int GameClose() override;
 
+    void SetStage(StageID stageID);
+    static GameScene* GetInstance();
+
 private:
-    // Initialization methods
-    void LoadTextures();
-    void LoadModels();
-    void LoadAudio();
-    void InitializeData();
-    void InitializeParticles();
+    StageID currentStage_;  // 現在のステージを管理
 
-    // Update methods
-    void UpdatePortalCollision(const Vector3& playerPos);
-    void UpdateEffects();
-    void HandleSceneTransition();
-    void UpdateStageTimes();
-    void AlignObjectsToCamera();
-    void HandleGamePadInput();
-    void UpdatePlayerFloorCollision(const Vector3& playerPos);
-    void UpdateLerpAnimations(const Vector3& playerPos);
-    void UpdateObjects();
-    void UpdateCamera();
-    void HandleStartButton(const XINPUT_STATE& joyState);
-    void HandleMenuNavigation(const XINPUT_STATE& joyState);
-    void UpdateCameraFOV(const XINPUT_STATE& joyState);
-    void DisplayDebugInfo(const Vector3& playerPos);
-    void UpdateFloorInteraction();
-    void ImguiDebug();
+    // 共通処理
+    void AllInit(); // プレイヤー入力処理
+    void HandlePlayerInput(); // プレイヤー入力処理
+    void UpdatePhysics();     // 物理計算や当たり判定
+    void UpdateCamera();      // カメラの更新
 
-    // Draw methods
-    void DrawConeObjects();
-    void DrawTitleTextObjects();
-    void DrawTitleNumberObjects();
-    void DrawSpecialObjects();
-    void DrawParticles();
+    // ステージ固有の処理
+    void UpdateStageSpecific();
+
+    std::map<StageID, std::vector<std::shared_ptr<Object3d>>> stageObjects_;
 
     // Member variables
     // World transforms
@@ -160,4 +153,5 @@ private:
 
     // Debug variables
     Vector3 previousPos[99];
+
 };

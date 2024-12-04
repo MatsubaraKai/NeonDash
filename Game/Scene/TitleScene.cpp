@@ -90,7 +90,7 @@ void TitleScene::Update() {
 
 	firework->CreateFireworkEffect(fireworkEmitter_, fireworkRange_, 1.0f, 2.0f, 1.5f, explosionSound, camera->GetTranslate());
 	firework2->CreateFireworkEffect(fireworkEmitter_2, fireworkRange_2, 1.0f, 2.0f, 1.5f, explosionSound, camera->GetTranslate());
-													
+
 	// オブジェクトの更新処理
 	UpdateObjects();
 
@@ -279,7 +279,7 @@ void TitleScene::InitializeParticles()
 	particle2->Initialize(ParticleEmitter_);
 	particle3 = new Engine::Particle();
 	particle3->Initialize(ParticleEmitter_);
-	
+
 }
 
 ///Update///
@@ -387,7 +387,7 @@ void TitleScene::HandleMenuNavigation(const XINPUT_STATE& joyState) {
 			menucount++;
 			menu->SE();
 		}
-	}		  
+	}
 	if ((currentButtons & XINPUT_GAMEPAD_Y) && !(previousButtons & XINPUT_GAMEPAD_Y)) {
 		menuposition = !menuposition;
 		menu->SE();
@@ -514,7 +514,7 @@ void TitleScene::UpdateCamera() {
 		camera->Jump(isOnFloor);
 		camera->Move(menucount);
 	}
-	
+
 	// フェードイン中であればカメラの移動を制御
 	if (!isFadeInStarted && isClear == true) {
 		fade->StartFadeIn();    // フェードインを開始

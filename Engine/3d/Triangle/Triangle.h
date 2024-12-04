@@ -146,7 +146,7 @@ public:
     /// <summary>
     /// カメラオブジェクトへのポインタ
     /// </summary>
-    Camera* camera_ = nullptr;
+    Camera* camera_;
 
     /// <summary>
     /// ビューポート設定

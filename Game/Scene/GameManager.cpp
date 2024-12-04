@@ -30,17 +30,6 @@
 #include "Matrix4x4.h"
 #include "Transform.h"
 #include "mathFunction.h"
-
-// コンストラクタ
-GameManager::GameManager() {
-	// 各シーンの排列
-	sceneArr_[TITLE] = std::make_unique<TitleScene>();
-	sceneArr_[DEMO] = std::make_unique<DemoScene>();
-	sceneArr_[Stage1] = std::make_unique<STAGE1>();
-	sceneArr_[Stage2] = std::make_unique<STAGE2>();
-	sceneArr_[Stage3] = std::make_unique<STAGE3>();
-}
-
 GameManager::~GameManager() {}
 
 const char kWindowTitle[] = "LE3A";
@@ -84,7 +73,8 @@ int GameManager::Run() {
 	PSOPostEffect* pSOPostEffect = PSOPostEffect::GetInstance();
 	pSOPostEffect->Init();
 
-	sceneArr_[currentSceneNo_]->Init();
+	GameScene* gameScene = GameScene::GetInstance();
+	gameScene->Init();
 
 	Input* sInput = Input::GetInstance();
 	sInput->Initialize();
@@ -192,18 +182,17 @@ int GameManager::Run() {
 
 		// シーンのチェック
 		prevSceneNo_ = currentSceneNo_;
-		currentSceneNo_ = sceneArr_[currentSceneNo_]->GetSceneNo();
+		currentSceneNo_ = gameScene->GetSceneNo();
 
 		// シーン変更チェック
 		if (prevSceneNo_ != currentSceneNo_) {
-			sceneArr_[currentSceneNo_]->Init();
+			gameScene->Init();
 		}
 
 		///
 		/// ↓更新処理ここから
 		///
-		sceneArr_[currentSceneNo_]->Update(); // シーンごとの更新処理
-
+		gameScene->Update();
 		///
 		/// ↑更新処理ここまで
 		///
@@ -212,23 +201,22 @@ int GameManager::Run() {
 		/// ↓描画処理ここから
 		///
 
-		sceneArr_[currentSceneNo_]->Draw();
-
+		gameScene->Draw();
 
 		///
 		/// ↑描画処理ここまで
 		///
 		sDirctX->BeginFrame();
 		sDirctX->ChangeDepthStatetoRead();
-		sceneArr_[currentSceneNo_]->PostDraw();
+		gameScene->PostDraw();
 		// フレームの終了
 		//スワップチェーン
 		sDirctX->ChangeDepthStatetoRender();
 		sDirctX->ViewChange();
 		sAudio->GetIXAudio().Reset();
 		// ESCキーが押されたらループを抜ける
-		if (sceneArr_[currentSceneNo_]->GameClose()) {
-			sceneArr_[currentSceneNo_]->Release();
+		if (gameScene->GameClose()) {
+			gameScene->Release();
 			break;
 		}
 	}
