@@ -12,7 +12,6 @@ private:
 	int prevSceneNo_ = 0;
 public:
 	const char* currentStatus = "Outline Blue";
-	GameManager();
 	~GameManager();
 
 	int Run();

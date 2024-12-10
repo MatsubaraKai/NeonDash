@@ -13,16 +13,20 @@ void GameScene::SetStage(StageID stageID) {
 void GameScene::Init() {
     switch (currentStage_) {
     case Stage_Title:
-        std::cout << "Initializing Title Stage\n";
+        ConsoleLog("Complete create Title!!!\n"); // 初期化完了のログを出す
+
         break;
     case Stage_1:
-        std::cout << "Initializing Stage 1\n";
+        ConsoleLog("Complete create Stage1!!!\n"); // 初期化完了のログを出す
+
         break;
     case Stage_2:
-        std::cout << "Initializing Stage 2\n";
+        ConsoleLog("Complete create Stage2!!!\n"); // 初期化完了のログを出す
+
         break;
     case Stage_3:
-        std::cout << "Initializing Stage 3\n";
+        ConsoleLog("Complete create Stage3!!!\n"); // 初期化完了のログを出す
+
         break;
     default:
         break;
@@ -43,13 +47,18 @@ void GameScene::Update() {
 
 
 void GameScene::AllInit() {
-
+    // カメラの初期化
+    camera = new Camera;
+    camera->Initialize();
+    input = Input::GetInstance();
+    postProcess_ = new PostProcess();
+    postProcess_->SetCamera(camera);
+    postProcess_->Init();
 }
 
 // 共通処理: プレイヤー入力
 void GameScene::HandlePlayerInput() {
-    std::cout << "Handling player input\n";
-    // 例: キー入力、コントローラ入力処理
+   
 }
 
 // 共通処理: 物理計算や当たり判定
@@ -113,6 +122,7 @@ void GameScene::Draw() {
 // ポストエフェクト描画関数
 void GameScene::PostDraw()
 {
+    postProcess_->Draw();
 }
 
 // リソース解放関数

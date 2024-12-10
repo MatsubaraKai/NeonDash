@@ -320,9 +320,7 @@
     <ClCompile Include="Engine\2d\PostEffect\Effect\Vignette.cpp">
       <Filter>Engine\2d\PostEffect\Effect</Filter>
     </ClCompile>
-    <ClCompile Include="SceneBase.cpp">
-      <Filter>Application\scene</Filter>
-    </ClCompile>
+    <ClCompile Include="Game\Scene\GameScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Interface\DirectXCommon.h">
@@ -605,9 +603,7 @@
     <ClInclude Include="test.h">
       <Filter>Application\scene</Filter>
     </ClInclude>
-    <ClInclude Include="SceneBase.h">
-      <Filter>Application\scene</Filter>
-    </ClInclude>
+    <ClInclude Include="Game\Scene\GameScene.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="imgui\imgui.ini">
