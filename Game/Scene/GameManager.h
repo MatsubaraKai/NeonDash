@@ -3,6 +3,7 @@
 #include "IScene.h"
 #include "Input.h"
 #include "GameScene.h"
+#include<Windows.h>
 //#include "Input.h"
 class GameManager
 {
