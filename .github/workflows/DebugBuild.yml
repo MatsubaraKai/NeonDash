@@ -4,7 +4,7 @@ on:
   branches:
    - master
 env:
- SOLUTION_FILE_PATH: project/CG2.sln
+ SOLUTION_FILE_PATH: try.sln
  CONFIGURATION: Debug
 jobs:
  build:
