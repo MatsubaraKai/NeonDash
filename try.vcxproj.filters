@@ -209,7 +209,7 @@
     <ClCompile Include="Game\RailCamera\RailCamera.cpp">
       <Filter>Application\RailCamera</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Utilty\Loder.cpp">
+    <ClCompile Include="Game\Utilty\Loader.cpp">
       <Filter>Application\Utility</Filter>
     </ClCompile>
     <ClCompile Include="Game\Utilty\Menu.cpp">
@@ -479,7 +479,7 @@
     <ClInclude Include="Game\RailCamera\RailCamera.h">
       <Filter>Application\RailCamera</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Utilty\Loder.h">
+    <ClInclude Include="Game\Utilty\Loader.h">
       <Filter>Application\Utility</Filter>
     </ClInclude>
     <ClInclude Include="Game\Utilty\Menu.h">

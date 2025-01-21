@@ -4,7 +4,7 @@
 #include "ModelManager.h"
 #include "mathFunction.h"
 #include "PSOPostEffect.h"
-#include "Loder.h"
+#include "Loader.h"
 #include "Audio.h"
 #include <iostream>
 #include <cmath>
@@ -90,7 +90,7 @@ void TitleScene::Update() {
 
 	firework->CreateFireworkEffect(fireworkEmitter_, fireworkRange_, 1.0f, 2.0f, 1.5f, explosionSound, camera->GetTranslate());
 	firework2->CreateFireworkEffect(fireworkEmitter_2, fireworkRange_2, 1.0f, 2.0f, 1.5f, explosionSound, camera->GetTranslate());
-													
+
 	// オブジェクトの更新処理
 	UpdateObjects();
 
@@ -189,9 +189,9 @@ void TitleScene::LoadAudio()
 void TitleScene::InitializeData()
 {
 	if (!TitleRoop) {
-		Loder::LoadJsonFile2("Resources", "TitleCone", ConeObject_);
-		Loder::LoadJsonFileText("Resources", "TitleText", TitleTextObject_);
-		Loder::LoadJsonFileNumber("Resources", "TitleNumber", TitleNumberObject_);
+		Loader::LoadJsonFile2("Resources", "TitleCone", ConeObject_);
+		Loader::LoadJsonFileText("Resources", "TitleText", TitleTextObject_);
+		Loader::LoadJsonFileNumber("Resources", "TitleNumber", TitleNumberObject_);
 		Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), AudioBGMhandle_, true, 0.05f);
 		TitleRoop = true;
 	}
@@ -279,7 +279,7 @@ void TitleScene::InitializeParticles()
 	particle2->Initialize(ParticleEmitter_);
 	particle3 = new Engine::Particle();
 	particle3->Initialize(ParticleEmitter_);
-	
+
 }
 
 ///Update///
@@ -387,7 +387,7 @@ void TitleScene::HandleMenuNavigation(const XINPUT_STATE& joyState) {
 			menucount++;
 			menu->SE();
 		}
-	}		  
+	}
 	if ((currentButtons & XINPUT_GAMEPAD_Y) && !(previousButtons & XINPUT_GAMEPAD_Y)) {
 		menuposition = !menuposition;
 		menu->SE();
@@ -514,7 +514,7 @@ void TitleScene::UpdateCamera() {
 		camera->Jump(isOnFloor);
 		camera->Move(menucount);
 	}
-	
+
 	// フェードイン中であればカメラの移動を制御
 	if (!isFadeInStarted && isClear == true) {
 		fade->StartFadeIn();    // フェードインを開始

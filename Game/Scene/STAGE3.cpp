@@ -2,7 +2,7 @@
 #include "ImGuiCommon.h"
 #include "TextureManager.h"
 #include "ModelManager.h"
-#include "Loder.h"
+#include "Loader.h"
 #include "PSOPostEffect.h"
 #include "Audio.h"
 
@@ -33,8 +33,8 @@ void STAGE3::Init()
 	POSITIONtextureHandle = TextureManager::StoreTexture("Resources/game/position.png");
 
 	if (Game3Roop == false) {
-		Loder::LoadJsonFile2("Resources", "GameCone3", ConeObject_);
-		Loder::LoadJsonFile2("Resources", "GameStar3", StarObject_);
+		Loader::LoadJsonFile2("Resources", "GameCone3", ConeObject_);
+		Loader::LoadJsonFile2("Resources", "GameStar3", StarObject_);
 		Game3Roop = true;
 	}
 	for (size_t i = 0; i < ConeObject_.size() - 1; i++) {

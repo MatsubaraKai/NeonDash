@@ -142,7 +142,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Interface\Camera.cpp" />
     <ClCompile Include="Engine\Interface\Heap\SRVManager.cpp" />
     <ClCompile Include="Engine\2d\PostEffect\Effect\Fog.cpp" />
-    <ClCompile Include="Game\Utilty\Loder.cpp" />
+    <ClCompile Include="Game\Utilty\Loader.cpp" />
     <ClCompile Include="Engine\Interface\Mesh.cpp" />
     <ClCompile Include="Engine\Interface\PSO\PSOAnimationModel.cpp" />
     <ClCompile Include="Engine\2d\PostEffect\PSOPostEffect.cpp" />
@@ -226,7 +226,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Interface\Camera.h" />
     <ClInclude Include="Engine\Interface\Heap\SRVManager.h" />
     <ClInclude Include="Engine\2d\PostEffect\Effect\Fog.h" />
-    <ClInclude Include="Game\Utilty\Loder.h" />
+    <ClInclude Include="Game\Utilty\Loader.h" />
     <ClInclude Include="Engine\Interface\Mesh.h" />
     <ClInclude Include="Engine\Interface\PSO\PSOAnimationModel.h" />
     <ClInclude Include="Engine\2d\PostEffect\PSOPostEffect.h" />

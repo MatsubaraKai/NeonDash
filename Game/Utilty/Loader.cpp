@@ -1,4 +1,4 @@
-﻿#include "Loder.h"
+﻿#include "Loader.h"
 #include "json.hpp"
 #include <fstream>
 #include <cassert>
@@ -11,7 +11,7 @@
 /// <param name="fileName">読み込むJSONファイル名（拡張子なし）</param>
 /// <param name="objects">生成したオブジェクトを格納するベクター</param>
 /// <param name="camera">カメラオブジェクトへのポインタ</param>
-void Loder::LoadJsonFile(const std::string kDefaultBaseDirectory, const std::string fileName, std::vector<Object3d*>& objects, Camera* camera)
+void Loader::LoadJsonFile(const std::string kDefaultBaseDirectory, const std::string fileName, std::vector<Object3d*>& objects, Camera* camera)
 {
     // フルパスを生成
     const std::string fullpath = kDefaultBaseDirectory + "/" + fileName + ".json";
@@ -134,7 +134,7 @@ void Loder::LoadJsonFile(const std::string kDefaultBaseDirectory, const std::str
 /// <param name="kDefaultBaseDirectory">デフォルトのベースディレクトリ</param>
 /// <param name="fileName">読み込むJSONファイル名（拡張子なし）</param>
 /// <param name="objects">生成したオブジェクトを格納するベクター</param>
-void Loder::LoadJsonFile2(const std::string kDefaultBaseDirectory, const std::string fileName, std::vector<Object3d*>& objects)
+void Loader::LoadJsonFile2(const std::string kDefaultBaseDirectory, const std::string fileName, std::vector<Object3d*>& objects)
 {
     // フルパスを生成
     const std::string fullpath = kDefaultBaseDirectory + "/" + fileName + ".json";
@@ -255,7 +255,7 @@ void Loder::LoadJsonFile2(const std::string kDefaultBaseDirectory, const std::st
 /// <param name="kDefaultBaseDirectory">デフォルトのベースディレクトリ</param>
 /// <param name="fileName">読み込むJSONファイル名（拡張子なし）</param>
 /// <param name="objects">生成したオブジェクトを格納するベクター</param>
-void Loder::LoadJsonFileNumber(const std::string kDefaultBaseDirectory, const std::string fileName, std::vector<Object3d*>& objects) {
+void Loader::LoadJsonFileNumber(const std::string kDefaultBaseDirectory, const std::string fileName, std::vector<Object3d*>& objects) {
     // フルパスを生成
     const std::string fullpath = kDefaultBaseDirectory + "/" + fileName + ".json";
 
@@ -370,7 +370,7 @@ void Loder::LoadJsonFileNumber(const std::string kDefaultBaseDirectory, const st
 /// <param name="kDefaultBaseDirectory">デフォルトのベースディレクトリ</param>
 /// <param name="fileName">読み込むJSONファイル名（拡張子なし）</param>
 /// <param name="objects">生成したオブジェクトを格納するベクター</param>
-void Loder::LoadJsonFileText(const std::string kDefaultBaseDirectory, const std::string fileName, std::vector<Object3d*>& objects) {
+void Loader::LoadJsonFileText(const std::string kDefaultBaseDirectory, const std::string fileName, std::vector<Object3d*>& objects) {
     // フルパスを生成
     const std::string fullpath = kDefaultBaseDirectory + "/" + fileName + ".json";
 

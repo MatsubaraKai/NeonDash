@@ -2,7 +2,7 @@
 #include "ImGuiCommon.h"
 #include "TextureManager.h"
 #include "ModelManager.h"
-#include "Loder.h"
+#include "Loader.h"
 #include "PSOPostEffect.h"
 #include "Audio.h"
 
@@ -87,9 +87,9 @@ void DemoScene::Init()
 
 
 	if (DemoRoop == false) {
-		Loder::LoadJsonFile2("Resources", "DemoCone", ConeObject_);
-		Loder::LoadJsonFile2("Resources", "DemoStar", StarObject_);
-		Loder::LoadJsonFileText("Resources", "DemoText", TextObject_);
+		Loader::LoadJsonFile2("Resources", "DemoCone", ConeObject_);
+		Loader::LoadJsonFile2("Resources", "DemoStar", StarObject_);
+		Loader::LoadJsonFileText("Resources", "DemoText", TextObject_);
 		DemoRoop = true;
 	}
 	for (size_t i = 0; i < ConeObject_.size() - 1; i++) {

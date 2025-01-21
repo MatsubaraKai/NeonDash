@@ -41,7 +41,7 @@ private:
 /// <summary>
 /// JSONファイルを読み込み、オブジェクトやカメラを生成するローダークラス。
 /// </summary>
-class Loder
+class Loader
 {
 public:
     /// <summary>
