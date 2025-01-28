@@ -149,8 +149,6 @@
         }
             ]
     },
-
-
     {
       "type": "TitleScene",
       "objects" : [
