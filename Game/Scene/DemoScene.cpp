@@ -541,8 +541,8 @@ void DemoScene::Update()
 	if (ImGui::Button("stop")) {
 		timer.stop();
 	}
-
 	ImGui::End();
+
 	ImGui::Begin("isOnFloor");
 	ImGui::SliderInt("Select ModelIndex1", &selectedIndex1, 0, static_cast<int>(ConeObject_.size()) - 2);
 	ImGui::SliderInt("Select ModelIndex2", &selectedIndex2, 0, static_cast<int>(StarObject_.size()) - 2);

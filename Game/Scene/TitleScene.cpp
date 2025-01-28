@@ -189,7 +189,8 @@ void TitleScene::LoadAudio()
 void TitleScene::InitializeData()
 {
 	if (!TitleRoop) {
-		Loader::LoadJsonFile2("Resources", "TitleCone", ConeObject_);
+		//Loader::LoadJsonFile2("Resources", "TitleCone", ConeObject_);
+		Loader::LoadAllJsonFile("Resources", "AllStageCone", "TitleScene", ConeObject_);
 		Loader::LoadJsonFileText("Resources", "TitleText", TitleTextObject_);
 		Loader::LoadJsonFileNumber("Resources", "TitleNumber", TitleNumberObject_);
 		Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), AudioBGMhandle_, true, 0.05f);
@@ -600,6 +601,44 @@ void TitleScene::DisplayDebugInfo(const Vector3& playerPos) {
 	ImGui::SliderInt("Select Model Index1", &selectedIndex1, 0, static_cast<int>(ConeObject_.size()) - 2);
 	ImGui::Text("OnFloor : %d", isOnFloor);
 	ImGui::Text("Player Pos : %f %f %f", playerPos.x, playerPos.y, playerPos.z);
+	ImGui::End();
+
+	ImGui::Begin("stage");
+	if (ImGui::Button("Demo")) {
+		for (auto object : ConeObject_) {
+			delete object;  // メモリの解放
+		}
+		ConeObject_.clear(); // コンテナを空にする
+		Loader::LoadAllJsonFile("Resources", "AllStageCone", "DemoScene", ConeObject_);
+	}
+	if (ImGui::Button("title")) {
+		for (auto object : ConeObject_) {
+			delete object;  // メモリの解放
+		}
+		ConeObject_.clear(); // コンテナを空にする
+		Loader::LoadAllJsonFile("Resources", "AllStageCone", "TitleScene", ConeObject_);
+	}
+	if (ImGui::Button("stage1")) {
+		for (auto object : ConeObject_) {
+			delete object;  // メモリの解放
+		}
+		ConeObject_.clear(); // コンテナを空にする
+		Loader::LoadAllJsonFile("Resources", "AllStageCone", "Scene1", ConeObject_);
+	}
+	if (ImGui::Button("stage2")) {
+		for (auto object : ConeObject_) {
+			delete object;  // メモリの解放
+		}
+		ConeObject_.clear(); // コンテナを空にする
+		Loader::LoadAllJsonFile("Resources", "AllStageCone", "Scene2", ConeObject_);
+	}
+	if (ImGui::Button("stage3")) {
+		for (auto object : ConeObject_) {
+			delete object;  // メモリの解放
+		}
+		ConeObject_.clear(); // コンテナを空にする
+		Loader::LoadAllJsonFile("Resources", "AllStageCone", "Scene3", ConeObject_);
+	}
 	ImGui::End();
 
 	for (size_t i = 0; i < ConeObject_.size() - 1; i++) {
