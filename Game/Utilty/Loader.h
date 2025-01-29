@@ -61,7 +61,7 @@ public:
     /// <param name="objects">生成したオブジェクトを格納するベクター。</param>
     static void LoadJsonFile2(const std::string kDefaultBaseDirectory, const std::string fileName, std::vector<Object3d*>& objects);
 
-    static void LoadAllJsonFile(const std::string kDefaultBaseDirectory, const std::string fileName, const std::string sceneType, std::vector<Object3d*>& objects);
+    static void LoadAllJsonFile(const std::string kDefaultBaseDirectory, const std::string fileName, const std::string sceneType, std::vector<Object3d*>& objects,Camera* camera);
 
     /// <summary>
     /// JSONファイルを読み込み、番号付きのオブジェクトを初期化する関数。

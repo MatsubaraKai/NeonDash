@@ -92,7 +92,8 @@ private:
     bool isFadeInStarted = false;
     bool isMenu = false;
     bool startButtonPressed = false;
-
+    bool isPreview = true;
+    bool previousIsPreview = isPreview;
     // Camera and input
     Camera* camera = nullptr;
     Input* input = nullptr;
@@ -130,7 +131,11 @@ private:
     Engine::RandRangePro fireworkRange_;
     Engine::RandRangePro fireworkRange_2;
     float rotateSize_ = 1.057f;
-
+    //stagepreview
+    Vector3 stageCenter = { 0.0f, 30.0f, 40.0f };  // ステージの中心
+    float angleX = 0.2f;
+    float stageRadius = 150.0f;                 // 円の半径
+    float rotationSpeed = 0.02f;               // カメラの回転速度
     // Post-processing
     PostProcess* postProcess_ = nullptr;
 

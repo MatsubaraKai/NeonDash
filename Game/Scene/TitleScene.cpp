@@ -48,7 +48,10 @@ void TitleScene::Init()
 void TitleScene::Update() {
 	// フェード処理の更新
 	fade->UpdateFade();
-
+	if (previousIsPreview && !isPreview) {
+		timer.start();
+	}
+	previousIsPreview = isPreview;
 	// プレイヤーの座標を取得
 	Vector3 playerPos = camera->transform_.translate;
 
@@ -190,7 +193,7 @@ void TitleScene::InitializeData()
 {
 	if (!TitleRoop) {
 		//Loader::LoadJsonFile2("Resources", "TitleCone", ConeObject_);
-		Loader::LoadAllJsonFile("Resources", "AllStageCone", "TitleScene", ConeObject_);
+		Loader::LoadAllJsonFile("Resources", "AllStageCone", "TitleScene", ConeObject_, camera);
 		Loader::LoadJsonFileText("Resources", "TitleText", TitleTextObject_);
 		Loader::LoadJsonFileNumber("Resources", "TitleNumber", TitleNumberObject_);
 		Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), AudioBGMhandle_, true, 0.05f);
@@ -221,7 +224,7 @@ void TitleScene::InitializeData()
 
 	camera->transform_.translate = { 0.0f, 6.0f, -15.0f };
 	camera->transform_.rotate = { -0.2f, 0.0f, 0.0f };
-
+	isPreview = false;
 	isFadeInStarted = false;
 	portal = 0;
 	isClear = false;
@@ -323,10 +326,43 @@ void TitleScene::UpdateEffects() {
 
 // シーン遷移処理
 void TitleScene::HandleSceneTransition() {
-	if (isDemo) SetSceneNo(1);
-	else if (isGame) SetSceneNo(2);
-	else if (isGame2) SetSceneNo(3);
-	else if (isGame3) SetSceneNo(4);
+	if (isDemo) {
+		for (auto object : ConeObject_) {
+			delete object;  // メモリの解放
+		}
+		ConeObject_.clear(); // コンテナを空にする
+		Loader::LoadAllJsonFile("Resources", "AllStageCone", "DemoScene", ConeObject_,camera);
+		fade->StartFadeOut();
+
+	}
+	else if (isGame) {
+		for (auto object : ConeObject_) {
+			delete object;  // メモリの解放
+		}
+		ConeObject_.clear(); // コンテナを空にする
+	    Loader::LoadAllJsonFile("Resources", "AllStageCone", "Scene1", ConeObject_, camera);
+		fade->StartFadeOut();
+	}
+	else if (isGame2) {
+		for (auto object : ConeObject_) {
+			delete object;  // メモリの解放
+		}
+		ConeObject_.clear(); // コンテナを空にする
+		Loader::LoadAllJsonFile("Resources", "AllStageCone", "Scene2", ConeObject_, camera);
+		fade->StartFadeOut();
+		isPreview = true;
+
+	}
+	else if (isGame3) {
+		for (auto object : ConeObject_) {
+			delete object;  // メモリの解放
+		}
+		ConeObject_.clear(); // コンテナを空にする
+		Loader::LoadAllJsonFile("Resources", "AllStageCone", "Scene3", ConeObject_, camera);
+		fade->StartFadeOut();
+		isPreview = true;
+
+	}
 }
 
 // ステージタイムのモデル設定
@@ -511,7 +547,7 @@ void TitleScene::UpdateFloorInteraction()
 // カメラの更新
 void TitleScene::UpdateCamera() {
 	// プレイヤーが床の上にいるかどうかでジャンプ処理を実行
-	if (isClear == false && isMenu == false) {
+	if (isClear == false && isMenu == false && isPreview == false) {
 		camera->Jump(isOnFloor);
 		camera->Move(menucount);
 	}
@@ -521,7 +557,17 @@ void TitleScene::UpdateCamera() {
 		fade->StartFadeIn();    // フェードインを開始
 		isFadeInStarted = true; // フラグを立て、一度だけ実行
 	}
-
+	if (isPreview == true) {
+		camera->StagePreview(stageCenter, stageRadius, rotationSpeed, angleX, isPreview);
+		if (camera->isEasing == true) {
+			fade->SetAlpha(0.0f);
+		}
+	}
+	else
+	{
+		camera->isEasing = false;
+	}
+	
 	// カメラの更新処理を呼び出す
 	camera->Update();
 }
@@ -609,35 +655,38 @@ void TitleScene::DisplayDebugInfo(const Vector3& playerPos) {
 			delete object;  // メモリの解放
 		}
 		ConeObject_.clear(); // コンテナを空にする
-		Loader::LoadAllJsonFile("Resources", "AllStageCone", "DemoScene", ConeObject_);
+		Loader::LoadAllJsonFile("Resources", "AllStageCone", "DemoScene", ConeObject_, camera);
+		isPreview = true;
 	}
 	if (ImGui::Button("title")) {
 		for (auto object : ConeObject_) {
 			delete object;  // メモリの解放
 		}
 		ConeObject_.clear(); // コンテナを空にする
-		Loader::LoadAllJsonFile("Resources", "AllStageCone", "TitleScene", ConeObject_);
+		Loader::LoadAllJsonFile("Resources", "AllStageCone", "TitleScene", ConeObject_, camera);
 	}
 	if (ImGui::Button("stage1")) {
 		for (auto object : ConeObject_) {
 			delete object;  // メモリの解放
 		}
 		ConeObject_.clear(); // コンテナを空にする
-		Loader::LoadAllJsonFile("Resources", "AllStageCone", "Scene1", ConeObject_);
+		Loader::LoadAllJsonFile("Resources", "AllStageCone", "Scene1", ConeObject_, camera);
 	}
 	if (ImGui::Button("stage2")) {
 		for (auto object : ConeObject_) {
 			delete object;  // メモリの解放
 		}
 		ConeObject_.clear(); // コンテナを空にする
-		Loader::LoadAllJsonFile("Resources", "AllStageCone", "Scene2", ConeObject_);
+		Loader::LoadAllJsonFile("Resources", "AllStageCone", "Scene2", ConeObject_, camera);
+		isPreview = true;
+
 	}
 	if (ImGui::Button("stage3")) {
 		for (auto object : ConeObject_) {
 			delete object;  // メモリの解放
 		}
 		ConeObject_.clear(); // コンテナを空にする
-		Loader::LoadAllJsonFile("Resources", "AllStageCone", "Scene3", ConeObject_);
+		Loader::LoadAllJsonFile("Resources", "AllStageCone", "Scene3", ConeObject_, camera);
 	}
 	ImGui::End();
 

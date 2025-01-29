@@ -249,7 +249,7 @@ void Loader::LoadJsonFile2(const std::string kDefaultBaseDirectory, const std::s
     }
 }
 
-void Loader::LoadAllJsonFile(const std::string kDefaultBaseDirectory, const std::string fileName, const std::string sceneType, std::vector<Object3d*>& objects)
+void Loader::LoadAllJsonFile(const std::string kDefaultBaseDirectory, const std::string fileName, const std::string sceneType, std::vector<Object3d*>& objects, Camera* camera)
 {
     // フルパスを生成
     const std::string fullpath = kDefaultBaseDirectory + "/" + fileName + ".json";
@@ -325,21 +325,36 @@ void Loader::LoadAllJsonFile(const std::string kDefaultBaseDirectory, const std:
         }
 
         // CAMERAオブジェクトの場合
-        if (type == "CAMERA") {
-            levelData->objects.emplace_back(LevelData::ObjectData{});
-            LevelData::ObjectData& objectData = levelData->objects.back();
+        if (type.compare("CAMERA") == 0) {
+            // トランスフォームのパラメータを読み込む
+            nlohmann::json& transform = object["transform"];
 
-            auto& transform = object["transform"];
-            objectData.transform.translate.x = (float)transform["translation"][0];
-            objectData.transform.translate.y = (float)transform["translation"][2];
-            objectData.transform.translate.z = (float)transform["translation"][1];
-            objectData.transform.rotate.x = -((float)transform["rotation"][0] - 3.141592f / 2.0f);
-            objectData.transform.rotate.y = -(float)transform["rotation"][2];
-            objectData.transform.rotate.z = -(float)transform["rotation"][1];
-            objectData.transform.scale.x = (float)transform["scaling"][0];
-            objectData.transform.scale.y = (float)transform["scaling"][1];
-            objectData.transform.scale.z = (float)transform["scaling"][2];
+            // 平行移動
+            Vector3 translate;
+            translate.x = (float)transform["translation"][0];
+            translate.y = (float)transform["translation"][2];
+            translate.z = (float)transform["translation"][1];
+
+            // 回転角度
+            Vector3 rotate;
+            rotate.x = -((float)transform["rotation"][0] - 3.141592f / 2.0f);
+            rotate.y = -(float)transform["rotation"][2];
+            rotate.z = -(float)transform["rotation"][1];
+
+            // スケーリング (必要であれば)
+            Vector3 scale;
+            scale.x = (float)transform["scaling"][0];
+            scale.y = (float)transform["scaling"][1];
+            scale.z = (float)transform["scaling"][2];
+
+            // カメラの位置と回転を設定
+            camera->SetTranslate(translate);
+            camera->SetRotate(rotate);
+
+            // スケーリングを使う場合の処理 (必要に応じて追加)
+            // camera->SetScale(scale); // SetScale が必要なら実装してください
         }
+
 
         // LIGHTオブジェクトなど他の種別に対応する場合、ここに追加
     }
