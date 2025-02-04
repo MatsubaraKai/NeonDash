@@ -133,9 +133,10 @@ private:
     float rotateSize_ = 1.057f;
     //stagepreview
     Vector3 stageCenter = { 0.0f, 30.0f, 40.0f };  // ステージの中心
-    float angleX = 0.2f;
-    float stageRadius = 150.0f;                 // 円の半径
-    float rotationSpeed = 0.02f;               // カメラの回転速度
+    int nowStage = 0;
+    float angleX[4] = { 0.2f,0.2f,0.2f,0.02f};
+    float stageRadius[4] = { 150.0f,250.0f,130.0f,350.0f};                 // 円の半径
+    float rotationSpeed[4] = { 0.02f,0.02f,0.02f,0.02f};               // カメラの回転速度
     // Post-processing
     PostProcess* postProcess_ = nullptr;
 

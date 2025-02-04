@@ -687,6 +687,7 @@ void TitleScene::DisplayDebugInfo(const Vector3& playerPos) {
 		}
 		ConeObject_.clear(); // コンテナを空にする
 		Loader::LoadAllJsonFile("Resources", "AllStageCone", "Scene3", ConeObject_, camera);
+		isPreview = true;
 	}
 	ImGui::End();
 

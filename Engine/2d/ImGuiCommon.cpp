@@ -14,6 +14,14 @@ void ImGuiCommon::Initialize() {
 	//こういうもんである
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();  // ImGuiIO オブジェクトを取得
+#ifdef _DEBUG
+	// デバッグビルドでは imgui.ini を保存
+	io.IniFilename = "imgui.ini";
+#else
+	// リリースビルドでは imgui.ini を保存しない
+	io.IniFilename = nullptr;
+#endif
 	ImGui::StyleColorsCustom();
 	ImGui_ImplWin32_Init(sWinAPI_->GetHwnd());
 	ImGui_ImplDX12_Init(sDirectXCommon_->GetDevice().Get(),
