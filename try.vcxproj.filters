@@ -611,8 +611,6 @@
     <None Include=".editorconfig" />
     <None Include=".gitattributes" />
     <None Include=".gitignore" />
-    <None Include="assimp-vc143-mt.dll" />
-    <None Include="assimp-vc143-mtd.dll" />
     <None Include="Resources\shader\Object3d.hlsli">
       <Filter>Resource\Shader</Filter>
     </None>
