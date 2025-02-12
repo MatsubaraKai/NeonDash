@@ -84,14 +84,6 @@ void DemoScene::Init()
 	firework4 = new Engine::Particle();
 	firework4->Initialize(fireworkEmitter_4);
 
-
-
-	if (DemoRoop == false) {
-		Loader::LoadJsonFile2("Resources", "DemoCone", ConeObject_);
-		Loader::LoadJsonFile2("Resources", "DemoStar", StarObject_);
-		Loader::LoadJsonFileText("Resources", "DemoText", TextObject_);
-		DemoRoop = true;
-	}
 	for (size_t i = 0; i < ConeObject_.size() - 1; i++) {
 		previousPos[i] = ConeObject_[i]->worldTransform_.translation_;
 	}
@@ -460,7 +452,7 @@ void DemoScene::Update()
 			fade->SetAlpha(0.0f);
 		}
 	}
-	else
+	else					   
 	{
 		camera->isEasing = false;
 	}
@@ -574,7 +566,6 @@ void DemoScene::Update()
 	ImGui::Begin("Imgui");
 	ImGui::Checkbox("EffectFlag", &effectFlag);
 	ImGui::Text("Now Scene : %d", sceneNo);
-	ImGui::Text("roop : %d", DemoRoop);
 	ImGui::End();
 #endif
 }

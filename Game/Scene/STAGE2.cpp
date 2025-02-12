@@ -32,11 +32,6 @@ void STAGE2::Init()
 	AudioTimeCount2handle_ = Audio::SoundLoadWave("Resources/game/Audio/timecount2.wav");
 	POSITIONtextureHandle = TextureManager::StoreTexture("Resources/game/position.png");
 
-	if (Game2Roop == false) {
-		Loader::LoadJsonFile2("Resources", "GameCone2", ConeObject_);
-		Loader::LoadJsonFile2("Resources", "GameStar2", StarObject_);
-		Game2Roop = true;
-	}
 	for (size_t i = 0; i < ConeObject_.size() - 1; i++) {
 		previousPos[i] = ConeObject_[i]->worldTransform_.translation_;
 	}

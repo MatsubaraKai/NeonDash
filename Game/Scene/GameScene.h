@@ -19,7 +19,7 @@
 #include <vector>
 #include <string>
 
-class TitleScene : public IScene
+class GameScene : public IScene
 {
 public:
     // Public methods
@@ -69,7 +69,8 @@ private:
     WorldTransform worldTransformPa1;
     WorldTransform worldTransformPa2;
     WorldTransform worldTransformPa3;
-    WorldTransform TenQTransform;
+    WorldTransform TitleTenQTransform;
+    WorldTransform GameTenQTransform;
 
     // Scene state variables
     int sceneTime = 0;
@@ -84,6 +85,7 @@ private:
     bool effect = false;
     bool effect2 = false;
     bool isOnFloor = false;
+    bool isTitle = false;
     bool isDemo = false;  // Portal 1
     bool isGame = false;  // Portal 2
     bool isGame2 = false; // Portal 3
@@ -132,16 +134,24 @@ private:
     Engine::RandRangePro fireworkRange_2;
     float rotateSize_ = 1.057f;
     //stagepreview
-    Vector3 stageCenter = { 0.0f, 30.0f, 40.0f };  // ステージの中心
+    Vector3 stageCenter[4] = {
+    {0.0f, 30.0f, 40.0f},
+    {0.0f, 70.0f, 100.0f},
+    {0.0f, 20.0f, 40.0f},
+    {0.0f, 80.0f, 100.0f}
+    };
+    // ステージの中心
     int nowStage = 0;
-    float angleX[4] = { 0.2f,0.2f,0.2f,0.02f};
-    float stageRadius[4] = { 150.0f,250.0f,130.0f,350.0f};                 // 円の半径
-    float rotationSpeed[4] = { 0.02f,0.02f,0.02f,0.02f};               // カメラの回転速度
+    float angleX[4] = { 0.2f,0.2f,0.2f,0.02f };
+    float stageRadius[4] = { 150.0f,250.0f,130.0f,350.0f };                 // 円の半径
+    float rotationSpeed[4] = { 0.02f,0.02f,0.02f,0.02f };               // カメラの回転速度
     // Post-processing
     PostProcess* postProcess_ = nullptr;
 
     // Resource handles
     uint32_t FADEtextureHandle;
+    uint32_t FADE2textureHandle;
+    uint32_t FADE3textureHandle;
     uint32_t MENUMEDItextureHandle;
     uint32_t MENUHIGHtextureHandle;
     uint32_t MENULOWtextureHandle;
@@ -154,7 +164,8 @@ private:
     uint32_t BLUEtextureHandle;
     uint32_t CONEtextureHandle;
     uint32_t GRIDtextureHandle;
-    uint32_t TENQtextureHandle;
+    uint32_t TITLETENQtextureHandle;
+    uint32_t GAMETENQtextureHandle;
     uint32_t POSITIONtextureHandle;
 
     // Audio handles

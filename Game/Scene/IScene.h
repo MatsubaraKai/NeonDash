@@ -1,17 +1,14 @@
 #pragma once
 //シーン名を列挙型(Enum)で定義
-enum SCENE { TITLE, DEMO, Stage1, Stage2, Stage3 };
+enum SCENE { GAMESCENE };
 
 // シーン内での処理を行う基底クラス
 class IScene {
 protected:
 	// シーン番号を管理する変数
 	static int sceneNo;
-	static bool TitleRoop;
-	static bool DemoRoop;
+
 	static bool GameRoop;
-	static bool Game2Roop;
-	static bool Game3Roop;
 	static int DemoTime[5];
 	static int SCENE1Time[5];
 	static int SCENE2Time[5];

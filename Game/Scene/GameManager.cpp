@@ -34,11 +34,7 @@
 // コンストラクタ
 GameManager::GameManager() {
 	// 各シーンの排列
-	sceneArr_[TITLE] = std::make_unique<TitleScene>();
-	sceneArr_[DEMO] = std::make_unique<DemoScene>();
-	sceneArr_[Stage1] = std::make_unique<STAGE1>();
-	sceneArr_[Stage2] = std::make_unique<STAGE2>();
-	sceneArr_[Stage3] = std::make_unique<STAGE3>();
+	sceneArr_[GAMESCENE] = std::make_unique<GameScene>();
 }
 
 GameManager::~GameManager() {}

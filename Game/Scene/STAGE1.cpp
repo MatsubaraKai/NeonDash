@@ -31,12 +31,7 @@ void STAGE1::Init()
 	AudioTimeCounthandle_ = Audio::SoundLoadWave("Resources/game/Audio/timecount.wav");
 	AudioTimeCount2handle_ = Audio::SoundLoadWave("Resources/game/Audio/timecount2.wav");
 	POSITIONtextureHandle = TextureManager::StoreTexture("Resources/game/position.png");
-
-	if (GameRoop == false) {
-		Loader::LoadJsonFile2("Resources", "GameCone", ConeObject_);
-		Loader::LoadJsonFile2("Resources", "GameStar", StarObject_);
-		GameRoop = true;
-	}
+			   
 	for (size_t i = 0; i < ConeObject_.size() - 1; i++) {
 		previousPos[i] = ConeObject_[i]->worldTransform_.translation_;
 	}
@@ -191,7 +186,7 @@ void STAGE1::Update()
 	Number->worldTransform_.rotation_.y = camera->Face2Face(camera->transform_.translate, Number->worldTransform_.translation_) + 3.14f;
 	TextOBJ->worldTransform_.rotation_.y = camera->Face2Face(camera->transform_.translate, TextOBJ->worldTransform_.translation_) + 3.14f;
 	TenQOBJ->worldTransform_.rotation_.x += 0.001f;
-	
+
 	// ゲームパッドの状態取得
 	XINPUT_STATE joyState;
 	if (Input::GetInstance()->GetJoystickState(joyState))

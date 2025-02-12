@@ -1,12 +1,9 @@
 #include "IScene.h"
 
 // タイトルシーンで初期化
-int IScene::sceneNo = TITLE;
-bool IScene::TitleRoop = false;
-bool IScene::DemoRoop = false;
+int IScene::sceneNo = GAMESCENE;
+
 bool IScene::GameRoop = false;
-bool IScene::Game2Roop = false;
-bool IScene::Game3Roop = false;
 int IScene::DemoTime[5] = { 0,0,0,0,0 };
 int IScene::SCENE1Time[5] = { 0,0,0,0,0 };
 int IScene::SCENE2Time[5] = { 0,0,0,0,0 };
