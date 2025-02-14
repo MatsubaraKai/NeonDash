@@ -97,9 +97,6 @@ void GameScene::Update() {
 	// 文字床アニメーション
 	//UpdateLerpAnimations(playerPos);
 
-	firework->CreateFireworkEffect(fireworkEmitter_, fireworkRange_, 1.0f, 2.0f, 1.5f, explosionSound, camera->GetTranslate());
-	firework2->CreateFireworkEffect(fireworkEmitter_2, fireworkRange_2, 1.0f, 2.0f, 1.5f, explosionSound, camera->GetTranslate());
-
 	// オブジェクトの更新処理
 	UpdateObjects();
 
@@ -496,70 +493,70 @@ void GameScene::HandleMenuNavigation(const XINPUT_STATE& joyState) {
 }
 
 // 床の移動アニメーションを更新
-//void GameScene::UpdateLerpAnimations(const Vector3& playerPos) {
-//	// プレイヤーが指定範囲内にいる場合の処理
-//	if (playerPos.x >= -20.0f && playerPos.x <= 20.0f &&
-//		playerPos.z >= -20.0f && playerPos.z <= 20.0f && DemoRoop == false) {
-//		// TitleTextObject_[6]を徐々に高さ 1.3 に
-//		TitleTextObject_[6]->worldTransform_.translation_.y =
-//			Lerp(TitleTextObject_[6]->worldTransform_.translation_.y, 1.3f, 0.1f);
-//	}
-//	else {
-//		// TitleTextObject_[6]を徐々に高さ 0.0 に戻す
-//		TitleTextObject_[6]->worldTransform_.translation_.y =
-//			Lerp(TitleTextObject_[6]->worldTransform_.translation_.y, 0.0f, 0.1f);
-//	}
-//
-//	// DemoRoop に応じた TitleTextObject_[7] の高さ変更
-//	if (DemoRoop == false) {
-//		TitleTextObject_[7]->worldTransform_.translation_.y =
-//			Lerp(TitleTextObject_[7]->worldTransform_.translation_.y, 2.0f, 0.1f);
-//	}
-//	else {
-//		TitleTextObject_[7]->worldTransform_.translation_.y =
-//			Lerp(TitleTextObject_[7]->worldTransform_.translation_.y, 0.0f, 0.1f);
-//	}
-//
-//	// シーンタイムによるアニメーション
-//	if (sceneTime1 < 180) {
-//		// ConeObject_[17]と[18]の座標をそれぞれの目標位置に向けて移動
-//		ConeObject_[17]->worldTransform_.translation_.y =
-//			Lerp(ConeObject_[17]->worldTransform_.translation_.y, 60.0f, 0.03f);
-//		ConeObject_[18]->worldTransform_.translation_.x =
-//			Lerp(ConeObject_[18]->worldTransform_.translation_.x, 55.0f, 0.03f);
-//
-//		// TitleTextObject_ の各インデックスを目標の高さに移動
-//		for (int i = 0; i < 6; i++) {
-//			TitleTextObject_[i]->worldTransform_.translation_.y =
-//				Lerp(TitleTextObject_[i]->worldTransform_.translation_.y, Textlerpindices[i], 0.01f);
-//		}
-//
-//		// TitleNumberObject_ の各オブジェクトを高さ 8.5 に移動
-//		for (auto& obj : TitleNumberObject_) {
-//			obj->worldTransform_.translation_.y =
-//				Lerp(obj->worldTransform_.translation_.y, 8.5f, 0.01f);
-//		}
-//	}
-//	else if (sceneTime1 > 180 && sceneTime1 < 360) {
-//		// ConeObject_[17]と[18]を別の位置に移動
-//		ConeObject_[17]->worldTransform_.translation_.y =
-//			Lerp(ConeObject_[17]->worldTransform_.translation_.y, -4.0f, 0.03f);
-//		ConeObject_[18]->worldTransform_.translation_.x =
-//			Lerp(ConeObject_[18]->worldTransform_.translation_.x, -50.0f, 0.03f);
-//
-//		// TitleTextObject_ を別の目標位置に移動
-//		for (int i = 0; i < 6; i++) {
-//			TitleTextObject_[i]->worldTransform_.translation_.y =
-//				Lerp(TitleTextObject_[i]->worldTransform_.translation_.y, textlerpindices[i], 0.01f);
-//		}
-//
-//		// TitleNumberObject_ の各オブジェクトを高さ 7.5 に移動
-//		for (auto& obj : TitleNumberObject_) {
-//			obj->worldTransform_.translation_.y =
-//				Lerp(obj->worldTransform_.translation_.y, 7.5f, 0.01f);
-//		}
-//	}
-//}
+void GameScene::UpdateLerpAnimations(const Vector3& playerPos) {
+	//// プレイヤーが指定範囲内にいる場合の処理
+	//if (playerPos.x >= -20.0f && playerPos.x <= 20.0f &&
+	//	playerPos.z >= -20.0f && playerPos.z <= 20.0f && GameRoop == false) {
+	//	// TitleTextObject_[6]を徐々に高さ 1.3 に
+	//	TitleTextObject_[6]->worldTransform_.translation_.y =
+	//		Lerp(TitleTextObject_[6]->worldTransform_.translation_.y, 1.3f, 0.1f);
+	//}
+	//else {
+	//	// TitleTextObject_[6]を徐々に高さ 0.0 に戻す
+	//	TitleTextObject_[6]->worldTransform_.translation_.y =
+	//		Lerp(TitleTextObject_[6]->worldTransform_.translation_.y, 0.0f, 0.1f);
+	//}
+
+	//// DemoRoop に応じた TitleTextObject_[7] の高さ変更
+	//if (GameRoop == false) {
+	//	TitleTextObject_[7]->worldTransform_.translation_.y =
+	//		Lerp(TitleTextObject_[7]->worldTransform_.translation_.y, 2.0f, 0.1f);
+	//}
+	//else {
+	//	TitleTextObject_[7]->worldTransform_.translation_.y =
+	//		Lerp(TitleTextObject_[7]->worldTransform_.translation_.y, 0.0f, 0.1f);
+	//}
+
+	//// シーンタイムによるアニメーション
+	//if (sceneTime1 < 180) {
+	//	// ConeObject_[17]と[18]の座標をそれぞれの目標位置に向けて移動
+	//	ConeObject_[17]->worldTransform_.translation_.y =
+	//		Lerp(ConeObject_[17]->worldTransform_.translation_.y, 60.0f, 0.03f);
+	//	ConeObject_[18]->worldTransform_.translation_.x =
+	//		Lerp(ConeObject_[18]->worldTransform_.translation_.x, 55.0f, 0.03f);
+
+	//	// TitleTextObject_ の各インデックスを目標の高さに移動
+	//	for (int i = 0; i < 6; i++) {
+	//		TitleTextObject_[i]->worldTransform_.translation_.y =
+	//			Lerp(TitleTextObject_[i]->worldTransform_.translation_.y, Textlerpindices[i], 0.01f);
+	//	}
+
+	//	// TitleNumberObject_ の各オブジェクトを高さ 8.5 に移動
+	//	for (auto& obj : TitleNumberObject_) {
+	//		obj->worldTransform_.translation_.y =
+	//			Lerp(obj->worldTransform_.translation_.y, 8.5f, 0.01f);
+	//	}
+	//}
+	//else if (sceneTime1 > 180 && sceneTime1 < 360) {
+	//	// ConeObject_[17]と[18]を別の位置に移動
+	//	ConeObject_[17]->worldTransform_.translation_.y =
+	//		Lerp(ConeObject_[17]->worldTransform_.translation_.y, -4.0f, 0.03f);
+	//	ConeObject_[18]->worldTransform_.translation_.x =
+	//		Lerp(ConeObject_[18]->worldTransform_.translation_.x, -50.0f, 0.03f);
+
+	//	// TitleTextObject_ を別の目標位置に移動
+	//	for (int i = 0; i < 6; i++) {
+	//		TitleTextObject_[i]->worldTransform_.translation_.y =
+	//			Lerp(TitleTextObject_[i]->worldTransform_.translation_.y, textlerpindices[i], 0.01f);
+	//	}
+
+	//	// TitleNumberObject_ の各オブジェクトを高さ 7.5 に移動
+	//	for (auto& obj : TitleNumberObject_) {
+	//		obj->worldTransform_.translation_.y =
+	//			Lerp(obj->worldTransform_.translation_.y, 7.5f, 0.01f);
+	//	}
+	//}
+}
 
 // 床とのインタラクション処理
 void GameScene::UpdateFloorInteraction()
@@ -924,54 +921,58 @@ void GameScene::DrawSpecialObjects()
 // パーティクルの描画
 void GameScene::DrawParticles()
 {
-	particleSystem_->Draw(emitter_, emitter_.transform.translate, PARTICLEBLUE, camera, randRange_, false, 0.5f, 0.8f);
+	if (nowStage == 0) {
+		particleSystem_->Draw(emitter_, emitter_.transform.translate, PARTICLEBLUE, camera, randRange_, false, 0.5f, 0.8f);
+		particle->Draw(
+			ParticleEmitter_,
+			{ worldTransformPa.translation_.x, worldTransformPa.translation_.y, worldTransformPa.translation_.z },
+			WHITEtextureHandle,
+			camera,
+			demoRandPro,
+			false,
+			0.2f,
+			0.4f
+		);
 
-	particle->Draw(
-		ParticleEmitter_,
-		{ worldTransformPa.translation_.x, worldTransformPa.translation_.y, worldTransformPa.translation_.z },
-		WHITEtextureHandle,
-		camera,
-		demoRandPro,
-		false,
-		0.2f,
-		0.4f
-	);
+		particle1->Draw(
+			ParticleEmitter_,
+			{ worldTransformPa1.translation_.x, worldTransformPa1.translation_.y, worldTransformPa1.translation_.z },
+			WHITEtextureHandle,
+			camera,
+			demoRandPro,
+			false,
+			0.2f,
+			0.4f
+		);
 
-	particle1->Draw(
-		ParticleEmitter_,
-		{ worldTransformPa1.translation_.x, worldTransformPa1.translation_.y, worldTransformPa1.translation_.z },
-		WHITEtextureHandle,
-		camera,
-		demoRandPro,
-		false,
-		0.2f,
-		0.4f
-	);
+		particle2->Draw(
+			ParticleEmitter_,
+			{ worldTransformPa2.translation_.x, worldTransformPa2.translation_.y, worldTransformPa2.translation_.z },
+			WHITEtextureHandle,
+			camera,
+			demoRandPro,
+			false,
+			0.2f,
+			0.4f
+		);
 
-	particle2->Draw(
-		ParticleEmitter_,
-		{ worldTransformPa2.translation_.x, worldTransformPa2.translation_.y, worldTransformPa2.translation_.z },
-		WHITEtextureHandle,
-		camera,
-		demoRandPro,
-		false,
-		0.2f,
-		0.4f
-	);
+		particle3->Draw(
+			ParticleEmitter_,
+			{ worldTransformPa3.translation_.x, worldTransformPa3.translation_.y, worldTransformPa3.translation_.z },
+			WHITEtextureHandle,
+			camera,
+			demoRandPro,
+			false,
+			0.2f,
+			0.4f
+		);
 
-	particle3->Draw(
-		ParticleEmitter_,
-		{ worldTransformPa3.translation_.x, worldTransformPa3.translation_.y, worldTransformPa3.translation_.z },
-		WHITEtextureHandle,
-		camera,
-		demoRandPro,
-		false,
-		0.2f,
-		0.4f
-	);
+		firework->Draw(fireworkEmitter_, fireworkEmitter_.transform.translate, PARTICLESTAR, camera, fireworkRange_, false, 0.1f, 0.6f);
+		firework2->Draw(fireworkEmitter_2, fireworkEmitter_2.transform.translate, PARTICLESTAR, camera, fireworkRange_2, false, 0.1f, 0.6f);
 
-	firework->Draw(fireworkEmitter_, fireworkEmitter_.transform.translate, PARTICLESTAR, camera, fireworkRange_, false, 0.1f, 0.6f);
-	firework2->Draw(fireworkEmitter_2, fireworkEmitter_2.transform.translate, PARTICLESTAR, camera, fireworkRange_2, false, 0.1f, 0.6f);
+		firework->CreateFireworkEffect(fireworkEmitter_, fireworkRange_, 1.0f, 2.0f, 1.5f, explosionSound, camera->GetTranslate());
+		firework2->CreateFireworkEffect(fireworkEmitter_2, fireworkRange_2, 1.0f, 2.0f, 1.5f, explosionSound, camera->GetTranslate());
+	}
 }
 
 void GameScene::InitStar() {
