@@ -37,6 +37,8 @@ private:
     void LoadAudio();
     void InitializeData();
     void InitializeParticles();
+    void InitStar();
+
 
     // Update methods
     void UpdatePortalCollision(const Vector3& playerPos);
@@ -55,6 +57,7 @@ private:
     void DisplayDebugInfo(const Vector3& playerPos);
     void UpdateFloorInteraction();
     void ImguiDebug();
+    void Remake();
 
     // Draw methods
     void DrawConeObjects();
@@ -112,6 +115,7 @@ private:
     Object3d* TenQOBJ = nullptr;
     Object3d* PositionOBJ = nullptr;
     std::vector<Object3d*> ConeObject_;
+    std::vector<Object3d*> StarObject_;
     std::vector<Object3d*> TitleObject_;
     std::vector<Object3d*> TitleTextObject_;
     std::vector<Object3d*> TitleNumberObject_;
@@ -167,6 +171,7 @@ private:
     uint32_t TITLETENQtextureHandle;
     uint32_t GAMETENQtextureHandle;
     uint32_t POSITIONtextureHandle;
+    uint32_t STARtextureHandle;
 
     // Audio handles
     uint32_t AudioBGMhandle_;

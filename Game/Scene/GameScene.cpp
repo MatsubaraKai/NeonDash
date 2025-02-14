@@ -171,6 +171,7 @@ void GameScene::LoadTextures()
 	CONEtextureHandle = TextureManager::StoreTexture("Resources/game/cone.png");
 	TITLETENQtextureHandle = TextureManager::StoreTexture("Resources/game/world.png");
 	GAMETENQtextureHandle = TextureManager::StoreTexture("Resources/game/world2.png");
+	STARtextureHandle = TextureManager::StoreTexture("Resources/game/star.png");
 	POSITIONtextureHandle = TextureManager::StoreTexture("Resources/game/position.png");
 }
 
@@ -237,7 +238,7 @@ void GameScene::InitializeData()
 	worldTransformPa3.Initialize();
 	worldTransformPa3.translation_ = { 25.0f, 1.5f, -12.5f };
 
-	camera->transform_.translate = { 0.0f, 6.0f, -15.0f };
+	camera->transform_.translate = { 0.0f, -10.0f, -15000.0f };
 	camera->transform_.rotate = { -0.2f, 0.0f, 0.0f };
 	isPreview = false;
 	isFadeInStarted = false;
@@ -330,6 +331,13 @@ void GameScene::UpdateEffects() {
 	if (effect) IPostEffectState::SetEffectNo(kOutlinePurple);
 	if (effect2) IPostEffectState::SetEffectNo(kOutlineBlue);
 
+	if (sceneTime == 180 || sceneTime == 360) 
+		Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), AudioTimeCount2handle_, false, 1.0f);
+
+	if (sceneTime == 60 || sceneTime == 120 || sceneTime == 240 || sceneTime == 300) {
+		Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), AudioTimeCounthandle_, false, 1.0f);
+	}
+
 	if (sceneTime >= 360) sceneTime = 0;
 	if (sceneTime1 >= 360) sceneTime1 = 0;
 
@@ -347,18 +355,7 @@ void GameScene::HandleSceneTransition() {
 	//else if (isGame2) SetSceneNo(3);
 	//else if (isGame3) SetSceneNo(4);
 	if (isTitle) {
-		for (auto object : ConeObject_) {
-			delete object;  // メモリの解放
-		}
-		for (auto object : TitleTextObject_) {
-			delete object;  // メモリの解放
-		}
-		for (auto object : TitleNumberObject_) {
-			delete object;  // メモリの解放
-		}
-		ConeObject_.clear(); // コンテナを空にする
-		TitleTextObject_.clear(); // コンテナを空にする
-		TitleNumberObject_.clear(); // コンテナを空にする
+		Remake();
 		TenQOBJ->SetWorldTransform(TitleTenQTransform);
 		TenQOBJ->SetModel("world.obj"); 
 		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "TitleScene", ConeObject_, camera);
@@ -366,116 +363,86 @@ void GameScene::HandleSceneTransition() {
 		Loader::LoadJsonFileNumber("Resources", "TitleNumber", TitleNumberObject_);
 		nowStage = 0;
 		portal = 0;
+		InitStar();
 		isPreview = false;
 	}
 	else if (isDemo) {
-		for (auto object : ConeObject_) {
-			delete object;  // メモリの解放
-		}
-		for (auto object : TitleTextObject_) {
-			delete object;  // メモリの解放
-		}
-		for (auto object : TitleNumberObject_) {
-			delete object;  // メモリの解放
-		}
-		ConeObject_.clear(); // コンテナを空にする
-		TitleTextObject_.clear(); // コンテナを空にする
-		TitleNumberObject_.clear(); // コンテナを空にする
+		Remake();
 		TenQOBJ->SetWorldTransform(GameTenQTransform);
 		TenQOBJ->SetModel("world2.obj"); 
 		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "DemoScene", ConeObject_, camera);
+		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "DemoScene", StarObject_);
 		nowStage = 1;
 		portal = 0;
 		fade->SetTexture(FADE2textureHandle);
 		fade->StartFadeOut();
+		InitStar();
 		isPreview = true;
 	}
 	else if (isGame) {
-		for (auto object : ConeObject_) {
-			delete object;  // メモリの解放
-		}
-		for (auto object : TitleTextObject_) {
-			delete object;  // メモリの解放
-		}
-		for (auto object : TitleNumberObject_) {
-			delete object;  // メモリの解放
-		}
-		ConeObject_.clear(); // コンテナを空にする
-		TitleTextObject_.clear(); // コンテナを空にする
-		TitleNumberObject_.clear(); // コンテナを空にする
+		Remake();
 		TenQOBJ->SetWorldTransform(GameTenQTransform);
 		TenQOBJ->SetModel("world2.obj"); 
 		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "Scene1", ConeObject_, camera);
+		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "Scene1", StarObject_);
 		nowStage = 2;
 		portal = 0;
 		fade->SetTexture(FADE2textureHandle);
 		fade->StartFadeOut();
+		InitStar();
 		isPreview = true;
 	}
 	else if (isGame2) {
-		for (auto object : ConeObject_) {
-			delete object;  // メモリの解放
-		}
-		for (auto object : TitleTextObject_) {
-			delete object;  // メモリの解放
-		}
-		for (auto object : TitleNumberObject_) {
-			delete object;  // メモリの解放
-		}
-		ConeObject_.clear(); // コンテナを空にする
-		TitleTextObject_.clear(); // コンテナを空にする
-		TitleNumberObject_.clear(); // コンテナを空にする
+		Remake();
 		TenQOBJ->SetWorldTransform(GameTenQTransform);
 		TenQOBJ->SetModel("world2.obj");
 		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "Scene2", ConeObject_, camera);
+		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "Scene2", StarObject_);
 		nowStage = 3;
 		portal = 0;
 		fade->SetTexture(FADE2textureHandle);
 		fade->StartFadeOut();
+		InitStar();
 		isPreview = true;
 	}
 	else if (isGame3) {
-		for (auto object : ConeObject_) {
-			delete object;  // メモリの解放
-		}
-		for (auto object : TitleTextObject_) {
-			delete object;  // メモリの解放
-		}
-		for (auto object : TitleNumberObject_) {
-			delete object;  // メモリの解放
-		}
-		ConeObject_.clear(); // コンテナを空にする
-		TitleTextObject_.clear(); // コンテナを空にする
-		TitleNumberObject_.clear(); // コンテナを空にする
+		Remake();
 		TenQOBJ->SetWorldTransform(GameTenQTransform);
 		TenQOBJ->SetModel("world2.obj"); 
 		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "Scene3", ConeObject_, camera);
+		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "Scene3", StarObject_);
 		nowStage = 4;
 		portal = 0;
 		fade->SetTexture(FADE2textureHandle);
 		fade->StartFadeOut();
+		InitStar();
 		isPreview = true;
 	}
 }
 
 // ステージタイムのモデル設定
 void GameScene::UpdateStageTimes() {
-	/*for (int i = 0; i < 4; ++i) {
-		TitleNumberObject_[indices[i]]->SetModel((std::to_string(DemoTime[i]) + ".obj").c_str());
-		TitleNumberObject_[indices[i] + 5]->SetModel((std::to_string(SCENE1Time[i]) + ".obj").c_str());
-		TitleNumberObject_[indices[i] + 10]->SetModel((std::to_string(SCENE2Time[i]) + ".obj").c_str());
-		TitleNumberObject_[indices[i] + 15]->SetModel((std::to_string(SCENE3Time[i]) + ".obj").c_str());
-	}*/
+	if (nowStage == 0) {
+		for (int i = 0; i < 4; ++i) {
+			TitleNumberObject_[indices[i]]->SetModel((std::to_string(DemoTime[i]) + ".obj").c_str());
+			TitleNumberObject_[indices[i] + 5]->SetModel((std::to_string(SCENE1Time[i]) + ".obj").c_str());
+			TitleNumberObject_[indices[i] + 10]->SetModel((std::to_string(SCENE2Time[i]) + ".obj").c_str());
+			TitleNumberObject_[indices[i] + 15]->SetModel((std::to_string(SCENE3Time[i]) + ".obj").c_str());
+		}
+	}
 }
 
 // 各オブジェクトをカメラに向ける
 void GameScene::AlignObjectsToCamera() {
-	/*for (auto& obj : TitleTextObject_) {
-		obj->worldTransform_.rotation_.y = camera->Face2Face(camera->transform_.translate, obj->worldTransform_.translation_) + 3.14f;
+	if (nowStage == 0) {
+		for (auto& obj : TitleTextObject_) {
+			obj->worldTransform_.rotation_.y = camera->Face2Face(camera->transform_.translate, obj->worldTransform_.translation_) + 3.14f;
+		}
+		for (auto& obj : TitleNumberObject_) {
+			obj->worldTransform_.rotation_.y = camera->Face2Face(camera->transform_.translate, obj->worldTransform_.translation_) + 3.14f;
+		}
 	}
-	for (auto& obj : TitleNumberObject_) {
-		obj->worldTransform_.rotation_.y = camera->Face2Face(camera->transform_.translate, obj->worldTransform_.translation_) + 3.14f;
-	}*/
+
 }
 
 // ゲームパッド入力処理
@@ -727,6 +694,8 @@ void GameScene::UpdateObjects() {
 	for (auto& obj : ConeObject_) obj->Update();
 	for (auto& obj : TitleTextObject_) obj->Update();
 	for (auto& obj : TitleNumberObject_) obj->Update();
+	for (auto& obj : StarObject_) obj->Update();
+	for (auto& obj : StarObject_) obj->worldTransform_.rotation_.y += 0.02f;
 
 	TenQOBJ->Update();
 	PositionOBJ->Update();
@@ -789,6 +758,7 @@ void GameScene::DisplayDebugInfo(const Vector3& playerPos) {
 		portal = 0;
 		fade->SetTexture(FADE2textureHandle);
 		fade->StartFadeOut();
+		InitStar();
 		isPreview = true;
 	}
 	if (ImGui::Button("stage1")) {
@@ -811,6 +781,7 @@ void GameScene::DisplayDebugInfo(const Vector3& playerPos) {
 		portal = 0;
 		fade->SetTexture(FADE2textureHandle);
 		fade->StartFadeOut();
+		InitStar();
 		isPreview = true;
 	}
 	if (ImGui::Button("stage2")) {
@@ -833,6 +804,7 @@ void GameScene::DisplayDebugInfo(const Vector3& playerPos) {
 		portal = 0;
 		fade->SetTexture(FADE2textureHandle);
 		fade->StartFadeOut();
+		InitStar();
 		isPreview = true;
 	}
 	if (ImGui::Button("stage3")) {
@@ -855,6 +827,7 @@ void GameScene::DisplayDebugInfo(const Vector3& playerPos) {
 		portal = 0;
 		fade->SetTexture(FADE2textureHandle);
 		fade->StartFadeOut();
+		InitStar();
 		isPreview = true;
 	}
 	ImGui::End();
@@ -902,6 +875,11 @@ void GameScene::DrawConeObjects()
 	for (auto& cone : ConeObject_) {
 		if (cone->isVisible) {
 			cone->Draw(CONEtextureHandle, camera);
+		}
+	}
+	for (auto& cone : StarObject_) {
+		if (cone->isVisible) {
+			cone->Draw(STARtextureHandle, camera);
 		}
 	}
 }
@@ -994,6 +972,31 @@ void GameScene::DrawParticles()
 
 	firework->Draw(fireworkEmitter_, fireworkEmitter_.transform.translate, PARTICLESTAR, camera, fireworkRange_, false, 0.1f, 0.6f);
 	firework2->Draw(fireworkEmitter_2, fireworkEmitter_2.transform.translate, PARTICLESTAR, camera, fireworkRange_2, false, 0.1f, 0.6f);
+}
+
+void GameScene::InitStar() {
+	for (size_t i = 0; i < StarObject_.size() - 1; i++) {
+		StarObject_[i]->isVisible = true;
+	}
+}
+
+void GameScene::Remake() {
+	for (auto object : ConeObject_) {
+		delete object;  // メモリの解放
+	}
+	for (auto object : StarObject_) {
+		delete object;  // メモリの解放
+	}
+	for (auto object : TitleTextObject_) {
+		delete object;  // メモリの解放
+	}
+	for (auto object : TitleNumberObject_) {
+		delete object;  // メモリの解放
+	}
+	ConeObject_.clear(); // コンテナを空にする
+	StarObject_.clear(); // コンテナを空にする
+	TitleTextObject_.clear(); // コンテナを空にする
+	TitleNumberObject_.clear(); // コンテナを空にする
 }
 
 void GameScene::ImguiDebug() {
