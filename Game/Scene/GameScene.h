@@ -68,10 +68,11 @@ private:
 
     // Member variables
     // World transforms
-    WorldTransform worldTransformPa;
-    WorldTransform worldTransformPa1;
-    WorldTransform worldTransformPa2;
-    WorldTransform worldTransformPa3;
+    WorldTransform TitleSceneWorldTransformPa;
+    WorldTransform DemoSceneWorldTransformPa;
+    WorldTransform GameSceneWorldTransformPa;
+    WorldTransform GameScene2WorldTransformPa;
+    WorldTransform GameScene3WorldTransformPa;
     WorldTransform TitleTenQTransform;
     WorldTransform GameTenQTransform;
 
@@ -121,13 +122,14 @@ private:
     std::vector<Object3d*> TitleNumberObject_;
 
     // Particle system
-    Engine::Particle* particleSystem_ = nullptr;
-    Engine::Particle* particle = nullptr;
-    Engine::Particle* particle1 = nullptr;
-    Engine::Particle* particle2 = nullptr;
-    Engine::Particle* particle3 = nullptr;
-    Engine::Particle* firework = nullptr;
-    Engine::Particle* firework2 = nullptr;
+    Engine::Particle* FloorParticle_ = nullptr;
+    Engine::Particle* TitleSceneParticle = nullptr;
+    Engine::Particle* DemoSceneParticle = nullptr;
+    Engine::Particle* Stage1Particle = nullptr;
+    Engine::Particle* Stage2Particle = nullptr;
+    Engine::Particle* Stage3Particle = nullptr;
+    Engine::Particle* TitleFireworkPa = nullptr;
+    Engine::Particle* TitleFireworkPa2 = nullptr;
     Engine::Emitter emitter_;
     Engine::Emitter ParticleEmitter_;
     Engine::Emitter fireworkEmitter_;
@@ -138,17 +140,24 @@ private:
     Engine::RandRangePro fireworkRange_2;
     float rotateSize_ = 1.057f;
     //stagepreview
-    Vector3 stageCenter[4] = {
+    Vector3 stageCenter[5] = {
+    {0.0f, 30.0f, -0.0f},
     {0.0f, 30.0f, 40.0f},
     {0.0f, 70.0f, 100.0f},
     {0.0f, 20.0f, 40.0f},
     {0.0f, 80.0f, 100.0f}
     };
+    Vector3 ClearPortalPosition[4] = {
+        { -2.5f,2.5f,82.0f },
+        { -2.5f,55.5f,220.0f },
+        { -2.5f,7.5f,75.0f },
+        { -2.5f,1.5f,122.0f }
+    };
     // ステージの中心
     int nowStage = 0;
-    float angleX[4] = { 0.2f,0.2f,0.2f,0.02f };
-    float stageRadius[4] = { 150.0f,250.0f,130.0f,350.0f };                 // 円の半径
-    float rotationSpeed[4] = { 0.02f,0.02f,0.02f,0.02f };               // カメラの回転速度
+    float angleX[5] = { 0.2f,0.2f,0.2f,0.2f,0.02f };
+    float stageRadius[5] = { 120.0f,150.0f,250.0f,130.0f,350.0f };                 // 円の半径
+    float rotationSpeed[5] = { 0.02f,0.02f,0.02f,0.02f,0.02f };               // カメラの回転速度
     // Post-processing
     PostProcess* postProcess_ = nullptr;
 

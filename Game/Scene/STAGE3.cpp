@@ -57,7 +57,7 @@ void STAGE3::Init()
 	worldTransformPa2.Initialize();
 	TenQTransform.Initialize();
 
-	worldTransformPa.translation_ =        { -2.5f,1.5f,122.0f };
+	worldTransformPa.translation_ = { -2.5f,1.5f,122.0f };
 	Number->worldTransform_.translation_ = { 0.0f,7.0f,124.5f };//ポータルからx+2.5f,y+5.5f,z+2.5fする
 	Number->worldTransform_.scale_ = { 2.0f,2.0f,2.0f };
 
