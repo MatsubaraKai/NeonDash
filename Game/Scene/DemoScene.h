@@ -38,7 +38,7 @@ private:
 	int selectedIndex1 = 0;
 	int selectedIndex2 = 0;
 	int selectedIndex3 = 0;
-	int indices[6] = { 0, 1, 2, 3, 4, 6};
+	int indices[6] = { 0, 1, 2, 3, 4, 6 };
 	float Textlerpindices[6] = { 8.00f,8.61f,4.5f,4.5f,0.5f,7.5f };
 	float textlerpindices[6] = { 6.00f,7.61f,3.5f,3.5f,-0.5f,6.5f };
 	Vector3 previousPos[99];

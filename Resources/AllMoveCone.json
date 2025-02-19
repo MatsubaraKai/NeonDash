@@ -1,0 +1,48 @@
+{
+  "scenes": [
+    {
+      "type": "TitleScene",
+      "objects": [
+        {
+          "type": 17,
+          "transform": [
+            {
+              "property": "translate_y",
+              "start": -15.0,
+              "end": 60.0,
+              "timeRange": [ 0, 180 ]
+            },
+            {
+              "property": "translate_y",
+              "start": 60.0,
+              "end": -4.0,
+              "timeRange": [ 180, 360 ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "GameScene",
+      "objects": [
+        {
+          "type": 18,
+          "transform": [
+            {
+              "property": "translate_x",
+              "start": -15.0,
+              "end": 55.0,
+              "timeRange": [ 0, 180 ]
+            },
+            {
+              "property": "translate_x",
+              "start": 55.0,
+              "end": -50.0,
+              "timeRange": [ 180, 360 ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

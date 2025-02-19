@@ -35,9 +35,9 @@ void GameScene::Init()
 
 	// メニューとフェード処理の初期化
 	menu = new Menu();
-	menu->Init(MENUMEDItextureHandle);
+	menu->Init(textureHandles[MENUMEDI]);
 	fade = new Fade();
-	fade->Init(FADEtextureHandle);
+	fade->Init(textureHandles[FADE]);
 
 	postProcess_ = new PostProcess();
 	postProcess_->SetCamera(camera);
@@ -69,15 +69,24 @@ void GameScene::Update() {
 	if (fade->IsFadeOutComplete()) {
 		HandleSceneTransition();
 	}
-
+	MoveTextObjects(sceneTime);
 	// TenQOBJの回転更新
 	if (nowStage == 0) {
+		UpdateTitleScene(playerPos, sceneTime);
 		TenQOBJ->worldTransform_.rotation_.y += 0.0005f;
 	}
 	else {
 		TenQOBJ->worldTransform_.rotation_.x += 0.001f;
 	}
+	if (nowStage == 1) {
 
+	}
+	if (nowStage == 2) {
+
+	}
+	if (nowStage == 3) {
+
+	}
 	// ステージタイムのモデル設定
 	UpdateStageTimes();
 
@@ -152,23 +161,23 @@ int GameScene::GameClose()
 // テクスチャのロード
 void GameScene::LoadTextures()
 {
-	WHITEtextureHandle = TextureManager::StoreTexture("Resources/white.png");
-	PARTICLERED = TextureManager::StoreTexture("Resources/particlered.png");
-	PARTICLESTAR = TextureManager::StoreTexture("Resources/particlestar.png");
-	PARTICLEBLUE = TextureManager::StoreTexture("Resources/particleblue.png");
-	BLUEtextureHandle = TextureManager::StoreTexture("Resources/blue.png");
-	FADEtextureHandle = TextureManager::StoreTexture("Resources/black.png");
-	FADE2textureHandle = TextureManager::StoreTexture("Resources/black2.png");
-	FADE3textureHandle = TextureManager::StoreTexture("Resources/black3.png"); 
-	MENUMEDItextureHandle = TextureManager::StoreTexture("Resources/game/menumedi.png");
-	MENUHIGHtextureHandle = TextureManager::StoreTexture("Resources/game/menuhigh.png");
-	MENULOWtextureHandle = TextureManager::StoreTexture("Resources/game/menulow.png");
-	GRIDtextureHandle = TextureManager::StoreTexture("Resources/cian.png");
-	CONEtextureHandle = TextureManager::StoreTexture("Resources/game/cone.png");
-	TITLETENQtextureHandle = TextureManager::StoreTexture("Resources/game/world.png");
-	GAMETENQtextureHandle = TextureManager::StoreTexture("Resources/game/world2.png");
-	STARtextureHandle = TextureManager::StoreTexture("Resources/game/star.png");
-	POSITIONtextureHandle = TextureManager::StoreTexture("Resources/game/position.png");
+	textureHandles[WHITE] = TextureManager::StoreTexture("Resources/white.png");
+	textureHandles[PARTICLERED] = TextureManager::StoreTexture("Resources/particlered.png");
+	textureHandles[PARTICLESTAR] = TextureManager::StoreTexture("Resources/particlestar.png");
+	textureHandles[PARTICLEBLUE] = TextureManager::StoreTexture("Resources/particleblue.png");
+	textureHandles[BLUE] = TextureManager::StoreTexture("Resources/blue.png");
+	textureHandles[FADE] = TextureManager::StoreTexture("Resources/black.png");
+	textureHandles[FADE2] = TextureManager::StoreTexture("Resources/black2.png");
+	textureHandles[FADE3] = TextureManager::StoreTexture("Resources/black3.png");
+	textureHandles[MENUMEDI] = TextureManager::StoreTexture("Resources/game/menumedi.png");
+	textureHandles[MENUHIGH] = TextureManager::StoreTexture("Resources/game/menuhigh.png");
+	textureHandles[MENULOW] = TextureManager::StoreTexture("Resources/game/menulow.png");
+	textureHandles[GRID] = TextureManager::StoreTexture("Resources/cian.png");
+	textureHandles[CONE] = TextureManager::StoreTexture("Resources/game/cone.png");
+	textureHandles[TITLETENQ] = TextureManager::StoreTexture("Resources/game/world.png");
+	textureHandles[GAMETENQ] = TextureManager::StoreTexture("Resources/game/world2.png");
+	textureHandles[STAR] = TextureManager::StoreTexture("Resources/game/star.png");
+	textureHandles[POSITION] = TextureManager::StoreTexture("Resources/game/position.png");
 }
 
 // モデルのロード
@@ -200,8 +209,8 @@ void GameScene::InitializeData()
 {
 	if (!GameRoop) {
 		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "TitleScene", ConeObject_, camera);
-		Loader::LoadJsonFileText("Resources", "TitleText", TitleTextObject_);
-		Loader::LoadJsonFileNumber("Resources", "TitleNumber", TitleNumberObject_);
+		Loader::LoadJsonFileText("Resources", "TitleText", TextObject_);
+		Loader::LoadJsonFileNumber("Resources", "TitleNumber", NumberObject_);
 		Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), AudioBGMhandle_, true, 0.05f);
 		GameRoop = true;
 	}
@@ -229,6 +238,8 @@ void GameScene::InitializeData()
 	TitleSceneWorldTransformPa.translation_ = { -20.0f,1.5f,-17.5f };
 	DemoSceneWorldTransformPa.Initialize();
 	DemoSceneWorldTransformPa.translation_ = { -25.0f, 1.5f, 12.5f };
+	DemoSceneWorldTransformDemoPa.Initialize();
+	DemoSceneWorldTransformDemoPa.translation_ = { -2.5f,1.5f,-32.35f };
 	GameSceneWorldTransformPa.Initialize();
 	GameSceneWorldTransformPa.translation_ = { 25.0f, 1.5f, 12.5f };
 	GameScene2WorldTransformPa.Initialize();
@@ -293,6 +304,8 @@ void GameScene::InitializeParticles()
 	TitleSceneParticle->Initialize(ParticleEmitter_);
 	DemoSceneParticle = new Engine::Particle();
 	DemoSceneParticle->Initialize(ParticleEmitter_);
+	DemoSceneDemoParticle = new Engine::Particle();
+	DemoSceneDemoParticle->Initialize(ParticleEmitter_);
 	Stage1Particle = new Engine::Particle();
 	Stage1Particle->Initialize(ParticleEmitter_);
 	Stage2Particle = new Engine::Particle();
@@ -362,11 +375,11 @@ void GameScene::HandleSceneTransition() {
 		TenQOBJ->SetWorldTransform(TitleTenQTransform);
 		TenQOBJ->SetModel("world.obj");
 		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "TitleScene", ConeObject_, camera);
-		Loader::LoadJsonFileText("Resources", "TitleText", TitleTextObject_);
-		Loader::LoadJsonFileNumber("Resources", "TitleNumber", TitleNumberObject_);
+		Loader::LoadJsonFileText("Resources", "TitleText", TextObject_);
+		Loader::LoadJsonFileNumber("Resources", "TitleNumber", NumberObject_);
 		nowStage = 0;
 		portal = 0;
-		fade->SetTexture(FADEtextureHandle);
+		fade->SetTexture(textureHandles[FADE]);
 		fade->StartFadeOut();
 		fade->SetAlpha(0.0f);
 		isPreview = true;
@@ -378,9 +391,11 @@ void GameScene::HandleSceneTransition() {
 		TenQOBJ->SetModel("world2.obj");
 		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "DemoScene", ConeObject_, camera);
 		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "DemoScene", StarObject_);
+		Loader::LoadJsonFileText("Resources", "DemoText", TextObject_);
+		
 		nowStage = 1;
 		portal = 0;
-		fade->SetTexture(FADE2textureHandle);
+		fade->SetTexture(textureHandles[FADE2]);
 		fade->StartFadeOut();
 		InitStar();
 		isPreview = true;
@@ -394,7 +409,7 @@ void GameScene::HandleSceneTransition() {
 		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "Scene1", StarObject_);
 		nowStage = 2;
 		portal = 0;
-		fade->SetTexture(FADE2textureHandle);
+		fade->SetTexture(textureHandles[FADE2]);
 		fade->StartFadeOut();
 		InitStar();
 		isPreview = true;
@@ -408,7 +423,7 @@ void GameScene::HandleSceneTransition() {
 		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "Scene2", StarObject_);
 		nowStage = 3;
 		portal = 0;
-		fade->SetTexture(FADE2textureHandle);
+		fade->SetTexture(textureHandles[FADE2]);
 		fade->StartFadeOut();
 		InitStar();
 		isPreview = true;
@@ -422,7 +437,7 @@ void GameScene::HandleSceneTransition() {
 		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "Scene3", StarObject_);
 		nowStage = 4;
 		portal = 0;
-		fade->SetTexture(FADE2textureHandle);
+		fade->SetTexture(textureHandles[FADE2]);
 		fade->StartFadeOut();
 		InitStar();
 		isPreview = true;
@@ -433,25 +448,22 @@ void GameScene::HandleSceneTransition() {
 void GameScene::UpdateStageTimes() {
 	if (nowStage == 0) {
 		for (int i = 0; i < 4; ++i) {
-			TitleNumberObject_[indices[i]]->SetModel((std::to_string(DemoTime[i]) + ".obj").c_str());
-			TitleNumberObject_[indices[i] + 5]->SetModel((std::to_string(SCENE1Time[i]) + ".obj").c_str());
-			TitleNumberObject_[indices[i] + 10]->SetModel((std::to_string(SCENE2Time[i]) + ".obj").c_str());
-			TitleNumberObject_[indices[i] + 15]->SetModel((std::to_string(SCENE3Time[i]) + ".obj").c_str());
+			NumberObject_[indices[i]]->SetModel((std::to_string(DemoTime[i]) + ".obj").c_str());
+			NumberObject_[indices[i] + 5]->SetModel((std::to_string(SCENE1Time[i]) + ".obj").c_str());
+			NumberObject_[indices[i] + 10]->SetModel((std::to_string(SCENE2Time[i]) + ".obj").c_str());
+			NumberObject_[indices[i] + 15]->SetModel((std::to_string(SCENE3Time[i]) + ".obj").c_str());
 		}
 	}
 }
 
 // 各オブジェクトをカメラに向ける
 void GameScene::AlignObjectsToCamera() {
-	if (nowStage == 0) {
-		for (auto& obj : TitleTextObject_) {
+		for (auto& obj : TextObject_) {
 			obj->worldTransform_.rotation_.y = camera->Face2Face(camera->transform_.translate, obj->worldTransform_.translation_) + 3.14f;
 		}
-		for (auto& obj : TitleNumberObject_) {
+		for (auto& obj : NumberObject_) {
 			obj->worldTransform_.rotation_.y = camera->Face2Face(camera->transform_.translate, obj->worldTransform_.translation_) + 3.14f;
 		}
-	}
-
 }
 
 // ゲームパッド入力処理
@@ -500,76 +512,9 @@ void GameScene::HandleMenuNavigation(const XINPUT_STATE& joyState) {
 	}
 	previousButtons = currentButtons;
 
-	menu->ChangeTex((menucount == 0) ? MENULOWtextureHandle :
-		(menucount == 1) ? MENUMEDItextureHandle : MENUHIGHtextureHandle);
+	menu->ChangeTex((menucount == 0) ? textureHandles[MENULOW] :
+		(menucount == 1) ? textureHandles[MENUMEDI] : textureHandles[MENUHIGH]);
 }
-
-// 床の移動アニメーションを更新
-void GameScene::UpdateLerpAnimations(const Vector3& playerPos) {
-	//// プレイヤーが指定範囲内にいる場合の処理
-	//if (playerPos.x >= -20.0f && playerPos.x <= 20.0f &&
-	//	playerPos.z >= -20.0f && playerPos.z <= 20.0f && GameRoop == false) {
-	//	// TitleTextObject_[6]を徐々に高さ 1.3 に
-	//	TitleTextObject_[6]->worldTransform_.translation_.y =
-	//		Lerp(TitleTextObject_[6]->worldTransform_.translation_.y, 1.3f, 0.1f);
-	//}
-	//else {
-	//	// TitleTextObject_[6]を徐々に高さ 0.0 に戻す
-	//	TitleTextObject_[6]->worldTransform_.translation_.y =
-	//		Lerp(TitleTextObject_[6]->worldTransform_.translation_.y, 0.0f, 0.1f);
-	//}
-
-	//// DemoRoop に応じた TitleTextObject_[7] の高さ変更
-	//if (GameRoop == false) {
-	//	TitleTextObject_[7]->worldTransform_.translation_.y =
-	//		Lerp(TitleTextObject_[7]->worldTransform_.translation_.y, 2.0f, 0.1f);
-	//}
-	//else {
-	//	TitleTextObject_[7]->worldTransform_.translation_.y =
-	//		Lerp(TitleTextObject_[7]->worldTransform_.translation_.y, 0.0f, 0.1f);
-	//}
-
-	//// シーンタイムによるアニメーション
-	//if (sceneTime1 < 180) {
-	//	// ConeObject_[17]と[18]の座標をそれぞれの目標位置に向けて移動
-	//	ConeObject_[17]->worldTransform_.translation_.y =
-	//		Lerp(ConeObject_[17]->worldTransform_.translation_.y, 60.0f, 0.03f);
-	//	ConeObject_[18]->worldTransform_.translation_.x =
-	//		Lerp(ConeObject_[18]->worldTransform_.translation_.x, 55.0f, 0.03f);
-
-	//	// TitleTextObject_ の各インデックスを目標の高さに移動
-	//	for (int i = 0; i < 6; i++) {
-	//		TitleTextObject_[i]->worldTransform_.translation_.y =
-	//			Lerp(TitleTextObject_[i]->worldTransform_.translation_.y, Textlerpindices[i], 0.01f);
-	//	}
-
-	//	// TitleNumberObject_ の各オブジェクトを高さ 8.5 に移動
-	//	for (auto& obj : TitleNumberObject_) {
-	//		obj->worldTransform_.translation_.y =
-	//			Lerp(obj->worldTransform_.translation_.y, 8.5f, 0.01f);
-	//	}
-	//}
-	//else if (sceneTime1 > 180 && sceneTime1 < 360) {
-	//	// ConeObject_[17]と[18]を別の位置に移動
-	//	ConeObject_[17]->worldTransform_.translation_.y =
-	//		Lerp(ConeObject_[17]->worldTransform_.translation_.y, -4.0f, 0.03f);
-	//	ConeObject_[18]->worldTransform_.translation_.x =
-	//		Lerp(ConeObject_[18]->worldTransform_.translation_.x, -50.0f, 0.03f);
-
-	//	// TitleTextObject_ を別の目標位置に移動
-	//	for (int i = 0; i < 6; i++) {
-	//		TitleTextObject_[i]->worldTransform_.translation_.y =
-	//			Lerp(TitleTextObject_[i]->worldTransform_.translation_.y, textlerpindices[i], 0.01f);
-	//	}
-
-	//	// TitleNumberObject_ の各オブジェクトを高さ 7.5 に移動
-	//	for (auto& obj : TitleNumberObject_) {
-	//		obj->worldTransform_.translation_.y =
-	//			Lerp(obj->worldTransform_.translation_.y, 7.5f, 0.01f);
-	//	}
-	//}
-}
-
 // 床とのインタラクション処理
 void GameScene::UpdateFloorInteraction()
 {
@@ -623,7 +568,7 @@ void GameScene::UpdateCamera() {
 
 	// フェードイン中であればカメラの移動を制御
 	if (!isFadeInStarted && isClear == true) {
-		fade->SetTexture(FADEtextureHandle);
+		fade->SetTexture(textureHandles[FADE]);
 		fade->StartFadeIn();    // フェードインを開始
 		isFadeInStarted = true; // フラグを立て、一度だけ実行
 	}
@@ -700,8 +645,8 @@ void GameScene::UpdatePlayerFloorCollision(const Vector3& playerPos) {
 // オブジェクトの更新処理
 void GameScene::UpdateObjects() {
 	for (auto& obj : ConeObject_) obj->Update();
-	for (auto& obj : TitleTextObject_) obj->Update();
-	for (auto& obj : TitleNumberObject_) obj->Update();
+	for (auto& obj : TextObject_) obj->Update();
+	for (auto& obj : NumberObject_) obj->Update();
 	for (auto& obj : StarObject_) obj->Update();
 	for (auto& obj : StarObject_) obj->worldTransform_.rotation_.y += 0.02f;
 
@@ -729,8 +674,8 @@ void GameScene::DisplayDebugInfo(const Vector3& playerPos) {
 		TenQOBJ->SetWorldTransform(TitleTenQTransform);
 		TenQOBJ->SetModel("world.obj");
 		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "TitleScene", ConeObject_, camera);
-		Loader::LoadJsonFileText("Resources", "TitleText", TitleTextObject_);
-		Loader::LoadJsonFileNumber("Resources", "TitleNumber", TitleNumberObject_);
+		Loader::LoadJsonFileText("Resources", "TitleText", TextObject_);
+		Loader::LoadJsonFileNumber("Resources", "TitleNumber", NumberObject_);
 		nowStage = 0;
 		portal = 0;
 	}
@@ -742,7 +687,7 @@ void GameScene::DisplayDebugInfo(const Vector3& playerPos) {
 		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "DemoScene", StarObject_);
 		nowStage = 1;
 		portal = 0;
-		fade->SetTexture(FADE2textureHandle);
+		fade->SetTexture(textureHandles[FADE2]);
 		fade->StartFadeOut();
 		InitStar();
 		isPreview = true;
@@ -755,7 +700,7 @@ void GameScene::DisplayDebugInfo(const Vector3& playerPos) {
 		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "Scene1", StarObject_);
 		nowStage = 2;
 		portal = 0;
-		fade->SetTexture(FADE2textureHandle);
+		fade->SetTexture(textureHandles[FADE2]);
 		fade->StartFadeOut();
 		InitStar();
 		isPreview = true;
@@ -768,7 +713,7 @@ void GameScene::DisplayDebugInfo(const Vector3& playerPos) {
 		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "Scene2", StarObject_);
 		nowStage = 3;
 		portal = 0;
-		fade->SetTexture(FADE2textureHandle);
+		fade->SetTexture(textureHandles[FADE2]);
 		fade->StartFadeOut();
 		InitStar();
 		isPreview = true;
@@ -781,7 +726,7 @@ void GameScene::DisplayDebugInfo(const Vector3& playerPos) {
 		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "Scene3", StarObject_);
 		nowStage = 4;
 		portal = 0;
-		fade->SetTexture(FADE2textureHandle);
+		fade->SetTexture(textureHandles[FADE2]);
 		fade->StartFadeOut();
 		InitStar();
 		isPreview = true;
@@ -830,12 +775,12 @@ void GameScene::DrawConeObjects()
 {
 	for (auto& cone : ConeObject_) {
 		if (cone->isVisible) {
-			cone->Draw(CONEtextureHandle, camera);
+			cone->Draw(textureHandles[CONE], camera);
 		}
 	}
 	for (auto& cone : StarObject_) {
 		if (cone->isVisible) {
-			cone->Draw(STARtextureHandle, camera);
+			cone->Draw(textureHandles[STAR], camera);
 		}
 	}
 }
@@ -843,13 +788,13 @@ void GameScene::DrawConeObjects()
 // タイトルテキストの描画
 void GameScene::DrawTitleTextObjects()
 {
-	for (size_t i = 0; i < TitleTextObject_.size(); ++i) {
-		auto& textObj = TitleTextObject_[i];
+	for (size_t i = 0; i < TextObject_.size(); ++i) {
+		auto& textObj = TextObject_[i];
 		if (i == 0 || i == 1) {
-			textObj->Draw(BLUEtextureHandle, camera); // 特定のオブジェクトは異なるテクスチャで描画
+			textObj->Draw(textureHandles[BLUE], camera); // 特定のオブジェクトは異なるテクスチャで描画
 		}
 		else {
-			textObj->Draw(GRIDtextureHandle, camera);
+			textObj->Draw(textureHandles[GRID], camera);
 		}
 	}
 }
@@ -857,8 +802,8 @@ void GameScene::DrawTitleTextObjects()
 // タイトルナンバーの描画
 void GameScene::DrawTitleNumberObjects()
 {
-	for (auto& numberObj : TitleNumberObject_) {
-		numberObj->Draw(GRIDtextureHandle, camera);
+	for (auto& numberObj : NumberObject_) {
+		numberObj->Draw(textureHandles[GRID], camera);
 	}
 }
 
@@ -866,13 +811,13 @@ void GameScene::DrawTitleNumberObjects()
 void GameScene::DrawSpecialObjects()
 {
 	if (isTitle == 0) {
-		TenQOBJ->Draw(TITLETENQtextureHandle, camera);
+		TenQOBJ->Draw(textureHandles[TITLETENQ], camera);
 	}
 	else {
-		TenQOBJ->Draw(GAMETENQtextureHandle, camera);
+		TenQOBJ->Draw(textureHandles[GAMETENQ], camera);
 	}
 	if (menuposition) {
-		PositionOBJ->Draw(POSITIONtextureHandle, camera);
+		PositionOBJ->Draw(textureHandles[POSITION], camera);
 	}
 }
 
@@ -880,11 +825,11 @@ void GameScene::DrawSpecialObjects()
 void GameScene::DrawParticles()
 {
 	if (nowStage == 0) {
-		FloorParticle_->Draw(emitter_, emitter_.transform.translate, PARTICLEBLUE, camera, randRange_, false, 0.5f, 0.8f);
+		FloorParticle_->Draw(emitter_, emitter_.transform.translate, textureHandles[PARTICLEBLUE], camera, randRange_, false, 0.5f, 0.8f);
 		DemoSceneParticle->Draw(
 			ParticleEmitter_,
 			{ DemoSceneWorldTransformPa.translation_.x, DemoSceneWorldTransformPa.translation_.y, DemoSceneWorldTransformPa.translation_.z },
-			WHITEtextureHandle,
+			textureHandles[WHITE],
 			camera,
 			demoRandPro,
 			false,
@@ -895,7 +840,7 @@ void GameScene::DrawParticles()
 		Stage1Particle->Draw(
 			ParticleEmitter_,
 			{ GameSceneWorldTransformPa.translation_.x, GameSceneWorldTransformPa.translation_.y, GameSceneWorldTransformPa.translation_.z },
-			WHITEtextureHandle,
+			textureHandles[WHITE],
 			camera,
 			demoRandPro,
 			false,
@@ -906,7 +851,7 @@ void GameScene::DrawParticles()
 		Stage2Particle->Draw(
 			ParticleEmitter_,
 			{ GameScene2WorldTransformPa.translation_.x, GameScene2WorldTransformPa.translation_.y, GameScene2WorldTransformPa.translation_.z },
-			WHITEtextureHandle,
+			textureHandles[WHITE],
 			camera,
 			demoRandPro,
 			false,
@@ -917,7 +862,7 @@ void GameScene::DrawParticles()
 		Stage3Particle->Draw(
 			ParticleEmitter_,
 			{ GameScene3WorldTransformPa.translation_.x, GameScene3WorldTransformPa.translation_.y, GameScene3WorldTransformPa.translation_.z },
-			WHITEtextureHandle,
+			textureHandles[WHITE],
 			camera,
 			demoRandPro,
 			false,
@@ -925,17 +870,29 @@ void GameScene::DrawParticles()
 			0.4f
 		);
 
-		TitleFireworkPa->Draw(fireworkEmitter_, fireworkEmitter_.transform.translate, PARTICLESTAR, camera, fireworkRange_, false, 0.1f, 0.6f);
-		TitleFireworkPa2->Draw(fireworkEmitter_2, fireworkEmitter_2.transform.translate, PARTICLESTAR, camera, fireworkRange_2, false, 0.1f, 0.6f);
+		TitleFireworkPa->Draw(fireworkEmitter_, fireworkEmitter_.transform.translate, textureHandles[PARTICLESTAR], camera, fireworkRange_, false, 0.1f, 0.6f);
+		TitleFireworkPa2->Draw(fireworkEmitter_2, fireworkEmitter_2.transform.translate, textureHandles[PARTICLESTAR], camera, fireworkRange_2, false, 0.1f, 0.6f);
 
 		TitleFireworkPa->CreateFireworkEffect(fireworkEmitter_, fireworkRange_, 1.0f, 2.0f, 1.5f, explosionSound, camera->GetTranslate());
 		TitleFireworkPa2->CreateFireworkEffect(fireworkEmitter_2, fireworkRange_2, 1.0f, 2.0f, 1.5f, explosionSound, camera->GetTranslate());
+	}
+	if (nowStage == 1) {
+		DemoSceneDemoParticle->Draw(
+			ParticleEmitter_,
+			{ DemoSceneWorldTransformDemoPa.translation_.x, DemoSceneWorldTransformDemoPa.translation_.y, DemoSceneWorldTransformDemoPa.translation_.z },
+			textureHandles[WHITE],
+			camera,
+			demoRandPro,
+			false,
+			0.2f,
+			0.4f
+		);
 	}
 	if (nowStage != 0) {
 		TitleSceneParticle->Draw(
 			ParticleEmitter_,
 			{ TitleSceneWorldTransformPa.translation_.x, TitleSceneWorldTransformPa.translation_.y, TitleSceneWorldTransformPa.translation_.z },
-			WHITEtextureHandle,
+			textureHandles[WHITE],
 			camera,
 			demoRandPro,
 			false,
@@ -958,17 +915,93 @@ void GameScene::Remake() {
 	for (auto object : StarObject_) {
 		delete object;  // メモリの解放
 	}
-	for (auto object : TitleTextObject_) {
+	for (auto object : TextObject_) {
 		delete object;  // メモリの解放
 	}
-	for (auto object : TitleNumberObject_) {
+	for (auto object : NumberObject_) {
 		delete object;  // メモリの解放
 	}
 	ConeObject_.clear(); // コンテナを空にする
 	StarObject_.clear(); // コンテナを空にする
-	TitleTextObject_.clear(); // コンテナを空にする
-	TitleNumberObject_.clear(); // コンテナを空にする
+	TextObject_.clear(); // コンテナを空にする
+	NumberObject_.clear(); // コンテナを空にする
 }
+
+
+// 指定範囲内にプレイヤーがいるか判定
+bool GameScene::IsPlayerInRange(const Vector3& pos, float minX, float maxX, float minZ, float maxZ) {
+	return pos.x >= minX && pos.x <= maxX && pos.z >= minZ && pos.z <= maxZ;
+}
+
+// Lerp適用
+void GameScene::ApplyLerp(float& target, float goal, float speed) {
+	target = Lerp(target, goal, speed);
+}
+
+// タイトルテキストの高さ調整
+void GameScene::MoveTextObjects(int sceneTime) {
+	if (sceneTime < 180) {
+		if (nowStage == 0) {
+			for (int i = 0; i < 6; i++) {
+				ApplyLerp(TextObject_[i]->worldTransform_.translation_.y, Textlerpindices[i], 0.01f);
+			}
+		}
+		if (nowStage == 1) {
+			for (int i = 0; i < 6; i++) {
+				ApplyLerp(TextObject_[indices1[i]]->worldTransform_.translation_.y, Textlerpindices1[i], 0.01f);
+			}
+		}
+	}
+	else if (sceneTime < 360) {
+		if (nowStage == 0) {
+			for (int i = 0; i < 6; i++) {
+				ApplyLerp(TextObject_[i]->worldTransform_.translation_.y, textlerpindices[i], 0.01f);
+			}
+		}
+		if (nowStage == 1) {
+			for (int i = 0; i < 6; i++) {
+				ApplyLerp(TextObject_[indices1[i]]->worldTransform_.translation_.y, textlerpindices1[i], 0.01f);
+			}
+		}
+	}
+}
+
+// タイトルナンバーオブジェクトの高さ調整
+void GameScene::MoveTitleNumberObjects(float targetHeight) {
+	for (auto& obj : NumberObject_) {
+		ApplyLerp(obj->worldTransform_.translation_.y, targetHeight, 0.01f);
+	}
+	
+}
+
+// コーンオブジェクトの移動
+void GameScene::MoveConeObjects(int sceneTime) {
+	if (sceneTime < 180) {
+		ApplyLerp(ConeObject_[17]->worldTransform_.translation_.y, 60.0f, 0.03f);
+		ApplyLerp(ConeObject_[18]->worldTransform_.translation_.x, 55.0f, 0.03f);
+		MoveTitleNumberObjects(8.5f);
+	}
+	else if (sceneTime < 360) {
+		ApplyLerp(ConeObject_[17]->worldTransform_.translation_.y, -4.0f, 0.03f);
+		ApplyLerp(ConeObject_[18]->worldTransform_.translation_.x, -50.0f, 0.03f);
+		MoveTitleNumberObjects(7.5f);
+	}
+}
+
+// メイン処理
+void GameScene::UpdateTitleScene(const Vector3& playerPos, int sceneTime) {
+	// プレイヤー範囲によるテキスト移動
+	float targetHeight = IsPlayerInRange(playerPos, -20.0f, 20.0f, -20.0f, 20.0f) ? 1.3f : 0.0f;
+	ApplyLerp(TextObject_[6]->worldTransform_.translation_.y, targetHeight, 0.1f);
+
+	// タイトルテキスト移動（GameRoop が不要に）
+	ApplyLerp(TextObject_[7]->worldTransform_.translation_.y, 2.0f, 0.1f);
+
+	// シーンタイムに応じた移動
+	MoveConeObjects(sceneTime);
+}
+
+
 
 void GameScene::ImguiDebug() {
 	TenQOBJ->ModelDebug("TenQ");

@@ -413,20 +413,17 @@ void STAGE1::Update()
 	if (sceneTime1 == 0) {
 
 	}
-	if (sceneTime1 < 180 && isMenu == false) {
+	if (sceneTime1 < 180) {
 		TextOBJ->worldTransform_.translation_.y = Lerp(TextOBJ->worldTransform_.translation_.y, 7.5f, 0.01f);
 		ConeObject_[1]->worldTransform_.translation_.z = Lerp(ConeObject_[1]->worldTransform_.translation_.z, 0.0f, 0.018f);
 		ConeObject_[3]->worldTransform_.translation_.y = Lerp(ConeObject_[3]->worldTransform_.translation_.y, -7.0f, 0.018f);
 		StarObject_[1]->worldTransform_.translation_.y = Lerp(StarObject_[1]->worldTransform_.translation_.y, 1.0f, 0.018f);
 	}
-	if (sceneTime1 > 180 && sceneTime1 < 360 && isMenu == false) {
+	if (sceneTime1 > 180 && sceneTime1 < 360) {
 		TextOBJ->worldTransform_.translation_.y = Lerp(TextOBJ->worldTransform_.translation_.y, 6.5f, 0.01f);
 		ConeObject_[1]->worldTransform_.translation_.z = Lerp(ConeObject_[1]->worldTransform_.translation_.z, 100.0f, 0.018f);
 		ConeObject_[3]->worldTransform_.translation_.y = Lerp(ConeObject_[3]->worldTransform_.translation_.y, 55.0f, 0.018f);
 		StarObject_[1]->worldTransform_.translation_.y = Lerp(StarObject_[1]->worldTransform_.translation_.y, 63.0f, 0.018f);
-
-	
-
 	}
 	
 	if (effectFlag == true && isMenu == false) {

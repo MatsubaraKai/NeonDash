@@ -3,6 +3,9 @@
 #include <fstream>
 #include <cassert>
 #include "ModelManager.h"
+float Loader::Lerp(const float& a, const float& b, float t) {
+    return a + (b - a) * t;
+}
 
 /// <summary>
 /// JSONファイルを読み込み、オブジェクトとカメラを初期化する関数
@@ -455,6 +458,7 @@ void Loader::LoadAllStarJsonFile(const std::string kDefaultBaseDirectory, const 
         objects.push_back(newObject3d);
     }
 }
+
 
 /// <summary>
 /// JSONファイルを読み込み、番号付きのオブジェクトを初期化する関数

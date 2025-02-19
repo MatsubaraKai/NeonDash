@@ -48,7 +48,6 @@ private:
     void AlignObjectsToCamera();
     void HandleGamePadInput();
     void UpdatePlayerFloorCollision(const Vector3& playerPos);
-    void UpdateLerpAnimations(const Vector3& playerPos);
     void UpdateObjects();
     void UpdateCamera();
     void HandleStartButton(const XINPUT_STATE& joyState);
@@ -58,6 +57,18 @@ private:
     void UpdateFloorInteraction();
     void ImguiDebug();
     void Remake();
+    // 指定範囲内にプレイヤーがいるか判定
+    bool IsPlayerInRange(const Vector3& pos, float minX, float maxX, float minZ, float maxZ);
+    // Lerp適用
+    void ApplyLerp(float& target, float goal, float speed);
+    // タイトルテキストの高さ調整
+    void MoveTextObjects(int sceneTime);
+    // タイトルナンバーオブジェクトの高さ調整
+    void MoveTitleNumberObjects(float targetHeight);
+    // コーンオブジェクトの移動
+    void MoveConeObjects(int sceneTime);
+    // メイン処理
+    void UpdateTitleScene(const Vector3& playerPos,int sceneTime);
 
     // Draw methods
     void DrawConeObjects();
@@ -70,11 +81,37 @@ private:
     // World transforms
     WorldTransform TitleSceneWorldTransformPa;
     WorldTransform DemoSceneWorldTransformPa;
+    WorldTransform DemoSceneWorldTransformDemoPa;
     WorldTransform GameSceneWorldTransformPa;
     WorldTransform GameScene2WorldTransformPa;
     WorldTransform GameScene3WorldTransformPa;
     WorldTransform TitleTenQTransform;
     WorldTransform GameTenQTransform;
+
+    //TitleMoveObj
+    bool isTitle = false;
+    float Textlerpindices[6] = { 25.0f, 12.5f, 7.5f, 7.5f, 7.5f, 7.5f };
+    float textlerpindices[6] = { 20.0f, 7.5f, 6.5f, 6.5f, 6.5f, 6.5f };
+    int indices[4] = { 0, 1, 3, 4 };//動かすText
+    int TitleLerpFloor[2] = { 17,18 };//動かす床番号
+    float LerpFloorSPos[2] = { 60.0f,55.0f};//LerpStartPos
+    float LerpFloorEPos[2] = { -4.0f,-50.0f};//LerpEndPos
+    //DemoScene
+    bool isDemo = false;  // Portal 1
+
+    //STAGE1MoveObj
+    bool isGame = false;  // Portal 2
+    float Textlerpindices1[6] = { 8.00f,8.61f,4.5f,4.5f,0.5f,7.5f };
+    float textlerpindices1[6] = { 6.00f,7.61f,3.5f,3.5f,-0.5f,6.5f };
+    int indices1[6] = { 0, 1, 2, 3, 4, 6 };
+    int GameScene1LerpFloor[2] = { 1,3 };
+    float LerpFloorSPos1[2] = { 0.0f,-7.0f };
+    float LerpFloorEPos1[2] = { 100.0f,55.0f };
+    //STAGE2
+    bool isGame2 = false; // Portal 3
+
+    //STAGE3
+    bool isGame3 = false; // Portal 4
 
     // Scene state variables
     int sceneTime = 0;
@@ -83,17 +120,10 @@ private:
     int selectedIndex2 = 0;
     int selectedIndex3 = 0;
     int portal = 0;
-    int indices[4] = { 0, 1, 3, 4 };
-    float Textlerpindices[6] = { 25.0f, 12.5f, 7.5f, 7.5f, 7.5f, 7.5f };
-    float textlerpindices[6] = { 20.0f, 7.5f, 6.5f, 6.5f, 6.5f, 6.5f };
+   
     bool effect = false;
     bool effect2 = false;
     bool isOnFloor = false;
-    bool isTitle = false;
-    bool isDemo = false;  // Portal 1
-    bool isGame = false;  // Portal 2
-    bool isGame2 = false; // Portal 3
-    bool isGame3 = false; // Portal 4
     bool isClear = false;
     bool isFadeInStarted = false;
     bool isMenu = false;
@@ -117,14 +147,15 @@ private:
     Object3d* PositionOBJ = nullptr;
     std::vector<Object3d*> ConeObject_;
     std::vector<Object3d*> StarObject_;
-    std::vector<Object3d*> TitleObject_;
-    std::vector<Object3d*> TitleTextObject_;
-    std::vector<Object3d*> TitleNumberObject_;
+    std::vector<Object3d*> TextObject_;
+    std::vector<Object3d*> NumberObject_;
 
     // Particle system
     Engine::Particle* FloorParticle_ = nullptr;
+    Engine::Particle* ClearParticle = nullptr;
     Engine::Particle* TitleSceneParticle = nullptr;
     Engine::Particle* DemoSceneParticle = nullptr;
+    Engine::Particle* DemoSceneDemoParticle = nullptr;
     Engine::Particle* Stage1Particle = nullptr;
     Engine::Particle* Stage2Particle = nullptr;
     Engine::Particle* Stage3Particle = nullptr;
@@ -138,7 +169,13 @@ private:
     Engine::RandRangePro demoRandPro;
     Engine::RandRangePro fireworkRange_;
     Engine::RandRangePro fireworkRange_2;
-    float rotateSize_ = 1.057f;
+    //クリアポータルの位置
+    Vector3 ClearPortalPosition[4] = {
+        { -2.5f,2.5f,82.0f },
+        { -2.5f,55.5f,220.0f },
+        { -2.5f,7.5f,75.0f },
+        { -2.5f,1.5f,122.0f }
+    };
     //stagepreview
     Vector3 stageCenter[5] = {
     {0.0f, 30.0f, -0.0f},
@@ -147,13 +184,9 @@ private:
     {0.0f, 20.0f, 40.0f},
     {0.0f, 80.0f, 100.0f}
     };
-    Vector3 ClearPortalPosition[4] = {
-        { -2.5f,2.5f,82.0f },
-        { -2.5f,55.5f,220.0f },
-        { -2.5f,7.5f,75.0f },
-        { -2.5f,1.5f,122.0f }
-    };
+    
     // ステージの中心
+    float rotateSize_ = 1.057f;
     int nowStage = 0;
     float angleX[5] = { 0.2f,0.2f,0.2f,0.2f,0.02f };
     float stageRadius[5] = { 120.0f,150.0f,250.0f,130.0f,350.0f };                 // 円の半径
@@ -161,26 +194,30 @@ private:
     // Post-processing
     PostProcess* postProcess_ = nullptr;
 
-    // Resource handles
-    uint32_t FADEtextureHandle;
-    uint32_t FADE2textureHandle;
-    uint32_t FADE3textureHandle;
-    uint32_t MENUMEDItextureHandle;
-    uint32_t MENUHIGHtextureHandle;
-    uint32_t MENULOWtextureHandle;
-    uint32_t WHITEtextureHandle;
-    uint32_t PARTICLERED;
-    uint32_t PARTICLESTAR;
-    uint32_t PARTICLEBLUE;
-    uint32_t PARTICLE3;
-    uint32_t PARTICLE4;
-    uint32_t BLUEtextureHandle;
-    uint32_t CONEtextureHandle;
-    uint32_t GRIDtextureHandle;
-    uint32_t TITLETENQtextureHandle;
-    uint32_t GAMETENQtextureHandle;
-    uint32_t POSITIONtextureHandle;
-    uint32_t STARtextureHandle;
+    enum TextureID {
+        FADE,
+        FADE2,
+        FADE3,
+        MENUMEDI,
+        MENUHIGH,
+        MENULOW,
+        WHITE,
+        PARTICLERED,
+        PARTICLESTAR,
+        PARTICLEBLUE,
+        PARTICLE3,
+        PARTICLE4,
+        BLUE,
+        CONE,
+        GRID,
+        TITLETENQ,
+        GAMETENQ,
+        POSITION,
+        STAR,
+        TEXTURE_COUNT // テクスチャの総数
+    };
+
+    std::array<uint32_t, TEXTURE_COUNT> textureHandles;
 
     // Audio handles
     uint32_t AudioBGMhandle_;
