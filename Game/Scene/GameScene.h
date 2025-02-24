@@ -117,10 +117,14 @@ private:
     float LerpFloorEPos1[2] = { 100.0f,55.0f };
     //STAGE2
     bool isGame2 = false; // Portal 3
+    int Stage2indices[14] = { 2, 4, 6, 8,10,12,14,16,18,19,21,23,25,27 };
+    int Stage2indices2[13] = { 1,3,5,7,9,11,13,15,17,20,22,24,26 };
 
     //STAGE3
     bool isGame3 = false; // Portal 4
-
+    int Stage3indices[2] = { 2,3 };
+    float Conelerpindices[2] = { -18.0f,18.0f };
+    float conelerpindices[2] = { -100.0f,100.0f };
     // Scene state variables
     int sceneTime = 0;
     int sceneTime1 = 0;

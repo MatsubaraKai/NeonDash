@@ -88,6 +88,9 @@ void GameScene::Update() {
 	if (nowStage == 3) {
 
 	}
+
+	// シーンタイムに応じた移動
+	MoveConeObjects(sceneTime);
 	// ステージタイムのモデル設定
 	UpdateStageTimes();
 
@@ -317,7 +320,8 @@ void GameScene::InitializeParticles()
 	Stage2Particle->Initialize(ParticleEmitter_);
 	Stage3Particle = new Engine::Particle();
 	Stage3Particle->Initialize(ParticleEmitter_);
-
+	ClearParticle = new Engine::Particle();
+	ClearParticle->Initialize(ParticleEmitter_);
 }
 
 ///Update///
@@ -528,39 +532,41 @@ void GameScene::UpdateFloorInteraction()
 
 	// 各床オブジェクトに対してチェック
 	for (size_t i = 0; i < ConeObject_.size(); ++i) {
-		const Vector3& floorPos = ConeObject_[i]->worldTransform_.translation_;
-		const Vector3& floorSize = ConeObject_[i]->worldTransform_.scale_;
+		if (ConeObject_[i]->isVisible) {
 
-		// プレイヤーが床の上にいるかを判定
-		if (playerPos.x >= floorPos.x - floorSize.x &&
-			playerPos.x <= floorPos.x + floorSize.x &&
-			playerPos.z >= floorPos.z - floorSize.z &&
-			playerPos.z <= floorPos.z + floorSize.z &&
-			playerPos.y >= floorPos.y + floorSize.y - 1.0f &&
-			playerPos.y <= floorPos.y + floorSize.y + 3.0f)
-		{
-			// 床の移動量を計算
-			Vector3 floorMovement = floorPos - previousPos[i];
+			const Vector3& floorPos = ConeObject_[i]->worldTransform_.translation_;
+			const Vector3& floorSize = ConeObject_[i]->worldTransform_.scale_;
 
-			// プレイヤーに床の移動分を反映
-			camera->transform_.translate.x += floorMovement.x;
-			camera->transform_.translate.z += floorMovement.z;
+			// プレイヤーが床の上にいるかを判定
+			if (playerPos.x >= floorPos.x - floorSize.x &&
+				playerPos.x <= floorPos.x + floorSize.x &&
+				playerPos.z >= floorPos.z - floorSize.z &&
+				playerPos.z <= floorPos.z + floorSize.z &&
+				playerPos.y >= floorPos.y + floorSize.y - 1.0f &&
+				playerPos.y <= floorPos.y + floorSize.y + 3.0f)
+			{
+				// 床の移動量を計算
+				Vector3 floorMovement = floorPos - previousPos[i];
 
-			// プレイヤーの高さを床に合わせる
-			camera->transform_.translate.y = floorPos.y + floorSize.y + 3.0f;
+				// プレイヤーに床の移動分を反映
+				camera->transform_.translate.x += floorMovement.x;
+				camera->transform_.translate.z += floorMovement.z;
 
-			// プレイヤーが床の上にいるフラグを設定
-			isOnFloor = true;
+				// プレイヤーの高さを床に合わせる
+				camera->transform_.translate.y = floorPos.y + floorSize.y + 3.0f;
+
+				// プレイヤーが床の上にいるフラグを設定
+				isOnFloor = true;
+			}
+
+			// 床の現在位置を次フレーム用に保存
+			previousPos[i] = floorPos;
 		}
-
-		// 床の現在位置を次フレーム用に保存
-		previousPos[i] = floorPos;
 	}
-
-	// 床の上にいない場合
-	if (!isOnFloor) {
-		isOnFloor = false;
-	}
+		// 床の上にいない場合
+		if (!isOnFloor) {
+			isOnFloor = false;
+		}
 }
 
 // カメラの更新
@@ -629,36 +635,40 @@ void GameScene::UpdateCameraFOV(const XINPUT_STATE& joyState) {
 void GameScene::UpdatePlayerFloorCollision(const Vector3& playerPos) {
 	isOnFloor = false;
 	for (size_t i = 0; i < ConeObject_.size(); ++i) {
+		if (ConeObject_[i]->isVisible) {
 		Vector3 floorPos = ConeObject_[i]->worldTransform_.translation_;
-		Vector3 floorSize = ConeObject_[i]->worldTransform_.scale_;
+			Vector3 floorSize = ConeObject_[i]->worldTransform_.scale_;
 
-		if (playerPos.x >= floorPos.x - floorSize.x && playerPos.x <= floorPos.x + floorSize.x &&
-			playerPos.z >= floorPos.z - floorSize.z && playerPos.z <= floorPos.z + floorSize.z &&
-			playerPos.y >= floorPos.y + floorSize.y - 1.0f && playerPos.y <= floorPos.y + floorSize.y + 3.0f) {
-
-			float floorHeightChange = floorPos.y + floorSize.y - playerPos.y;
-			camera->transform_.translate.y += floorHeightChange + 3.0f;
-			isOnFloor = true;
-			break;
-		}
-		else {
-			isOnFloor = false;
+			if (playerPos.x >= floorPos.x - floorSize.x && playerPos.x <= floorPos.x + floorSize.x &&
+				playerPos.z >= floorPos.z - floorSize.z && playerPos.z <= floorPos.z + floorSize.z &&
+				playerPos.y >= floorPos.y + floorSize.y - 1.0f && playerPos.y <= floorPos.y + floorSize.y + 3.0f) {
+					float floorHeightChange = floorPos.y + floorSize.y - playerPos.y;
+					camera->transform_.translate.y += floorHeightChange + 3.0f;
+					isOnFloor = true;
+					break;
+			}
+			else {
+				isOnFloor = false;
+			}
 		}
 	}
 }
 
 // オブジェクトの更新処理
 void GameScene::UpdateObjects() {
-	for (auto& obj : ConeObject_) obj->Update();
+	for (auto& obj : ConeObject_) {
+		if ((obj)->isVisible) {
+			obj->Update();
+		}
+	}
 	for (auto& obj : TextObject_) obj->Update();
 	for (auto& obj : NumberObject_) obj->Update();
 	for (auto& obj : StarObject_) {
 		if ((obj)->isVisible) {
 			obj->Update();
 			obj->worldTransform_.rotation_.y += 0.02f;
-		 }
+		}
 	} 
-
 	TenQOBJ->Update();
 	PositionOBJ->Update();
 }
@@ -841,6 +851,18 @@ void GameScene::DrawSpecialObjects()
 // パーティクルの描画
 void GameScene::DrawParticles()
 {
+	if (nowStage != 0) {
+		ClearParticle->Draw(
+			ParticleEmitter_,
+			ClearPortalPosition[nowStage - 1],
+			textureHandles[WHITE],
+			camera,
+			demoRandPro,
+			false,
+			0.2f,
+			0.4f
+		);
+	}
 	if (nowStage == 0) {
 		FloorParticle_->Draw(emitter_, emitter_.transform.translate, textureHandles[PARTICLEBLUE], camera, randRange_, false, 0.5f, 0.8f);
 		DemoSceneParticle->Draw(
@@ -1005,15 +1027,75 @@ void GameScene::MoveTitleNumberObjects(float targetHeight) {
 
 // コーンオブジェクトの移動
 void GameScene::MoveConeObjects(int sceneTime) {
-	if (sceneTime < 180) {
-		ApplyLerp(ConeObject_[17]->worldTransform_.translation_.y, 60.0f, 0.03f);
-		ApplyLerp(ConeObject_[18]->worldTransform_.translation_.x, 55.0f, 0.03f);
-		MoveTitleNumberObjects(8.5f);
+	if (nowStage == 0) {
+		if (sceneTime < 180) {
+			ApplyLerp(ConeObject_[17]->worldTransform_.translation_.y, 60.0f, 0.03f);
+			ApplyLerp(ConeObject_[18]->worldTransform_.translation_.x, 55.0f, 0.03f);
+			MoveTitleNumberObjects(8.5f);
+		}
+		else if (sceneTime < 360) {
+			ApplyLerp(ConeObject_[17]->worldTransform_.translation_.y, -4.0f, 0.03f);
+			ApplyLerp(ConeObject_[18]->worldTransform_.translation_.x, -50.0f, 0.03f);
+			MoveTitleNumberObjects(7.5f);
+		}
 	}
-	else if (sceneTime < 360) {
-		ApplyLerp(ConeObject_[17]->worldTransform_.translation_.y, -4.0f, 0.03f);
-		ApplyLerp(ConeObject_[18]->worldTransform_.translation_.x, -50.0f, 0.03f);
-		MoveTitleNumberObjects(7.5f);
+	if (nowStage == 2) {
+		if (sceneTime < 180) {
+			ApplyLerp(ConeObject_[1]->worldTransform_.translation_.z, 0.0f, 0.018f);
+			ApplyLerp(ConeObject_[3]->worldTransform_.translation_.y, -7.0f, 0.018f);
+			ApplyLerp(StarObject_[1]->worldTransform_.translation_.y, 1.0f, 0.018f);
+
+		}
+		else if (sceneTime < 360) {
+			ApplyLerp(ConeObject_[1]->worldTransform_.translation_.z, 100.0f, 0.018f);
+			ApplyLerp(ConeObject_[3]->worldTransform_.translation_.y, 55.0f, 0.018f);
+			ApplyLerp(StarObject_[1]->worldTransform_.translation_.y, 63.0f, 0.018f);
+		}
+	}
+	if (nowStage == 3) {
+		if (sceneTime < 180) {
+			for (int i = 0; i < 14; i++) {
+				ConeObject_[Stage2indices[i]]->isVisible = false;
+			}
+			for (int i = 0; i < 13; i++) {
+				ConeObject_[Stage2indices2[i]]->isVisible = true;
+			}
+		}
+		else if (sceneTime < 360) {
+			for (int i = 0; i < 14; i++) {
+				ConeObject_[Stage2indices[i]]->isVisible = true;
+			}
+			for (int i = 0; i < 13; i++) {
+				ConeObject_[Stage2indices2[i]]->isVisible = false;
+			}
+		}
+	}
+	if (nowStage == 4) {
+		if (sceneTime < 180) {
+			ApplyLerp(ConeObject_[1]->worldTransform_.translation_.y, -4.0f, 0.04f);
+			for (int i = 0; i < 2; i++) {
+				ApplyLerp(ConeObject_[Stage3indices[i]]->worldTransform_.translation_.x, conelerpindices[i], 0.02f);
+			}
+			ApplyLerp(ConeObject_[14]->worldTransform_.translation_.x, 90.0f, 0.02f);
+			ApplyLerp(ConeObject_[14]->worldTransform_.translation_.y, 51.0f, 0.02f);
+
+			ApplyLerp(ConeObject_[15]->worldTransform_.translation_.z, 182.0f, 0.02f);
+			ApplyLerp(ConeObject_[15]->worldTransform_.translation_.y, 96.0f, 0.02f);
+
+		}
+		else if (sceneTime < 360) {
+			ApplyLerp(ConeObject_[1]->worldTransform_.translation_.y, 50.0f, 0.04f);
+
+			for (int i = 0; i < 2; i++) {
+				ApplyLerp(ConeObject_[Stage3indices[i]]->worldTransform_.translation_.x, Conelerpindices[i], 0.02f);
+			}
+			ApplyLerp(ConeObject_[14]->worldTransform_.translation_.x, 110.0f, 0.02f);
+			ApplyLerp(ConeObject_[14]->worldTransform_.translation_.y, 71.0f, 0.02f);
+
+			ApplyLerp(ConeObject_[15]->worldTransform_.translation_.z, 157.0f, 0.02f);
+			ApplyLerp(ConeObject_[15]->worldTransform_.translation_.y, 71.0f, 0.02f);
+
+		}
 	}
 }
 
@@ -1027,8 +1109,6 @@ void GameScene::UpdateTitleScene(const Vector3& playerPos, int sceneTime) {
 	// タイトルテキスト移動（GameRoop が不要に）
 	ApplyLerp(TextObject_[7]->worldTransform_.translation_.y, 2.0f, 0.1f);
 
-	// シーンタイムに応じた移動
-	MoveConeObjects(sceneTime);
 }
 
 void GameScene::StarSetting(const Vector3& playerPos) {
@@ -1082,7 +1162,9 @@ void GameScene::ImguiDebug() {
 	if (nowStage != 0) {
 		ImGui::Text("starcount %d", StarCount[nowStage - 1]);
 		ImGui::Text("isvisible: %d", StarObject_[selectedIndex2]->isVisible);
-
+		for (size_t i = 0; i < ConeObject_.size(); ++i) {
+			ImGui::Text("Coneisvisible: %d", ConeObject_[i]->isVisible);
+		}
 	}
 	ImGui::Text("isgetstar %d", isGetStar);
 	ImGui::Text("time %d%d:%d%d", timer.elapsedTensOfMinutes(),timer.elapsedMinutesOnly(),timer.elapsedTensOfSeconds(),timer.elapsedSecondsOnly());

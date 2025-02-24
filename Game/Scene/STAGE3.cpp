@@ -421,14 +421,14 @@ void STAGE3::Update()
 		}
 		ConeObject_[14]->worldTransform_.translation_.x = Lerp(ConeObject_[14]->worldTransform_.translation_.x, 90.0f, 0.02f);
 		ConeObject_[14]->worldTransform_.translation_.y = Lerp(ConeObject_[14]->worldTransform_.translation_.y, 51.0f, 0.02f);
-	
+
 		ConeObject_[15]->worldTransform_.translation_.z = Lerp(ConeObject_[15]->worldTransform_.translation_.z, 182.0f, 0.02f);
 		ConeObject_[15]->worldTransform_.translation_.y = Lerp(ConeObject_[15]->worldTransform_.translation_.y, 96.0f, 0.02f);
 	}
 	if (sceneTime1 > 180 && sceneTime1 < 360 && isMenu == false) {
 		TextOBJ->worldTransform_.translation_.y = Lerp(TextOBJ->worldTransform_.translation_.y, 6.5f, 0.01f);
 		ConeObject_[1]->worldTransform_.translation_.y = Lerp(ConeObject_[1]->worldTransform_.translation_.y, 50.0f, 0.04f);
-		
+
 		for (int i = 0; i < 2; i++) {
 			ConeObject_[indices[i]]->worldTransform_.translation_.x = Lerp(ConeObject_[indices[i]]->worldTransform_.translation_.x, Conelerpindices[i], 0.02f);
 		}
@@ -437,7 +437,7 @@ void STAGE3::Update()
 
 		ConeObject_[15]->worldTransform_.translation_.z = Lerp(ConeObject_[15]->worldTransform_.translation_.z, 157.0f, 0.02f);
 		ConeObject_[15]->worldTransform_.translation_.y = Lerp(ConeObject_[15]->worldTransform_.translation_.y, 71.0f, 0.02f);
-	
+
 
 
 
