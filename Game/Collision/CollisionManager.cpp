@@ -1,8 +1,4 @@
 ﻿#include "CollisionManager.h"
-#include "STAGE1.h"
-//#include "Enemy.h"
-//#include "Player.h"
-//#include "AxisIndicator.h"
 
 /// <summary>
 /// 全てのコリジョンをチェックする関数
