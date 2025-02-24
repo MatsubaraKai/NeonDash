@@ -77,6 +77,7 @@ void GameScene::Update() {
 	}
 	else {
 		TenQOBJ->worldTransform_.rotation_.x += 0.001f;
+		StarSetting(playerPos);
 	}
 	if (nowStage == 1) {
 
@@ -202,6 +203,8 @@ void GameScene::LoadAudio()
 	AudioTimeCounthandle_ = Audio::SoundLoadWave("Resources/game/Audio/timecount.wav");
 	AudioTimeCount2handle_ = Audio::SoundLoadWave("Resources/game/Audio/timecount2.wav");
 	explosionSound = Audio::SoundLoadWave("Resources/game/Audio/firework.wav");
+	AudioStarGetSEhandle_ = Audio::SoundLoadWave("Resources/game/Audio/GetSE.wav");
+
 }
 
 // 初期化データのセットアップ
@@ -234,18 +237,20 @@ void GameScene::InitializeData()
 	GameTenQTransform.scale_.x = -10.0f;
 	GameTenQTransform.scale_.y = 10.0f;
 	GameTenQTransform.scale_.z = 10.0f;
-	TitleSceneWorldTransformPa.Initialize();
-	TitleSceneWorldTransformPa.translation_ = { -20.0f,1.5f,-17.5f };
-	DemoSceneWorldTransformPa.Initialize();
-	DemoSceneWorldTransformPa.translation_ = { -25.0f, 1.5f, 12.5f };
-	DemoSceneWorldTransformDemoPa.Initialize();
-	DemoSceneWorldTransformDemoPa.translation_ = { -2.5f,1.5f,-32.35f };
-	GameSceneWorldTransformPa.Initialize();
-	GameSceneWorldTransformPa.translation_ = { 25.0f, 1.5f, 12.5f };
-	GameScene2WorldTransformPa.Initialize();
-	GameScene2WorldTransformPa.translation_ = { 25.0f, 1.5f, 0.0f };
-	GameScene3WorldTransformPa.Initialize();
-	GameScene3WorldTransformPa.translation_ = { 25.0f, 1.5f, -12.5f };
+
+	std::vector<ParticleWorldTransformData> transforms = {
+	{&TitleSceneWorldTransformPa, {-20.0f, 1.5f, -17.5f}},
+	{&DemoSceneWorldTransformPa, {-25.0f, 1.5f, 12.5f}},
+	{&DemoSceneWorldTransformDemoPa, {-2.5f, 1.5f, -32.35f}},
+	{&GameSceneWorldTransformPa, {25.0f, 1.5f, 12.5f}},
+	{&GameScene2WorldTransformPa, {25.0f, 1.5f, 0.0f}},
+	{&GameScene3WorldTransformPa, {25.0f, 1.5f, -12.5f}}
+	};
+
+	for (auto& data : transforms) {
+		data.transform->Initialize();
+		data.transform->translation_ = data.translation;
+	}
 
 	camera->transform_.translate = { 0.0f, -10.0f, -15000.0f };
 	camera->transform_.rotate = { -0.2f, 0.0f, 0.0f };
@@ -392,7 +397,7 @@ void GameScene::HandleSceneTransition() {
 		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "DemoScene", ConeObject_, camera);
 		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "DemoScene", StarObject_);
 		Loader::LoadJsonFileText("Resources", "DemoText", TextObject_);
-		
+		FirstDemoFlag = true;
 		nowStage = 1;
 		portal = 0;
 		fade->SetTexture(textureHandles[FADE2]);
@@ -647,8 +652,12 @@ void GameScene::UpdateObjects() {
 	for (auto& obj : ConeObject_) obj->Update();
 	for (auto& obj : TextObject_) obj->Update();
 	for (auto& obj : NumberObject_) obj->Update();
-	for (auto& obj : StarObject_) obj->Update();
-	for (auto& obj : StarObject_) obj->worldTransform_.rotation_.y += 0.02f;
+	for (auto& obj : StarObject_) {
+		if ((obj)->isVisible) {
+			obj->Update();
+			obj->worldTransform_.rotation_.y += 0.02f;
+		 }
+	} 
 
 	TenQOBJ->Update();
 	PositionOBJ->Update();
@@ -663,11 +672,19 @@ void GameScene::DisplayDebugInfo(const Vector3& playerPos) {
 	ImGui::Text("On Floor: %d", isOnFloor);
 	ImGui::End();
 	ImGui::Begin("isOnFloor");
-	ImGui::SliderInt("Select Model Index1", &selectedIndex1, 0, static_cast<int>(ConeObject_.size()) - 2);
+	ImGui::SliderInt("Select Model Index1", &selectedIndex1, 0, static_cast<int>(ConeObject_.size()) - 1);
+	ImGui::SliderInt("Select Model Index2", &selectedIndex2, 0, static_cast<int>(StarObject_.size()) - 1);
 	ImGui::Text("OnFloor : %d", isOnFloor);
+	ImGui::Text("GetStar : %d", isGetStar);
 	ImGui::Text("Player Pos : %f %f %f", playerPos.x, playerPos.y, playerPos.z);
 	ImGui::End();
 
+	std::string label1 = "JSONConemodel" + std::to_string(selectedIndex1);
+	ConeObject_[selectedIndex1]->ModelDebug(label1.c_str());
+	if (nowStage != 0) {
+		std::string label2 = "JSONStarmodel" + std::to_string(selectedIndex2);
+		StarObject_[selectedIndex2]->ModelDebug(label2.c_str());
+	}
 	ImGui::Begin("stage");
 	if (ImGui::Button("isTitle")) {
 		Remake();
@@ -778,9 +795,9 @@ void GameScene::DrawConeObjects()
 			cone->Draw(textureHandles[CONE], camera);
 		}
 	}
-	for (auto& cone : StarObject_) {
-		if (cone->isVisible) {
-			cone->Draw(textureHandles[STAR], camera);
+	for (auto& star : StarObject_) {
+		if (star->isVisible) {
+			star->Draw(textureHandles[STAR], camera);
 		}
 	}
 }
@@ -906,6 +923,18 @@ void GameScene::InitStar() {
 	for (size_t i = 0; i < StarObject_.size() - 1; i++) {
 		StarObject_[i]->isVisible = true;
 	}
+	if (nowStage == 1) {
+		StarCount[0] = 2;
+	}
+	if (nowStage == 2) {
+		StarCount[1] = 3;
+	}
+	if (nowStage == 3) {
+		StarCount[2] = 4;
+	}
+	if (nowStage == 4) {
+		StarCount[3] = 5;
+	}
 }
 
 void GameScene::Remake() {
@@ -991,14 +1020,47 @@ void GameScene::MoveConeObjects(int sceneTime) {
 // メイン処理
 void GameScene::UpdateTitleScene(const Vector3& playerPos, int sceneTime) {
 	// プレイヤー範囲によるテキスト移動
-	float targetHeight = IsPlayerInRange(playerPos, -20.0f, 20.0f, -20.0f, 20.0f) ? 1.3f : 0.0f;
-	ApplyLerp(TextObject_[6]->worldTransform_.translation_.y, targetHeight, 0.1f);
-
+	if (FirstDemoFlag == false) {
+		float targetHeight = IsPlayerInRange(playerPos, -20.0f, 20.0f, -20.0f, 20.0f) ? 1.3f : 0.0f;
+		ApplyLerp(TextObject_[6]->worldTransform_.translation_.y, targetHeight, 0.1f);
+	}
 	// タイトルテキスト移動（GameRoop が不要に）
 	ApplyLerp(TextObject_[7]->worldTransform_.translation_.y, 2.0f, 0.1f);
 
 	// シーンタイムに応じた移動
 	MoveConeObjects(sceneTime);
+}
+
+void GameScene::StarSetting(const Vector3& playerPos) {
+	for (size_t i = 0; i < StarObject_.size(); i++) {
+		if (StarObject_[i]->isVisible) {
+			// オブジェクトの座標とサイズを取得
+			Vector3 floorPos = StarObject_[i]->worldTransform_.translation_;
+			Vector3 floorSize = StarObject_[i]->worldTransform_.scale_;
+
+			// プレイヤーがオブジェクトに当たっているか判定
+			if (playerPos.x >= floorPos.x - floorSize.x &&
+				playerPos.x <= floorPos.x + floorSize.x &&
+				playerPos.z >= floorPos.z - floorSize.z &&
+				playerPos.z <= floorPos.z + floorSize.z &&
+				playerPos.y >= floorPos.y + floorSize.y - 5.0f &&
+				playerPos.y <= floorPos.y + floorSize.y + 5.0f) {
+				isGetStar = true;
+				StarObject_[i]->isVisible = false;  // 該当オブジェクトの描画を停止
+				break;  // 判定を終了
+			}
+			else {
+				isGetStar = false;
+			}
+		}
+		else {
+			isGetStar = false;
+		}
+	}
+	if (isGetStar) {
+		Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), AudioStarGetSEhandle_, false, 1.0f);
+		StarCount[nowStage - 1]--;
+	}
 }
 
 
@@ -1017,6 +1079,12 @@ void GameScene::ImguiDebug() {
 	ImGui::Text("isFadeInStarted %d", isFadeInStarted);
 	ImGui::Text("isPreview %d", isPreview);
 	ImGui::Text("previousIsPreview %d", previousIsPreview);
+	if (nowStage != 0) {
+		ImGui::Text("starcount %d", StarCount[nowStage - 1]);
+		ImGui::Text("isvisible: %d", StarObject_[selectedIndex2]->isVisible);
+
+	}
+	ImGui::Text("isgetstar %d", isGetStar);
 	ImGui::Text("time %d%d:%d%d", timer.elapsedTensOfMinutes(),timer.elapsedMinutesOnly(),timer.elapsedTensOfSeconds(),timer.elapsedSecondsOnly());
 	ImGui::End();
 }

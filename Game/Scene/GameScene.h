@@ -19,6 +19,11 @@
 #include <vector>
 #include <string>
 
+struct ParticleWorldTransformData {
+    WorldTransform* transform;
+    Vector3 translation;
+};
+
 class GameScene : public IScene
 {
 public:
@@ -70,6 +75,8 @@ private:
     // メイン処理
     void UpdateTitleScene(const Vector3& playerPos,int sceneTime);
 
+    void StarSetting(const Vector3& playerPos);
+
     // Draw methods
     void DrawConeObjects();
     void DrawTitleTextObjects();
@@ -97,8 +104,9 @@ private:
     float LerpFloorSPos[2] = { 60.0f,55.0f};//LerpStartPos
     float LerpFloorEPos[2] = { -4.0f,-50.0f};//LerpEndPos
     //DemoScene
+    bool FirstDemoFlag = false;
     bool isDemo = false;  // Portal 1
-
+   
     //STAGE1MoveObj
     bool isGame = false;  // Portal 2
     float Textlerpindices1[6] = { 8.00f,8.61f,4.5f,4.5f,0.5f,7.5f };
@@ -130,6 +138,7 @@ private:
     bool startButtonPressed = false;
     bool isPreview = true;
     bool previousIsPreview = isPreview;
+    bool isGetStar = false;
     // Camera and input
     Camera* camera = nullptr;
     Input* input = nullptr;
@@ -184,7 +193,7 @@ private:
     {0.0f, 20.0f, 40.0f},
     {0.0f, 80.0f, 100.0f}
     };
-    
+    int StarCount[4] = { 2,3,4,5 };
     // ステージの中心
     float rotateSize_ = 1.057f;
     int nowStage = 0;
@@ -224,8 +233,8 @@ private:
     uint32_t AudioPortalhandle_;
     uint32_t AudioTimeCounthandle_;
     uint32_t AudioTimeCount2handle_;
-    uint32_t explosionSound;
-
+    uint32_t explosionSound;   
+    uint32_t AudioStarGetSEhandle_;
     // Debug variables
     Vector3 previousPos[99];
 };
