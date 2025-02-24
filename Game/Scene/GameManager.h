@@ -2,10 +2,6 @@
 #include <memory>
 #include "IScene.h"
 #include "GameScene.h"
-#include "DemoScene.h"
-#include "STAGE1.h"
-#include "STAGE2.h"
-#include "STAGE3.h"
 #include "Input.h"
 //#include "Input.h"
 class GameManager

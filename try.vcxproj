@@ -157,11 +157,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\2d\PostEffect\Effect\FullScreen.cpp" />
     <ClCompile Include="Game\Collision\Collider.cpp" />
     <ClCompile Include="Game\Collision\CollisionManager.cpp" />
-    <ClCompile Include="Game\Scene\DemoScene.cpp" />
     <ClCompile Include="Engine\Audio\Audio.cpp" />
     <ClCompile Include="Engine\Audio\Adapter\Engine.cpp" />
-    <ClCompile Include="Game\Scene\STAGE1.cpp" />
-    <ClCompile Include="Game\Scene\STAGE2.cpp" />
     <ClCompile Include="Game\Scene\GameManager.cpp" />
     <ClCompile Include="Engine\Input\Input.cpp" />
     <ClCompile Include="Game\Scene\IScene.cpp" />
@@ -198,7 +195,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\2d\PostEffect\Effect\OutlineBlue.cpp" />
     <ClCompile Include="Engine\2d\PostEffect\Effect\OutlinePurple.cpp" />
     <ClCompile Include="Engine\2d\PostEffect\Effect\TVEffect.cpp" />
-    <ClCompile Include="Game\Scene\STAGE3.cpp" />
     <ClCompile Include="Game\Utilty\Timer.cpp" />
     <ClCompile Include="Game\Utilty\Menu.cpp" />
   </ItemGroup>
@@ -242,9 +238,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Game\Collision\Collider.h" />
     <ClInclude Include="Game\Collision\CollisionConfig.h" />
     <ClInclude Include="Game\Collision\CollisionManager.h" />
-    <ClInclude Include="Game\Scene\DemoScene.h" />
-    <ClInclude Include="Game\Scene\STAGE1.h" />
-    <ClInclude Include="Game\Scene\STAGE2.h" />
     <ClInclude Include="Game\Scene\GameManager.h" />
     <ClInclude Include="Engine\Input\Input.h" />
     <ClInclude Include="Game\Scene\IScene.h" />
@@ -293,7 +286,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\2d\PostEffect\Effect\OutlineBlue.h" />
     <ClInclude Include="Engine\2d\PostEffect\Effect\OutlinePurple.h" />
     <ClInclude Include="Engine\2d\PostEffect\Effect\TVEffect.h" />
-    <ClInclude Include="Game\Scene\STAGE3.h" />
     <ClInclude Include="Game\Utilty\Timer.h" />
     <ClInclude Include="Game\Utilty\Menu.h" />
     <ClInclude Include="test.h">

@@ -109,12 +109,6 @@
     <ClCompile Include="Engine\2d\ImGuiCommon.cpp">
       <Filter>Engine\2d</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Scene\STAGE2.cpp">
-      <Filter>Application\scene</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\Scene\STAGE1.cpp">
-      <Filter>Application\scene</Filter>
-    </ClCompile>
     <ClCompile Include="Game\Scene\IScene.cpp">
       <Filter>Application\scene</Filter>
     </ClCompile>
@@ -126,9 +120,6 @@
     </ClCompile>
     <ClCompile Include="Game\Collision\CollisionManager.cpp">
       <Filter>Application\collision</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\Scene\DemoScene.cpp">
-      <Filter>Application\scene</Filter>
     </ClCompile>
     <ClCompile Include="imgui\imgui.cpp">
       <Filter>Externals\Imgui</Filter>
@@ -235,9 +226,6 @@
     </ClCompile>
     <ClCompile Include="Engine\3d\Skybox\Skybox.cpp">
       <Filter>Engine\3d\Skybox</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\Scene\STAGE3.cpp">
-      <Filter>Application\scene</Filter>
     </ClCompile>
     <ClCompile Include="Engine\3d\Sphere\Sphere.cpp">
       <Filter>Engine\3d\Sphere</Filter>
@@ -361,12 +349,6 @@
     <ClInclude Include="Game\Scene\GameScene.h">
       <Filter>Application\scene</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Scene\STAGE2.h">
-      <Filter>Application\scene</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\Scene\STAGE1.h">
-      <Filter>Application\scene</Filter>
-    </ClInclude>
     <ClInclude Include="Game\Scene\IScene.h">
       <Filter>Application\scene</Filter>
     </ClInclude>
@@ -378,9 +360,6 @@
     </ClInclude>
     <ClInclude Include="Game\Collision\CollisionManager.h">
       <Filter>Application\collision</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\Scene\DemoScene.h">
-      <Filter>Application\scene</Filter>
     </ClInclude>
     <ClInclude Include="imgui\imconfig.h">
       <Filter>Externals\Imgui</Filter>
@@ -505,9 +484,6 @@
     </ClInclude>
     <ClInclude Include="Engine\3d\Skybox\Skybox.h">
       <Filter>Engine\3d\Skybox</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\Scene\STAGE3.h">
-      <Filter>Application\scene</Filter>
     </ClInclude>
     <ClInclude Include="Engine\3d\Sphere\Sphere.h">
       <Filter>Engine\3d\Sphere</Filter>

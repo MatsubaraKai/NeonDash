@@ -77,6 +77,10 @@ private:
 
     void StarSetting(const Vector3& playerPos);
 
+    void ClearMode();
+
+    void StarCountNum();
+
     // Draw methods
     void DrawConeObjects();
     void DrawTitleTextObjects();
@@ -125,6 +129,9 @@ private:
     int Stage3indices[2] = { 2,3 };
     float Conelerpindices[2] = { -18.0f,18.0f };
     float conelerpindices[2] = { -100.0f,100.0f };
+
+    //clear
+    bool isStageClear = false; // clear
     // Scene state variables
     int sceneTime = 0;
     int sceneTime1 = 0;
@@ -158,6 +165,7 @@ private:
     // Game objects
     Object3d* TenQOBJ = nullptr;
     Object3d* PositionOBJ = nullptr;
+    Object3d* StarCountNumber = nullptr;
     std::vector<Object3d*> ConeObject_;
     std::vector<Object3d*> StarObject_;
     std::vector<Object3d*> TextObject_;
@@ -188,6 +196,12 @@ private:
         { -2.5f,55.5f,220.0f },
         { -2.5f,7.5f,75.0f },
         { -2.5f,1.5f,122.0f }
+    };
+    Vector3 ClearNumberPosition[4] = {
+    { 0.0f,8.5f,84.5f },
+    { 0.0f,61.5f,222.5f },
+    { 0.0f,13.5f,77.5f },
+    { 0.0f,7.5f,124.5f }
     };
     //stagepreview
     Vector3 stageCenter[5] = {

@@ -64,7 +64,6 @@ void GameScene::Update() {
 
 	// エフェクト管理
 	UpdateEffects();
-
 	// フェードアウト完了時のシーン遷移
 	if (fade->IsFadeOutComplete()) {
 		HandleSceneTransition();
@@ -78,17 +77,8 @@ void GameScene::Update() {
 	else {
 		TenQOBJ->worldTransform_.rotation_.x += 0.001f;
 		StarSetting(playerPos);
+		StarCountNum();
 	}
-	if (nowStage == 1) {
-
-	}
-	if (nowStage == 2) {
-
-	}
-	if (nowStage == 3) {
-
-	}
-
 	// シーンタイムに応じた移動
 	MoveConeObjects(sceneTime);
 	// ステージタイムのモデル設定
@@ -115,6 +105,7 @@ void GameScene::Update() {
 	// カメラ更新
 	UpdateCamera();
 
+	ClearMode();
 	// デバッグ情報の表示
 #ifdef _DEBUG
 	DisplayDebugInfo(playerPos);
@@ -135,6 +126,9 @@ void GameScene::Draw()
 	DrawParticles();
 	if (isMenu) {
 		menu->Draw();
+	}
+	if (nowStage != 0) {
+		StarCountNumber->Draw(textureHandles[GRID], camera);
 	}
 
 	// フェード描画
@@ -229,6 +223,9 @@ void GameScene::InitializeData()
 	TenQOBJ->Init();
 	PositionOBJ = new Object3d();
 	PositionOBJ->Init();
+	StarCountNumber = new Object3d();
+	StarCountNumber->Init();
+	StarCountNumber->worldTransform_.scale_ = { 2.0f,2.0f,2.0f };
 	PositionOBJ->SetModel("position.obj");
 	TitleTenQTransform.Initialize();
 	TitleTenQTransform.scale_ = { -300.0f, 300.0f, 300.0f };
@@ -327,18 +324,20 @@ void GameScene::InitializeParticles()
 ///Update///
 // ポータル判定
 void GameScene::UpdatePortalCollision(const Vector3& playerPos) {
-	if(nowStage != 0)
-	    isTitle = collider->CheckCollision(playerPos, TitleSceneWorldTransformPa.translation_, 2.5f, 4.0f, 2.5f, 2.0f);
-	    
+	if (nowStage != 0) {
+		isTitle = collider->CheckCollision(playerPos, TitleSceneWorldTransformPa.translation_, 2.5f, 4.0f, 2.5f, 2.0f);
+		if (StarCount[nowStage - 1] == 0) {
+			isStageClear = collider->CheckCollision(playerPos, ClearPortalPosition[nowStage - 1], 2.5f, 4.0f, 2.5f, 2.0f);
+		}
+	}
 	if (nowStage == 0) {
 	    isDemo = collider->CheckCollision(playerPos, DemoSceneWorldTransformPa.translation_, 2.5f, 4.0f, 2.5f, 2.0f);
 		isGame = collider->CheckCollision(playerPos, GameSceneWorldTransformPa.translation_, 2.5f, 4.0f, 2.5f, 2.0f);
 		isGame2 = collider->CheckCollision(playerPos, GameScene2WorldTransformPa.translation_, 2.5f, 4.0f, 2.5f, 2.0f);
 		isGame3 = collider->CheckCollision(playerPos, GameScene3WorldTransformPa.translation_, 2.5f, 4.0f, 2.5f, 2.0f);
 	}
-
 	// ポータルが一度だけ発動する処理
-	if (isTitle || isDemo || isGame || isGame2 || isGame3) {
+	if (isTitle || isDemo || isGame || isGame2 || isGame3 || isStageClear) {
 		if (portal == 0) {
 			Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), AudioPortalhandle_, false, 0.1f);
 		}
@@ -378,9 +377,10 @@ void GameScene::UpdateEffects() {
 
 // シーン遷移処理
 void GameScene::HandleSceneTransition() {
-	if (isTitle) {
+	if (isTitle || isStageClear) {
 		Remake();
 		isTitle = false;
+		isStageClear = false;
 		TenQOBJ->SetWorldTransform(TitleTenQTransform);
 		TenQOBJ->SetModel("world.obj");
 		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "TitleScene", ConeObject_, camera);
@@ -579,9 +579,15 @@ void GameScene::UpdateCamera() {
 
 	// フェードイン中であればカメラの移動を制御
 	if (!isFadeInStarted && isClear == true) {
-		fade->SetTexture(textureHandles[FADE]);
-		fade->StartFadeIn();    // フェードインを開始
-		isFadeInStarted = true; // フラグを立て、一度だけ実行
+		if (collider->CheckCollision(camera->transform_.translate, ClearPortalPosition[nowStage - 1], 2.5f, 4.0f, 2.5f, 2.0f) && StarCount[nowStage - 1] == 0) {
+			fade->SetTexture(textureHandles[FADE3]);
+		}
+		else {
+			fade->SetTexture(textureHandles[FADE]);
+
+		}
+		fade->StartFadeIn();    // FadeInを開始
+		isFadeInStarted = true; // フラグを立てて一度だけ実行されるようにする
 	}
 	if (isPreview == true) {
 			camera->StagePreview(stageCenter[nowStage], stageRadius[nowStage], rotationSpeed[nowStage], angleX[nowStage], isPreview);
@@ -837,7 +843,7 @@ void GameScene::DrawTitleNumberObjects()
 // 特殊オブジェクトの描画
 void GameScene::DrawSpecialObjects()
 {
-	if (isTitle == 0) {
+	if (isTitle == false) {
 		TenQOBJ->Draw(textureHandles[TITLETENQ], camera);
 	}
 	else {
@@ -1028,6 +1034,7 @@ void GameScene::MoveTitleNumberObjects(float targetHeight) {
 // コーンオブジェクトの移動
 void GameScene::MoveConeObjects(int sceneTime) {
 	if (nowStage == 0) {
+		
 		if (sceneTime < 180) {
 			ApplyLerp(ConeObject_[17]->worldTransform_.translation_.y, 60.0f, 0.03f);
 			ApplyLerp(ConeObject_[18]->worldTransform_.translation_.x, 55.0f, 0.03f);
@@ -1038,6 +1045,15 @@ void GameScene::MoveConeObjects(int sceneTime) {
 			ApplyLerp(ConeObject_[18]->worldTransform_.translation_.x, -50.0f, 0.03f);
 			MoveTitleNumberObjects(7.5f);
 		}
+	}
+	if (nowStage == 1) {
+		for (int i = 1; i <= 2; ++i) {
+			float sign = (i == 1) ? 1.0f : -1.0f;
+			ConeObject_[i]->worldTransform_.rotation_.x += 0.01f;
+			ConeObject_[i]->worldTransform_.rotation_.y += sign * 0.01f;
+			ConeObject_[i]->worldTransform_.rotation_.z += sign * 0.01f;
+		}
+
 	}
 	if (nowStage == 2) {
 		if (sceneTime < 180) {
@@ -1143,6 +1159,35 @@ void GameScene::StarSetting(const Vector3& playerPos) {
 	}
 }
 
+void GameScene::ClearMode() {
+	if (collider->CheckCollision(camera->transform_.translate, ClearPortalPosition[nowStage - 1], 2.5f, 4.0f, 2.5f, 2.0f) && StarCount[nowStage - 1] == 0) {
+		// 衝突している
+		//if (SCENE1Time[4] == 0) {//最初は0なので一回通す
+		//	SCENE1Time[0] = timer.elapsedTensOfMinutes();
+		//	SCENE1Time[1] = timer.elapsedMinutesOnly();
+		//	SCENE1Time[2] = timer.elapsedTensOfSeconds();
+		//	SCENE1Time[3] = timer.elapsedSecondsOnly();
+		//	SCENE1Time[4] = static_cast<int>(timer.elapsedSeconds());
+		//}
+		//if (static_cast<int>(timer.elapsedSeconds()) < SCENE1Time[4]) {//前回の記録より早かったら記録
+		//	SCENE1Time[0] = timer.elapsedTensOfMinutes();
+		//	SCENE1Time[1] = timer.elapsedMinutesOnly();
+		//	SCENE1Time[2] = timer.elapsedTensOfSeconds();
+		//	SCENE1Time[3] = timer.elapsedSecondsOnly();
+		//	SCENE1Time[4] = static_cast<int>(timer.elapsedSeconds());
+		//}
+		timer.stop();//タイマー止める
+		fade->SetTexture(textureHandles[FADE3]);
+	}
+}
+
+void GameScene::StarCountNum() {
+	std::string modelFileName = std::to_string(StarCount[nowStage - 1]) + ".obj";
+	StarCountNumber->SetModel(modelFileName.c_str());
+	StarCountNumber->worldTransform_.translation_ = ClearNumberPosition[nowStage - 1];
+	StarCountNumber->worldTransform_.rotation_.y = camera->Face2Face(camera->transform_.translate, StarCountNumber->worldTransform_.translation_) + 3.14f;
+	StarCountNumber->Update();
+}
 
 
 void GameScene::ImguiDebug() {
