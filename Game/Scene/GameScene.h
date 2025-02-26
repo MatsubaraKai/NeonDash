@@ -62,6 +62,7 @@ private:
     void UpdateFloorInteraction();
     void ImguiDebug();
     void Remake();
+    void Resize();
     // 指定範囲内にプレイヤーがいるか判定
     bool IsPlayerInRange(const Vector3& pos, float minX, float maxX, float minZ, float maxZ);
     // Lerp適用
@@ -105,13 +106,14 @@ private:
     float textlerpindices[6] = { 20.0f, 7.5f, 6.5f, 6.5f, 6.5f, 6.5f };
     int indices[4] = { 0, 1, 3, 4 };//動かすText
     int TitleLerpFloor[2] = { 17,18 };//動かす床番号
-    float LerpFloorSPos[2] = { 60.0f,55.0f};//LerpStartPos
-    float LerpFloorEPos[2] = { -4.0f,-50.0f};//LerpEndPos
+    float LerpFloorSPos[2] = { 60.0f,55.0f };//LerpStartPos
+    float LerpFloorEPos[2] = { -4.0f,-50.0f };//LerpEndPos
+
     //DemoScene
     bool FirstDemoFlag = false;
     bool isDemo = false;  // Portal 1
-   
-    //STAGE1MoveObj
+
+    //STAGE1
     bool isGame = false;  // Portal 2
     float Textlerpindices1[6] = { 8.00f,8.61f,4.5f,4.5f,0.5f,7.5f };
     float textlerpindices1[6] = { 6.00f,7.61f,3.5f,3.5f,-0.5f,6.5f };
@@ -150,6 +152,7 @@ private:
     bool isPreview = true;
     bool previousIsPreview = isPreview;
     bool isGetStar = false;
+    bool isStart = false;
     // Camera and input
     Camera* camera = nullptr;
     Input* input = nullptr;
@@ -171,17 +174,25 @@ private:
     std::vector<Object3d*> TextObject_;
     std::vector<Object3d*> NumberObject_;
 
+
+    // インデックスを定義
+    enum ParticleType {
+        FLOOR,
+        CLEAR,
+        TITLESCENE,
+        DEMOSCENE,
+        FAKEPARTICLE,
+        STAGE1,
+        STAGE2,
+        STAGE3,
+        FIREWORK1,
+        FIREWORK2,
+        PARTICLE_COUNT
+    };
+
     // Particle system
-    Engine::Particle* FloorParticle_ = nullptr;
-    Engine::Particle* ClearParticle = nullptr;
-    Engine::Particle* TitleSceneParticle = nullptr;
-    Engine::Particle* DemoSceneParticle = nullptr;
-    Engine::Particle* DemoSceneDemoParticle = nullptr;
-    Engine::Particle* Stage1Particle = nullptr;
-    Engine::Particle* Stage2Particle = nullptr;
-    Engine::Particle* Stage3Particle = nullptr;
-    Engine::Particle* TitleFireworkPa = nullptr;
-    Engine::Particle* TitleFireworkPa2 = nullptr;
+    std::array<Engine::Particle*, PARTICLE_COUNT> particles = { nullptr };
+
     Engine::Emitter emitter_;
     Engine::Emitter ParticleEmitter_;
     Engine::Emitter fireworkEmitter_;
@@ -190,6 +201,15 @@ private:
     Engine::RandRangePro demoRandPro;
     Engine::RandRangePro fireworkRange_;
     Engine::RandRangePro fireworkRange_2;
+    //Titleのポータルの位置
+    Vector3 PortalPosition[6] = {
+        {-20.0f,1.5f,-17.5f},
+        {-25.0f,1.5f,12.5f},
+        {-2.5f, 1.5f, -32.35f},
+        {25.0f, 1.5f, 12.5f},
+        {25.0f, 1.5f, 0.0f},
+        {25.0f, 1.5f, -12.5f},
+    };
     //クリアポータルの位置
     Vector3 ClearPortalPosition[4] = {
         { -2.5f,2.5f,82.0f },
@@ -197,20 +217,22 @@ private:
         { -2.5f,7.5f,75.0f },
         { -2.5f,1.5f,122.0f }
     };
+    //クリアポータルの上の数字
     Vector3 ClearNumberPosition[4] = {
     { 0.0f,8.5f,84.5f },
     { 0.0f,61.5f,222.5f },
     { 0.0f,13.5f,77.5f },
     { 0.0f,7.5f,124.5f }
     };
-    //stagepreview
+    //stagepreviewの時の中心点
     Vector3 stageCenter[5] = {
-    {0.0f, 30.0f, -0.0f},
+    {0.0f, 30.0f, 0.0f},
     {0.0f, 30.0f, 40.0f},
     {0.0f, 70.0f, 100.0f},
     {0.0f, 20.0f, 40.0f},
     {0.0f, 80.0f, 100.0f}
     };
+    //ステージごとのスターの数
     int StarCount[4] = { 2,3,4,5 };
     // ステージの中心
     float rotateSize_ = 1.057f;
@@ -259,5 +281,5 @@ private:
     std::array<uint32_t, AUDIO_COUNT> audioHandle;
     
     // Debug variables
-    Vector3 previousPos[99];
+    std::vector<Vector3> previousPos;
 };

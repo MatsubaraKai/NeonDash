@@ -7,7 +7,6 @@ class IScene {
 protected:
 	// シーン番号を管理する変数
 	static int sceneNo;
-
 	static bool GameRoop;
 	static int AllStageTime[5][5];//[ステージ数 +1][5固定]
 	static int menucount;

@@ -214,7 +214,7 @@ void GameScene::InitializeData()
 		Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), audioHandle[BGM], true, 0.05f);
 		GameRoop = true;
 	}
-
+	previousPos.resize(ConeObject_.size());
 	for (size_t i = 0; i < ConeObject_.size() - 1; i++) {
 		previousPos[i] = ConeObject_[i]->worldTransform_.translation_;
 	}
@@ -239,12 +239,12 @@ void GameScene::InitializeData()
 	GameTenQTransform.scale_.z = 10.0f;
 
 	std::vector<ParticleWorldTransformData> transforms = {
-	{&TitleSceneWorldTransformPa, {-20.0f, 1.5f, -17.5f}},
-	{&DemoSceneWorldTransformPa, {-25.0f, 1.5f, 12.5f}},
-	{&DemoSceneWorldTransformDemoPa, {-2.5f, 1.5f, -32.35f}},
-	{&GameSceneWorldTransformPa, {25.0f, 1.5f, 12.5f}},
-	{&GameScene2WorldTransformPa, {25.0f, 1.5f, 0.0f}},
-	{&GameScene3WorldTransformPa, {25.0f, 1.5f, -12.5f}}
+	{&TitleSceneWorldTransformPa,PortalPosition[0]},
+	{&DemoSceneWorldTransformPa, PortalPosition[1]},
+	{&DemoSceneWorldTransformDemoPa, PortalPosition[2]},
+	{&GameSceneWorldTransformPa, PortalPosition[3]},
+	{&GameScene2WorldTransformPa, PortalPosition[4]},
+	{&GameScene3WorldTransformPa, PortalPosition[5]}
 	};
 
 	for (auto& data : transforms) {
@@ -259,6 +259,7 @@ void GameScene::InitializeData()
 	portal = 0;
 	isClear = false;
 	isMenu = false;
+	isStart = true;
 }
 
 // パーティクルシステムの初期化
@@ -298,27 +299,29 @@ void GameScene::InitializeParticles()
 	fireworkEmitter_2.transform.scale = { 0.5f, 0.5f, 0.5f };
 	fireworkEmitter_2.initialPosition.translate = { 30.0f,0.0f,40.0f };
 	fireworkEmitter_2.initialPosition.scale = { 0.5f, 0.5f, 0.5f };
-	TitleFireworkPa = new Engine::Particle();
-	TitleFireworkPa->Initialize(fireworkEmitter_);
-	TitleFireworkPa2 = new Engine::Particle();
-	TitleFireworkPa2->Initialize(fireworkEmitter_2);
 
-	FloorParticle_ = new Engine::Particle();
-	FloorParticle_->Initialize(emitter_);
-	TitleSceneParticle = new Engine::Particle();
-	TitleSceneParticle->Initialize(ParticleEmitter_);
-	DemoSceneParticle = new Engine::Particle();
-	DemoSceneParticle->Initialize(ParticleEmitter_);
-	DemoSceneDemoParticle = new Engine::Particle();
-	DemoSceneDemoParticle->Initialize(ParticleEmitter_);
-	Stage1Particle = new Engine::Particle();
-	Stage1Particle->Initialize(ParticleEmitter_);
-	Stage2Particle = new Engine::Particle();
-	Stage2Particle->Initialize(ParticleEmitter_);
-	Stage3Particle = new Engine::Particle();
-	Stage3Particle->Initialize(ParticleEmitter_);
-	ClearParticle = new Engine::Particle();
-	ClearParticle->Initialize(ParticleEmitter_);
+	particles[FLOOR] = new Engine::Particle();
+	particles[CLEAR] = new Engine::Particle();
+	particles[TITLESCENE] = new Engine::Particle();
+	particles[DEMOSCENE] = new Engine::Particle();
+	particles[FAKEPARTICLE] = new Engine::Particle();
+	particles[STAGE1] = new Engine::Particle();
+	particles[STAGE2] = new Engine::Particle();
+	particles[STAGE3] = new Engine::Particle();
+	particles[FIREWORK1] = new Engine::Particle();
+	particles[FIREWORK2] = new Engine::Particle();
+
+	particles[FIREWORK1]->Initialize(fireworkEmitter_);
+	particles[FIREWORK2]->Initialize(fireworkEmitter_2);
+
+	particles[FLOOR]->Initialize(emitter_);
+	particles[TITLESCENE]->Initialize(ParticleEmitter_);
+	particles[DEMOSCENE]->Initialize(ParticleEmitter_);
+	particles[FAKEPARTICLE]->Initialize(ParticleEmitter_);
+	particles[STAGE1]->Initialize(ParticleEmitter_);
+	particles[STAGE2]->Initialize(ParticleEmitter_);
+	particles[STAGE3]->Initialize(ParticleEmitter_);
+	particles[CLEAR]->Initialize(ParticleEmitter_);
 }
 
 ///Update///
@@ -386,6 +389,7 @@ void GameScene::HandleSceneTransition() {
 		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "TitleScene", ConeObject_, camera);
 		Loader::LoadJsonFileText("Resources", "TitleText", TextObject_);
 		Loader::LoadJsonFileNumber("Resources", "TitleNumber", NumberObject_);
+		Resize();
 		nowStage = 0;
 		portal = 0;
 		fade->SetTexture(textureHandles[FADE]);
@@ -401,6 +405,7 @@ void GameScene::HandleSceneTransition() {
 		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "DemoScene", ConeObject_, camera);
 		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "DemoScene", StarObject_);
 		Loader::LoadJsonFileText("Resources", "DemoText", TextObject_);
+		Resize();
 		FirstDemoFlag = true;
 		nowStage = 1;
 		portal = 0;
@@ -416,6 +421,7 @@ void GameScene::HandleSceneTransition() {
 		TenQOBJ->SetModel("world2.obj");
 		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "Scene1", ConeObject_, camera);
 		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "Scene1", StarObject_);
+		Resize();
 		nowStage = 2;
 		portal = 0;
 		fade->SetTexture(textureHandles[FADE2]);
@@ -430,6 +436,7 @@ void GameScene::HandleSceneTransition() {
 		TenQOBJ->SetModel("world2.obj");
 		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "Scene2", ConeObject_, camera);
 		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "Scene2", StarObject_);
+		Resize();
 		nowStage = 3;
 		portal = 0;
 		fade->SetTexture(textureHandles[FADE2]);
@@ -444,6 +451,7 @@ void GameScene::HandleSceneTransition() {
 		TenQOBJ->SetModel("world2.obj");
 		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "Scene3", ConeObject_, camera);
 		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "Scene3", StarObject_);
+		Resize();
 		nowStage = 4;
 		portal = 0;
 		fade->SetTexture(textureHandles[FADE2]);
@@ -529,6 +537,7 @@ void GameScene::UpdateFloorInteraction()
 {
 	// プレイヤーの現在位置
 	Vector3 playerPos = camera->transform_.translate;
+	
 
 	// 各床オブジェクトに対してチェック
 	for (size_t i = 0; i < ConeObject_.size(); ++i) {
@@ -557,6 +566,7 @@ void GameScene::UpdateFloorInteraction()
 
 				// プレイヤーが床の上にいるフラグを設定
 				isOnFloor = true;
+				isStart = false;
 			}
 
 			// 床の現在位置を次フレーム用に保存
@@ -632,7 +642,7 @@ void GameScene::UpdateCameraFOV(const XINPUT_STATE& joyState) {
 	float desiredFOV = (moveLeftStick.z > forwardThreshold) ? 1.0f : 0.8f;
 
 	// FOV をスムーズに遷移
-	if (isClear == false && isMenu == false && isPreview == false) {
+	if (isClear == false && isMenu == false && isPreview == false && isStart == false) {
 		camera->SetFOV(Lerp(camera->fovY_, desiredFOV, 0.1f));
 	}
 }
@@ -679,128 +689,6 @@ void GameScene::UpdateObjects() {
 	PositionOBJ->Update();
 }
 
-// デバッグ情報の表示
-void GameScene::DisplayDebugInfo(const Vector3& playerPos) {
-#ifdef _DEBUG
-
-	ImGui::Begin("Debug Info");
-	ImGui::Text("Player Position: X=%f, Y=%f, Z=%f", playerPos.x, playerPos.y, playerPos.z);
-	ImGui::Text("On Floor: %d", isOnFloor);
-	ImGui::End();
-	ImGui::Begin("isOnFloor");
-	ImGui::SliderInt("Select Model Index1", &selectedIndex1, 0, static_cast<int>(ConeObject_.size()) - 1);
-	ImGui::SliderInt("Select Model Index2", &selectedIndex2, 0, static_cast<int>(StarObject_.size()) - 1);
-	ImGui::Text("OnFloor : %d", isOnFloor);
-	ImGui::Text("GetStar : %d", isGetStar);
-	ImGui::Text("Player Pos : %f %f %f", playerPos.x, playerPos.y, playerPos.z);
-	ImGui::End();
-
-	std::string label1 = "JSONConemodel" + std::to_string(selectedIndex1);
-	ConeObject_[selectedIndex1]->ModelDebug(label1.c_str());
-	if (nowStage != 0) {
-		std::string label2 = "JSONStarmodel" + std::to_string(selectedIndex2);
-		StarObject_[selectedIndex2]->ModelDebug(label2.c_str());
-	}
-	ImGui::Begin("stage");
-	if (ImGui::Button("isTitle")) {
-		Remake();
-		TenQOBJ->SetWorldTransform(TitleTenQTransform);
-		TenQOBJ->SetModel("world.obj");
-		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "TitleScene", ConeObject_, camera);
-		Loader::LoadJsonFileText("Resources", "TitleText", TextObject_);
-		Loader::LoadJsonFileNumber("Resources", "TitleNumber", NumberObject_);
-		nowStage = 0;
-		portal = 0;
-	}
-	if (ImGui::Button("isDemo")) {
-		Remake();
-		TenQOBJ->SetWorldTransform(GameTenQTransform);
-		TenQOBJ->SetModel("world2.obj");
-		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "DemoScene", ConeObject_, camera);
-		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "DemoScene", StarObject_);
-		nowStage = 1;
-		portal = 0;
-		fade->SetTexture(textureHandles[FADE2]);
-		fade->StartFadeOut();
-		InitStar();
-		isPreview = true;
-	}
-	if (ImGui::Button("isGame")) {
-		Remake();
-		TenQOBJ->SetWorldTransform(GameTenQTransform);
-		TenQOBJ->SetModel("world2.obj");
-		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "Scene1", ConeObject_, camera);
-		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "Scene1", StarObject_);
-		nowStage = 2;
-		portal = 0;
-		fade->SetTexture(textureHandles[FADE2]);
-		fade->StartFadeOut();
-		InitStar();
-		isPreview = true;
-	}
-	if (ImGui::Button("isGame2")) {
-		Remake();
-		TenQOBJ->SetWorldTransform(GameTenQTransform);
-		TenQOBJ->SetModel("world2.obj");
-		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "Scene2", ConeObject_, camera);
-		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "Scene2", StarObject_);
-		nowStage = 3;
-		portal = 0;
-		fade->SetTexture(textureHandles[FADE2]);
-		fade->StartFadeOut();
-		InitStar();
-		isPreview = true;
-	}
-	if (ImGui::Button("isGame3")) {
-		Remake();
-		TenQOBJ->SetWorldTransform(GameTenQTransform);
-		TenQOBJ->SetModel("world2.obj");
-		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "Scene3", ConeObject_, camera);
-		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "Scene3", StarObject_);
-		nowStage = 4;
-		portal = 0;
-		fade->SetTexture(textureHandles[FADE2]);
-		fade->StartFadeOut();
-		InitStar();
-		isPreview = true;
-	}
-	ImGui::End();
-
-	for (size_t i = 0; i < ConeObject_.size() - 1; i++) {
-		float previousFloorHeight = playerPos.y; // 初期化しておく
-		// オブジェクトの座標とサイズを取得
-		Vector3 floorPos = ConeObject_[i]->worldTransform_.translation_;
-		Vector3 floorSize = ConeObject_[i]->worldTransform_.scale_;
-		std::string label = "JSONmodel" + std::to_string(i);
-
-		ImGui::Begin("OnFloorDebug");
-		ImGui::Text(label.c_str());
-		ImGui::Text("floor : %f %f %f", floorPos.x, floorPos.y, floorPos.z);
-		ImGui::Text("size : %f %f %f", floorSize.x, floorSize.y, floorSize.z);
-		ImGui::Text("isOnx : %f %f", playerPos.x, floorPos.x - floorSize.x);
-		ImGui::Text("isOnx : %f %f", playerPos.x, floorPos.x + floorSize.x);
-		ImGui::Text("isOnz : %f %f", playerPos.z, floorPos.z - floorSize.z);
-		ImGui::Text("isOnz : %f %f", playerPos.z, floorPos.z + floorSize.z);
-		ImGui::Text("isOny : %f %f", playerPos.y, abs(floorPos.y + floorSize.y + 3.0f));
-		ImGui::Text("isOnyy : %f", abs(playerPos.y - (floorPos.y + floorSize.y + 3.0f)));
-		ImGui::End();
-		// プレイヤーがオブジェクトの上にいるか判定
-		if (playerPos.x >= floorPos.x - floorSize.x &&
-			playerPos.x <= floorPos.x + floorSize.x &&
-			playerPos.z >= floorPos.z - floorSize.z &&
-			playerPos.z <= floorPos.z + floorSize.z &&
-			playerPos.y >= floorPos.y + floorSize.y - 1.0f &&
-			playerPos.y <= floorPos.y + floorSize.y + 3.0f) {
-			break;
-		}
-		else {
-			isOnFloor = false;
-		}
-	}
-	camera->CameraDebug();
-#endif
-
-}
 
 ///Draw///
 // コーンオブジェクトの描画
@@ -858,7 +746,7 @@ void GameScene::DrawSpecialObjects()
 void GameScene::DrawParticles()
 {
 	if (nowStage != 0) {
-		ClearParticle->Draw(
+		particles[CLEAR]->Draw(
 			ParticleEmitter_,
 			ClearPortalPosition[nowStage - 1],
 			textureHandles[WHITE],
@@ -870,8 +758,8 @@ void GameScene::DrawParticles()
 		);
 	}
 	if (nowStage == 0) {
-		FloorParticle_->Draw(emitter_, emitter_.transform.translate, textureHandles[PARTICLEBLUE], camera, randRange_, false, 0.5f, 0.8f);
-		DemoSceneParticle->Draw(
+		particles[FLOOR]->Draw(emitter_, emitter_.transform.translate, textureHandles[PARTICLEBLUE], camera, randRange_, false, 0.5f, 0.8f);
+		particles[DEMOSCENE]->Draw(
 			ParticleEmitter_,
 			{ DemoSceneWorldTransformPa.translation_.x, DemoSceneWorldTransformPa.translation_.y, DemoSceneWorldTransformPa.translation_.z },
 			textureHandles[WHITE],
@@ -882,7 +770,7 @@ void GameScene::DrawParticles()
 			0.4f
 		);
 
-		Stage1Particle->Draw(
+		particles[STAGE1]->Draw(
 			ParticleEmitter_,
 			{ GameSceneWorldTransformPa.translation_.x, GameSceneWorldTransformPa.translation_.y, GameSceneWorldTransformPa.translation_.z },
 			textureHandles[WHITE],
@@ -893,7 +781,7 @@ void GameScene::DrawParticles()
 			0.4f
 		);
 
-		Stage2Particle->Draw(
+		particles[STAGE2]->Draw(
 			ParticleEmitter_,
 			{ GameScene2WorldTransformPa.translation_.x, GameScene2WorldTransformPa.translation_.y, GameScene2WorldTransformPa.translation_.z },
 			textureHandles[WHITE],
@@ -904,7 +792,7 @@ void GameScene::DrawParticles()
 			0.4f
 		);
 
-		Stage3Particle->Draw(
+		particles[STAGE3]->Draw(
 			ParticleEmitter_,
 			{ GameScene3WorldTransformPa.translation_.x, GameScene3WorldTransformPa.translation_.y, GameScene3WorldTransformPa.translation_.z },
 			textureHandles[WHITE],
@@ -915,14 +803,13 @@ void GameScene::DrawParticles()
 			0.4f
 		);
 
-		TitleFireworkPa->Draw(fireworkEmitter_, fireworkEmitter_.transform.translate, textureHandles[PARTICLESTAR], camera, fireworkRange_, false, 0.1f, 0.6f);
-		TitleFireworkPa2->Draw(fireworkEmitter_2, fireworkEmitter_2.transform.translate, textureHandles[PARTICLESTAR], camera, fireworkRange_2, false, 0.1f, 0.6f);
-
-		TitleFireworkPa->CreateFireworkEffect(fireworkEmitter_, fireworkRange_, 1.0f, 2.0f, 1.5f, audioHandle[FIREWORK], camera->GetTranslate());
-		TitleFireworkPa2->CreateFireworkEffect(fireworkEmitter_2, fireworkRange_2, 1.0f, 2.0f, 1.5f, audioHandle[FIREWORK], camera->GetTranslate());
+		particles[FIREWORK1]->Draw(fireworkEmitter_, fireworkEmitter_.transform.translate, textureHandles[PARTICLESTAR], camera, fireworkRange_, false, 0.1f, 0.6f);
+		particles[FIREWORK2]->Draw(fireworkEmitter_2, fireworkEmitter_2.transform.translate, textureHandles[PARTICLESTAR], camera, fireworkRange_2, false, 0.1f, 0.6f);
+		particles[FIREWORK1]->CreateFireworkEffect(fireworkEmitter_, fireworkRange_, 1.0f, 2.0f, 1.5f, audioHandle[FIREWORK], camera->GetTranslate());
+		particles[FIREWORK2]->CreateFireworkEffect(fireworkEmitter_2, fireworkRange_2, 1.0f, 2.0f, 1.5f, audioHandle[FIREWORK], camera->GetTranslate());
 	}
 	if (nowStage == 1) {
-		DemoSceneDemoParticle->Draw(
+		particles[FAKEPARTICLE]->Draw(
 			ParticleEmitter_,
 			{ DemoSceneWorldTransformDemoPa.translation_.x, DemoSceneWorldTransformDemoPa.translation_.y, DemoSceneWorldTransformDemoPa.translation_.z },
 			textureHandles[WHITE],
@@ -934,7 +821,7 @@ void GameScene::DrawParticles()
 		);
 	}
 	if (nowStage != 0) {
-		TitleSceneParticle->Draw(
+		particles[TITLESCENE]->Draw(
 			ParticleEmitter_,
 			{ TitleSceneWorldTransformPa.translation_.x, TitleSceneWorldTransformPa.translation_.y, TitleSceneWorldTransformPa.translation_.z },
 			textureHandles[WHITE],
@@ -1036,13 +923,13 @@ void GameScene::MoveConeObjects(int sceneTime) {
 	if (nowStage == 0) {
 
 		if (firstPhase) {
-			ApplyLerp(ConeObject_[17]->worldTransform_.translation_.y, 60.0f, 0.03f);
-			ApplyLerp(ConeObject_[18]->worldTransform_.translation_.x, 55.0f, 0.03f);
+			ApplyLerp(ConeObject_[17]->worldTransform_.translation_.y, 60.0f, 0.034f);
+			ApplyLerp(ConeObject_[18]->worldTransform_.translation_.x, 55.0f, 0.034f);
 			MoveTitleNumberObjects(8.5f);
 		}
 		else if (secondPhase) {
-			ApplyLerp(ConeObject_[17]->worldTransform_.translation_.y, -4.0f, 0.03f);
-			ApplyLerp(ConeObject_[18]->worldTransform_.translation_.x, -50.0f, 0.03f);
+			ApplyLerp(ConeObject_[17]->worldTransform_.translation_.y, -4.0f, 0.034f);
+			ApplyLerp(ConeObject_[18]->worldTransform_.translation_.x, -50.0f, 0.034f);
 			MoveTitleNumberObjects(7.5f);
 		}
 	}
@@ -1057,15 +944,15 @@ void GameScene::MoveConeObjects(int sceneTime) {
 	}
 	if (nowStage == 2) {
 		if (firstPhase) {
-			ApplyLerp(ConeObject_[1]->worldTransform_.translation_.z, 0.0f, 0.018f);
-			ApplyLerp(ConeObject_[3]->worldTransform_.translation_.y, -7.0f, 0.018f);
-			ApplyLerp(StarObject_[1]->worldTransform_.translation_.y, 1.0f, 0.018f);
+			ApplyLerp(ConeObject_[1]->worldTransform_.translation_.z, 0.0f, 0.02f);
+			ApplyLerp(ConeObject_[3]->worldTransform_.translation_.y, -7.0f, 0.02f);
+			ApplyLerp(StarObject_[1]->worldTransform_.translation_.y, 1.0f, 0.02f);
 
 		}
 		else if (secondPhase) {
-			ApplyLerp(ConeObject_[1]->worldTransform_.translation_.z, 100.0f, 0.018f);
-			ApplyLerp(ConeObject_[3]->worldTransform_.translation_.y, 55.0f, 0.018f);
-			ApplyLerp(StarObject_[1]->worldTransform_.translation_.y, 63.0f, 0.018f);
+			ApplyLerp(ConeObject_[1]->worldTransform_.translation_.z, 100.0f, 0.02f);
+			ApplyLerp(ConeObject_[3]->worldTransform_.translation_.y, 55.0f, 0.02f);
+			ApplyLerp(StarObject_[1]->worldTransform_.translation_.y, 63.0f, 0.02f);
 		}
 	}
 	if (nowStage == 3) {
@@ -1092,11 +979,13 @@ void GameScene::MoveConeObjects(int sceneTime) {
 			for (int i = 0; i < 2; i++) {
 				ApplyLerp(ConeObject_[Stage3indices[i]]->worldTransform_.translation_.x, conelerpindices[i], 0.02f);
 			}
-			ApplyLerp(ConeObject_[14]->worldTransform_.translation_.x, 90.0f, 0.02f);
-			ApplyLerp(ConeObject_[14]->worldTransform_.translation_.y, 51.0f, 0.02f);
+			ApplyLerp(ConeObject_[14]->worldTransform_.translation_.x, 90.0f, 0.03f);
+			ApplyLerp(ConeObject_[14]->worldTransform_.translation_.y, 51.0f, 0.03f);
 
-			ApplyLerp(ConeObject_[15]->worldTransform_.translation_.z, 182.0f, 0.02f);
-			ApplyLerp(ConeObject_[15]->worldTransform_.translation_.y, 96.0f, 0.02f);
+			ApplyLerp(ConeObject_[15]->worldTransform_.translation_.z, 182.0f, 0.03f);
+			ApplyLerp(ConeObject_[15]->worldTransform_.translation_.y, 96.0f, 0.03f);
+
+			ApplyLerp(ConeObject_[17]->worldTransform_.translation_.y, -15.0f, 0.03f);
 
 		}
 		else if (secondPhase) {
@@ -1105,11 +994,13 @@ void GameScene::MoveConeObjects(int sceneTime) {
 			for (int i = 0; i < 2; i++) {
 				ApplyLerp(ConeObject_[Stage3indices[i]]->worldTransform_.translation_.x, Conelerpindices[i], 0.02f);
 			}
-			ApplyLerp(ConeObject_[14]->worldTransform_.translation_.x, 110.0f, 0.02f);
-			ApplyLerp(ConeObject_[14]->worldTransform_.translation_.y, 71.0f, 0.02f);
+			ApplyLerp(ConeObject_[14]->worldTransform_.translation_.x, 110.0f, 0.03f);
+			ApplyLerp(ConeObject_[14]->worldTransform_.translation_.y, 71.0f, 0.03f);
 
-			ApplyLerp(ConeObject_[15]->worldTransform_.translation_.z, 157.0f, 0.02f);
-			ApplyLerp(ConeObject_[15]->worldTransform_.translation_.y, 71.0f, 0.02f);
+			ApplyLerp(ConeObject_[15]->worldTransform_.translation_.z, 157.0f, 0.03f);
+			ApplyLerp(ConeObject_[15]->worldTransform_.translation_.y, 71.0f, 0.03f);
+
+			ApplyLerp(ConeObject_[17]->worldTransform_.translation_.y, -4.0f, 0.03f);
 
 		}
 	}
@@ -1180,6 +1071,13 @@ void GameScene::ClearMode() {
 	}
 }
 
+void GameScene::Resize() {
+	previousPos.resize(ConeObject_.size());
+	for (size_t i = 0; i < ConeObject_.size() - 1; i++) {
+		previousPos[i] = ConeObject_[i]->worldTransform_.translation_;
+	}
+}
+
 void GameScene::StarCountNum() {
 	std::string modelFileName = std::to_string(StarCount[nowStage - 1]) + ".obj";
 	StarCountNumber->SetModel(modelFileName.c_str());
@@ -1188,6 +1086,153 @@ void GameScene::StarCountNum() {
 	StarCountNumber->Update();
 }
 
+// デバッグ情報の表示
+void GameScene::DisplayDebugInfo(const Vector3& playerPos) {
+#ifdef _DEBUG
+
+	ImGui::Begin("Debug Info");
+	ImGui::Text("Player Position: X=%f, Y=%f, Z=%f", playerPos.x, playerPos.y, playerPos.z);
+	ImGui::Text("On Floor: %d", isOnFloor);
+	ImGui::End();
+	ImGui::Begin("isOnFloor");
+	ImGui::SliderInt("Select Model Index1", &selectedIndex1, 0, static_cast<int>(ConeObject_.size()) - 1);
+	ImGui::SliderInt("Select Model Index2", &selectedIndex2, 0, static_cast<int>(StarObject_.size()) - 1);
+	ImGui::SliderInt("Select Model Index3", &selectedIndex3, 0, static_cast<int>(TextObject_.size()) - 1);
+	ImGui::Text("OnFloor : %d", isOnFloor);
+	ImGui::Text("GetStar : %d", isGetStar);
+	ImGui::Text("Player Pos : %f %f %f", playerPos.x, playerPos.y, playerPos.z);
+	ImGui::End();
+	
+	if (ConeObject_.size() > 0) {
+		std::string label1 = "JSONConemodel" + std::to_string(selectedIndex1);
+		ConeObject_[selectedIndex1]->ModelDebug(label1.c_str());
+	}
+	if (StarObject_.size() > 0) {
+		std::string label2 = "JSONStarmodel" + std::to_string(selectedIndex2);
+		StarObject_[selectedIndex2]->ModelDebug(label2.c_str());
+	}
+	if (TextObject_.size() > 0) {
+		std::string label3 = "JSONTextmodel" + std::to_string(selectedIndex3);
+		TextObject_[selectedIndex3]->ModelDebug(label3.c_str());
+	}
+
+	ImGui::Begin("stage");
+	if (ImGui::Button("isTitle")) {
+		Remake();
+		isTitle = false;
+		isStageClear = false;
+		TenQOBJ->SetWorldTransform(TitleTenQTransform);
+		TenQOBJ->SetModel("world.obj");
+		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "TitleScene", ConeObject_, camera);
+		Loader::LoadJsonFileText("Resources", "TitleText", TextObject_);
+		Loader::LoadJsonFileNumber("Resources", "TitleNumber", NumberObject_);
+		Resize();
+		nowStage = 0;
+		portal = 0;
+		fade->SetTexture(textureHandles[FADE]);
+		fade->StartFadeOut();
+		fade->SetAlpha(0.0f);
+		isPreview = true;
+	}
+	if (ImGui::Button("isDemo")) {
+		Remake();
+		isDemo = false;
+		TenQOBJ->SetWorldTransform(GameTenQTransform);
+		TenQOBJ->SetModel("world2.obj");
+		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "DemoScene", ConeObject_, camera);
+		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "DemoScene", StarObject_);
+		Loader::LoadJsonFileText("Resources", "DemoText", TextObject_);
+		Resize();
+		FirstDemoFlag = true;
+		nowStage = 1;
+		portal = 0;
+		fade->SetTexture(textureHandles[FADE2]);
+		fade->StartFadeOut();
+		InitStar();
+		isPreview = true;
+	}
+	if (ImGui::Button("isGame")) {
+		Remake();
+		isGame = false;
+		TenQOBJ->SetWorldTransform(GameTenQTransform);
+		TenQOBJ->SetModel("world2.obj");
+		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "Scene1", ConeObject_, camera);
+		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "Scene1", StarObject_);
+		Resize();
+		nowStage = 2;
+		portal = 0;
+		fade->SetTexture(textureHandles[FADE2]);
+		fade->StartFadeOut();
+		InitStar();
+		isPreview = true;
+	}
+	if (ImGui::Button("isGame2")) {
+		Remake();
+		isGame2 = false;
+		TenQOBJ->SetWorldTransform(GameTenQTransform);
+		TenQOBJ->SetModel("world2.obj");
+		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "Scene2", ConeObject_, camera);
+		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "Scene2", StarObject_);
+		Resize();
+		nowStage = 3;
+		portal = 0;
+		fade->SetTexture(textureHandles[FADE2]);
+		fade->StartFadeOut();
+		InitStar();
+		isPreview = true;
+	}
+	if (ImGui::Button("isGame3")) {
+		Remake();
+		isGame3 = false;
+		TenQOBJ->SetWorldTransform(GameTenQTransform);
+		TenQOBJ->SetModel("world2.obj");
+		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "Scene3", ConeObject_, camera);
+		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "Scene3", StarObject_);
+		Resize();
+		nowStage = 4;
+		portal = 0;
+		fade->SetTexture(textureHandles[FADE2]);
+		fade->StartFadeOut();
+		InitStar();
+		isPreview = true;
+	}
+	ImGui::End();
+
+	for (size_t i = 0; i < ConeObject_.size() - 1; i++) {
+		float previousFloorHeight = playerPos.y; // 初期化しておく
+		// オブジェクトの座標とサイズを取得
+		Vector3 floorPos = ConeObject_[i]->worldTransform_.translation_;
+		Vector3 floorSize = ConeObject_[i]->worldTransform_.scale_;
+		std::string label = "JSONmodel" + std::to_string(i);
+
+		ImGui::Begin("OnFloorDebug");
+		ImGui::Text(label.c_str());
+		ImGui::Text("floor : %f %f %f", floorPos.x, floorPos.y, floorPos.z);
+		ImGui::Text("size : %f %f %f", floorSize.x, floorSize.y, floorSize.z);
+		ImGui::Text("isOnx : %f %f", playerPos.x, floorPos.x - floorSize.x);
+		ImGui::Text("isOnx : %f %f", playerPos.x, floorPos.x + floorSize.x);
+		ImGui::Text("isOnz : %f %f", playerPos.z, floorPos.z - floorSize.z);
+		ImGui::Text("isOnz : %f %f", playerPos.z, floorPos.z + floorSize.z);
+		ImGui::Text("isOny : %f %f", playerPos.y, abs(floorPos.y + floorSize.y + 3.0f));
+		ImGui::Text("isOnyy : %f", abs(playerPos.y - (floorPos.y + floorSize.y + 3.0f)));
+		ImGui::End();
+		// プレイヤーがオブジェクトの上にいるか判定
+		if (playerPos.x >= floorPos.x - floorSize.x &&
+			playerPos.x <= floorPos.x + floorSize.x &&
+			playerPos.z >= floorPos.z - floorSize.z &&
+			playerPos.z <= floorPos.z + floorSize.z &&
+			playerPos.y >= floorPos.y + floorSize.y - 1.0f &&
+			playerPos.y <= floorPos.y + floorSize.y + 3.0f) {
+			break;
+		}
+		else {
+			isOnFloor = false;
+		}
+	}
+	camera->CameraDebug();
+#endif
+
+}
 
 void GameScene::ImguiDebug() {
 	TenQOBJ->ModelDebug("TenQ");
@@ -1212,6 +1257,7 @@ void GameScene::ImguiDebug() {
 	}
 	ImGui::Text("isgetstar %d", isGetStar);
 	ImGui::Text("time %d%d:%d%d", timer.elapsedTensOfMinutes(),timer.elapsedMinutesOnly(),timer.elapsedTensOfSeconds(),timer.elapsedSecondsOnly());
+	ImGui::Text("size %d", previousPos.size());
 	ImGui::End();
 }
 
