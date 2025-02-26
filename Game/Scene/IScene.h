@@ -9,11 +9,7 @@ protected:
 	static int sceneNo;
 
 	static bool GameRoop;
-	static int DemoTime[5];
-	static int SCENE1Time[5];
-	static int SCENE2Time[5];
-	static int SCENE3Time[5];
-	static int SCENE4Time[5];
+	static int AllStageTime[5][5];//[ステージ数 +1][5固定]
 	static int menucount;
 	static bool menuposition;
 public:

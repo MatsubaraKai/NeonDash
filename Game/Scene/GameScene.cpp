@@ -143,8 +143,8 @@ void GameScene::PostDraw()
 
 // リソース解放関数
 void GameScene::Release() {
-	Audio::SoundStopWave(Audio::GetInstance()->GetIXAudio().Get(), AudioBGMhandle_);
-	Audio::SoundUnload(AudioBGMhandle_);
+	Audio::SoundStopWave(Audio::GetInstance()->GetIXAudio().Get(), audioHandle[BGM]);
+	Audio::SoundUnload(audioHandle[BGM]);
 }
 
 // ゲーム終了判定関数
@@ -195,12 +195,12 @@ void GameScene::LoadModels()
 // オーディオのロード
 void GameScene::LoadAudio()
 {
-	AudioBGMhandle_ = Audio::SoundLoadWave("Resources/game/Audio/BGM.wav");
-	AudioPortalhandle_ = Audio::SoundLoadWave("Resources/game/Audio/portal.wav");
-	AudioTimeCounthandle_ = Audio::SoundLoadWave("Resources/game/Audio/timecount.wav");
-	AudioTimeCount2handle_ = Audio::SoundLoadWave("Resources/game/Audio/timecount2.wav");
-	explosionSound = Audio::SoundLoadWave("Resources/game/Audio/firework.wav");
-	AudioStarGetSEhandle_ = Audio::SoundLoadWave("Resources/game/Audio/GetSE.wav");
+	audioHandle[BGM] = Audio::SoundLoadWave("Resources/game/Audio/BGM.wav");
+	audioHandle[PORTAL] = Audio::SoundLoadWave("Resources/game/Audio/portal.wav");
+	audioHandle[TIMECOUNT] = Audio::SoundLoadWave("Resources/game/Audio/timecount.wav");
+	audioHandle[TIMECOUNT2] = Audio::SoundLoadWave("Resources/game/Audio/timecount2.wav");
+	audioHandle[FIREWORK] = Audio::SoundLoadWave("Resources/game/Audio/firework.wav");
+	audioHandle[GETSTAR] = Audio::SoundLoadWave("Resources/game/Audio/GetSE.wav");
 
 }
 
@@ -211,7 +211,7 @@ void GameScene::InitializeData()
 		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "TitleScene", ConeObject_, camera);
 		Loader::LoadJsonFileText("Resources", "TitleText", TextObject_);
 		Loader::LoadJsonFileNumber("Resources", "TitleNumber", NumberObject_);
-		Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), AudioBGMhandle_, true, 0.05f);
+		Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), audioHandle[BGM], true, 0.05f);
 		GameRoop = true;
 	}
 
@@ -339,7 +339,7 @@ void GameScene::UpdatePortalCollision(const Vector3& playerPos) {
 	// ポータルが一度だけ発動する処理
 	if (isTitle || isDemo || isGame || isGame2 || isGame3 || isStageClear) {
 		if (portal == 0) {
-			Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), AudioPortalhandle_, false, 0.1f);
+			Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), audioHandle[PORTAL], false, 0.1f);
 		}
 		portal++;
 		isClear = true;
@@ -359,10 +359,10 @@ void GameScene::UpdateEffects() {
 
 	if (nowStage != 0) {
 		if (sceneTime == 180 || sceneTime == 360)
-			Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), AudioTimeCount2handle_, false, 1.0f);
+			Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), audioHandle[TIMECOUNT2], false, 1.0f);
 
 		if (sceneTime == 60 || sceneTime == 120 || sceneTime == 240 || sceneTime == 300) {
-			Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), AudioTimeCounthandle_, false, 1.0f);
+			Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), audioHandle[TIMECOUNT], false, 1.0f);
 		}
 	}
 
@@ -457,10 +457,10 @@ void GameScene::HandleSceneTransition() {
 void GameScene::UpdateStageTimes() {
 	if (nowStage == 0) {
 		for (int i = 0; i < 4; ++i) {
-			NumberObject_[indices[i]]->SetModel((std::to_string(DemoTime[i]) + ".obj").c_str());
-			NumberObject_[indices[i] + 5]->SetModel((std::to_string(SCENE1Time[i]) + ".obj").c_str());
-			NumberObject_[indices[i] + 10]->SetModel((std::to_string(SCENE2Time[i]) + ".obj").c_str());
-			NumberObject_[indices[i] + 15]->SetModel((std::to_string(SCENE3Time[i]) + ".obj").c_str());
+			NumberObject_[indices[i]]->SetModel((std::to_string(AllStageTime[0][i]) + ".obj").c_str());
+			NumberObject_[indices[i] + 5]->SetModel((std::to_string(AllStageTime[1][i]) + ".obj").c_str());
+			NumberObject_[indices[i] + 10]->SetModel((std::to_string(AllStageTime[2][i]) + ".obj").c_str());
+			NumberObject_[indices[i] + 15]->SetModel((std::to_string(AllStageTime[3][i]) + ".obj").c_str());
 		}
 	}
 }
@@ -918,8 +918,8 @@ void GameScene::DrawParticles()
 		TitleFireworkPa->Draw(fireworkEmitter_, fireworkEmitter_.transform.translate, textureHandles[PARTICLESTAR], camera, fireworkRange_, false, 0.1f, 0.6f);
 		TitleFireworkPa2->Draw(fireworkEmitter_2, fireworkEmitter_2.transform.translate, textureHandles[PARTICLESTAR], camera, fireworkRange_2, false, 0.1f, 0.6f);
 
-		TitleFireworkPa->CreateFireworkEffect(fireworkEmitter_, fireworkRange_, 1.0f, 2.0f, 1.5f, explosionSound, camera->GetTranslate());
-		TitleFireworkPa2->CreateFireworkEffect(fireworkEmitter_2, fireworkRange_2, 1.0f, 2.0f, 1.5f, explosionSound, camera->GetTranslate());
+		TitleFireworkPa->CreateFireworkEffect(fireworkEmitter_, fireworkRange_, 1.0f, 2.0f, 1.5f, audioHandle[FIREWORK], camera->GetTranslate());
+		TitleFireworkPa2->CreateFireworkEffect(fireworkEmitter_2, fireworkRange_2, 1.0f, 2.0f, 1.5f, audioHandle[FIREWORK], camera->GetTranslate());
 	}
 	if (nowStage == 1) {
 		DemoSceneDemoParticle->Draw(
@@ -948,20 +948,17 @@ void GameScene::DrawParticles()
 }
 
 void GameScene::InitStar() {
-	for (size_t i = 0; i < StarObject_.size() - 1; i++) {
-		StarObject_[i]->isVisible = true;
+	for (auto& star : StarObject_) {
+		star->isVisible = true;
 	}
-	if (nowStage == 1) {
-		StarCount[0] = 2;
-	}
-	if (nowStage == 2) {
-		StarCount[1] = 3;
-	}
-	if (nowStage == 3) {
-		StarCount[2] = 4;
-	}
-	if (nowStage == 4) {
-		StarCount[3] = 5;
+	static const std::unordered_map<int, int> stageToStarCount = {
+		{1, 2},
+		{2, 3},
+		{3, 4},
+		{4, 5}
+	};
+	if (stageToStarCount.contains(nowStage)) {
+		StarCount[nowStage - 1] = stageToStarCount.at(nowStage);
 	}
 }
 
@@ -1033,14 +1030,17 @@ void GameScene::MoveTitleNumberObjects(float targetHeight) {
 
 // コーンオブジェクトの移動
 void GameScene::MoveConeObjects(int sceneTime) {
+	bool firstPhase = (sceneTime < 180);
+	bool secondPhase = (sceneTime >= 180 && sceneTime < 360);
+
 	if (nowStage == 0) {
-		
-		if (sceneTime < 180) {
+
+		if (firstPhase) {
 			ApplyLerp(ConeObject_[17]->worldTransform_.translation_.y, 60.0f, 0.03f);
 			ApplyLerp(ConeObject_[18]->worldTransform_.translation_.x, 55.0f, 0.03f);
 			MoveTitleNumberObjects(8.5f);
 		}
-		else if (sceneTime < 360) {
+		else if (secondPhase) {
 			ApplyLerp(ConeObject_[17]->worldTransform_.translation_.y, -4.0f, 0.03f);
 			ApplyLerp(ConeObject_[18]->worldTransform_.translation_.x, -50.0f, 0.03f);
 			MoveTitleNumberObjects(7.5f);
@@ -1056,20 +1056,20 @@ void GameScene::MoveConeObjects(int sceneTime) {
 
 	}
 	if (nowStage == 2) {
-		if (sceneTime < 180) {
+		if (firstPhase) {
 			ApplyLerp(ConeObject_[1]->worldTransform_.translation_.z, 0.0f, 0.018f);
 			ApplyLerp(ConeObject_[3]->worldTransform_.translation_.y, -7.0f, 0.018f);
 			ApplyLerp(StarObject_[1]->worldTransform_.translation_.y, 1.0f, 0.018f);
 
 		}
-		else if (sceneTime < 360) {
+		else if (secondPhase) {
 			ApplyLerp(ConeObject_[1]->worldTransform_.translation_.z, 100.0f, 0.018f);
 			ApplyLerp(ConeObject_[3]->worldTransform_.translation_.y, 55.0f, 0.018f);
 			ApplyLerp(StarObject_[1]->worldTransform_.translation_.y, 63.0f, 0.018f);
 		}
 	}
 	if (nowStage == 3) {
-		if (sceneTime < 180) {
+		if (firstPhase) {
 			for (int i = 0; i < 14; i++) {
 				ConeObject_[Stage2indices[i]]->isVisible = false;
 			}
@@ -1077,7 +1077,7 @@ void GameScene::MoveConeObjects(int sceneTime) {
 				ConeObject_[Stage2indices2[i]]->isVisible = true;
 			}
 		}
-		else if (sceneTime < 360) {
+		else if (secondPhase) {
 			for (int i = 0; i < 14; i++) {
 				ConeObject_[Stage2indices[i]]->isVisible = true;
 			}
@@ -1087,7 +1087,7 @@ void GameScene::MoveConeObjects(int sceneTime) {
 		}
 	}
 	if (nowStage == 4) {
-		if (sceneTime < 180) {
+		if (firstPhase){
 			ApplyLerp(ConeObject_[1]->worldTransform_.translation_.y, -4.0f, 0.04f);
 			for (int i = 0; i < 2; i++) {
 				ApplyLerp(ConeObject_[Stage3indices[i]]->worldTransform_.translation_.x, conelerpindices[i], 0.02f);
@@ -1099,7 +1099,7 @@ void GameScene::MoveConeObjects(int sceneTime) {
 			ApplyLerp(ConeObject_[15]->worldTransform_.translation_.y, 96.0f, 0.02f);
 
 		}
-		else if (sceneTime < 360) {
+		else if (secondPhase) {
 			ApplyLerp(ConeObject_[1]->worldTransform_.translation_.y, 50.0f, 0.04f);
 
 			for (int i = 0; i < 2; i++) {
@@ -1122,7 +1122,7 @@ void GameScene::UpdateTitleScene(const Vector3& playerPos, int sceneTime) {
 		float targetHeight = IsPlayerInRange(playerPos, -20.0f, 20.0f, -20.0f, 20.0f) ? 1.3f : 0.0f;
 		ApplyLerp(TextObject_[6]->worldTransform_.translation_.y, targetHeight, 0.1f);
 	}
-	// タイトルテキスト移動（GameRoop が不要に）
+	// タイトルテキスト移動
 	ApplyLerp(TextObject_[7]->worldTransform_.translation_.y, 2.0f, 0.1f);
 
 }
@@ -1131,16 +1131,16 @@ void GameScene::StarSetting(const Vector3& playerPos) {
 	for (size_t i = 0; i < StarObject_.size(); i++) {
 		if (StarObject_[i]->isVisible) {
 			// オブジェクトの座標とサイズを取得
-			Vector3 floorPos = StarObject_[i]->worldTransform_.translation_;
-			Vector3 floorSize = StarObject_[i]->worldTransform_.scale_;
+			Vector3 starPos = StarObject_[i]->worldTransform_.translation_;
+			Vector3 starSize = StarObject_[i]->worldTransform_.scale_;
 
 			// プレイヤーがオブジェクトに当たっているか判定
-			if (playerPos.x >= floorPos.x - floorSize.x &&
-				playerPos.x <= floorPos.x + floorSize.x &&
-				playerPos.z >= floorPos.z - floorSize.z &&
-				playerPos.z <= floorPos.z + floorSize.z &&
-				playerPos.y >= floorPos.y + floorSize.y - 5.0f &&
-				playerPos.y <= floorPos.y + floorSize.y + 5.0f) {
+			if (playerPos.x >= starPos.x - starSize.x - 2.0f &&
+				playerPos.x <= starPos.x + starSize.x + 2.0f &&
+				playerPos.z >= starPos.z - starSize.z - 2.0f &&
+				playerPos.z <= starPos.z + starSize.z + 2.0f &&
+				playerPos.y >= starPos.y + starSize.y - 5.0f &&
+				playerPos.y <= starPos.y + starSize.y + 5.0f) {
 				isGetStar = true;
 				StarObject_[i]->isVisible = false;  // 該当オブジェクトの描画を停止
 				break;  // 判定を終了
@@ -1154,28 +1154,27 @@ void GameScene::StarSetting(const Vector3& playerPos) {
 		}
 	}
 	if (isGetStar) {
-		Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), AudioStarGetSEhandle_, false, 1.0f);
+		Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), audioHandle[GETSTAR], false, 1.0f);
 		StarCount[nowStage - 1]--;
 	}
 }
 
 void GameScene::ClearMode() {
 	if (collider->CheckCollision(camera->transform_.translate, ClearPortalPosition[nowStage - 1], 2.5f, 4.0f, 2.5f, 2.0f) && StarCount[nowStage - 1] == 0) {
-		// 衝突している
-		//if (SCENE1Time[4] == 0) {//最初は0なので一回通す
-		//	SCENE1Time[0] = timer.elapsedTensOfMinutes();
-		//	SCENE1Time[1] = timer.elapsedMinutesOnly();
-		//	SCENE1Time[2] = timer.elapsedTensOfSeconds();
-		//	SCENE1Time[3] = timer.elapsedSecondsOnly();
-		//	SCENE1Time[4] = static_cast<int>(timer.elapsedSeconds());
-		//}
-		//if (static_cast<int>(timer.elapsedSeconds()) < SCENE1Time[4]) {//前回の記録より早かったら記録
-		//	SCENE1Time[0] = timer.elapsedTensOfMinutes();
-		//	SCENE1Time[1] = timer.elapsedMinutesOnly();
-		//	SCENE1Time[2] = timer.elapsedTensOfSeconds();
-		//	SCENE1Time[3] = timer.elapsedSecondsOnly();
-		//	SCENE1Time[4] = static_cast<int>(timer.elapsedSeconds());
-		//}
+		if (AllStageTime[nowStage - 1][4] == 0) {
+			AllStageTime[nowStage - 1][0] = timer.elapsedTensOfMinutes();
+			AllStageTime[nowStage - 1][1] = timer.elapsedMinutesOnly();
+			AllStageTime[nowStage - 1][2] = timer.elapsedTensOfSeconds();
+			AllStageTime[nowStage - 1][3] = timer.elapsedSecondsOnly();
+			AllStageTime[nowStage - 1][4] = static_cast<int>(timer.elapsedSeconds());
+		}
+		if (static_cast<int>(timer.elapsedSeconds()) < AllStageTime[nowStage - 1][4]) {//前回の記録より早かったら記録
+			AllStageTime[nowStage - 1][0] = timer.elapsedTensOfMinutes();
+			AllStageTime[nowStage - 1][1] = timer.elapsedMinutesOnly();
+			AllStageTime[nowStage - 1][2] = timer.elapsedTensOfSeconds();
+			AllStageTime[nowStage - 1][3] = timer.elapsedSecondsOnly();
+			AllStageTime[nowStage - 1][4] = static_cast<int>(timer.elapsedSeconds());
+		}
 		timer.stop();//タイマー止める
 		fade->SetTexture(textureHandles[FADE3]);
 	}

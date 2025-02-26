@@ -4,11 +4,12 @@
 int IScene::sceneNo = GAMESCENE;
 
 bool IScene::GameRoop = false;
-int IScene::DemoTime[5] = { 0,0,0,0,0 };
-int IScene::SCENE1Time[5] = { 0,0,0,0,0 };
-int IScene::SCENE2Time[5] = { 0,0,0,0,0 };
-int IScene::SCENE3Time[5] = { 0,0,0,0,0 };
-int IScene::SCENE4Time[5] = { 0,0,0,0,0 };
+int IScene::AllStageTime[5][5] =
+{ {0,0,0,0,0},
+ {0,0,0,0,0},
+ {0,0,0,0,0},
+ {0,0,0,0,0},
+ {0,0,0,0,0} };
 int IScene::menucount = 1;
 bool IScene::menuposition = false;
 // 仮想デストラクタの定義

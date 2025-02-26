@@ -246,13 +246,18 @@ private:
 
     std::array<uint32_t, TEXTURE_COUNT> textureHandles;
 
-    // Audio handles
-    uint32_t AudioBGMhandle_;
-    uint32_t AudioPortalhandle_;
-    uint32_t AudioTimeCounthandle_;
-    uint32_t AudioTimeCount2handle_;
-    uint32_t explosionSound;   
-    uint32_t AudioStarGetSEhandle_;
+    enum AudioID {
+        BGM,
+        PORTAL,
+        TIMECOUNT,
+        TIMECOUNT2,
+        FIREWORK,
+        GETSTAR,
+        AUDIO_COUNT
+    };
+
+    std::array<uint32_t, AUDIO_COUNT> audioHandle;
+    
     // Debug variables
     Vector3 previousPos[99];
 };
