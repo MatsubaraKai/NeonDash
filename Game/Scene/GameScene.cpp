@@ -922,6 +922,10 @@ void GameScene::MoveConeObjects(int sceneTime) {
 
 	if (nowStage == 0) {
 
+		MoveInCircle(ConeObject_[15]->worldTransform_.translation_, deltatime, 50.0f, center, angle, 0.001f, 0);
+		MoveInCircle(ConeObject_[14]->worldTransform_.translation_, deltatime, 50.0f, center, angle, 0.001f, 1);
+		MoveInCircle(ConeObject_[13]->worldTransform_.translation_, deltatime, 50.0f, center, angle, 0.001f, 2);
+
 		if (firstPhase) {
 			ApplyLerp(ConeObject_[17]->worldTransform_.translation_.y, 60.0f, 0.034f);
 			ApplyLerp(ConeObject_[18]->worldTransform_.translation_.x, 55.0f, 0.034f);
@@ -1085,6 +1089,42 @@ void GameScene::StarCountNum() {
 	StarCountNumber->worldTransform_.rotation_.y = camera->Face2Face(camera->transform_.translate, StarCountNumber->worldTransform_.translation_) + 3.14f;
 	StarCountNumber->Update();
 }
+
+void GameScene::MoveInCircle(Vector3& FloorPos, float deltaTime, float radius,
+	const Vector3 centerPos, float& angle, float speed, int mode) {
+	// 角度を更新（常に通常回転）
+	angle += speed * deltaTime;
+
+	// 角度を 0～2π の範囲に制限
+	if (angle > DirectX::XM_2PI) {
+		angle -= DirectX::XM_2PI;
+	}
+	else if (angle < 0.0f) {
+		angle += DirectX::XM_2PI;
+	}
+
+	// 円運動のパターンを mode で選択
+	switch (mode) {
+	case 0: // XZ平面（通常の横回転）
+		FloorPos.x = centerPos.x + radius * std::cos(angle);
+		FloorPos.z = centerPos.z + radius * std::sin(angle);
+		FloorPos.y = centerPos.y;  // 高さは固定
+		break;
+
+	case 1: // YZ平面（縦回転）
+		FloorPos.y = centerPos.y + radius * std::cos(angle);
+		FloorPos.z = centerPos.z + radius * std::sin(angle);
+		FloorPos.x = centerPos.x;  // X軸は固定
+		break;
+
+	case 2: // XY平面（Z軸の高さを固定した円運動）
+		FloorPos.x = centerPos.x + radius * std::cos(angle);
+		FloorPos.y = centerPos.y + radius * std::sin(angle);
+		FloorPos.z = centerPos.z;  // Z軸の位置は固定
+		break;
+	}
+}
+
 
 // デバッグ情報の表示
 void GameScene::DisplayDebugInfo(const Vector3& playerPos) {

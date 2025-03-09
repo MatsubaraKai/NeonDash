@@ -82,6 +82,8 @@ private:
 
     void StarCountNum();
 
+    void MoveInCircle(Vector3& FloorPos, float deltaTime, float radius,
+        const Vector3 centerPos, float& angle, float speed, int mode);
     // Draw methods
     void DrawConeObjects();
     void DrawTitleTextObjects();
@@ -174,7 +176,9 @@ private:
     std::vector<Object3d*> TextObject_;
     std::vector<Object3d*> NumberObject_;
 
-
+    Vector3 center = { 0.0f, 0.0f, 0.0f };
+    float angle = 0.0f;
+    float deltatime = 5.0f;
     // インデックスを定義
     enum ParticleType {
         FLOOR,
