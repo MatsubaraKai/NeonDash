@@ -176,9 +176,9 @@ private:
     std::vector<Object3d*> TextObject_;
     std::vector<Object3d*> NumberObject_;
 
-    Vector3 center = { 0.0f, 0.0f, 0.0f };
+    Vector3 center = { 0.0f, 0.0f, -15.0f };
     float angle = 0.0f;
-    float deltatime = 5.0f;
+    float deltatime = 0.1f;
     // インデックスを定義
     enum ParticleType {
         FLOOR,

@@ -96,9 +96,6 @@ void GameScene::Update() {
 	// 床の動きとプレイヤーの位置を同期
 	UpdateFloorInteraction();
 
-	// 文字床アニメーション
-	//UpdateLerpAnimations(playerPos);
-
 	// オブジェクトの更新処理
 	UpdateObjects();
 
@@ -922,9 +919,9 @@ void GameScene::MoveConeObjects(int sceneTime) {
 
 	if (nowStage == 0) {
 
-		MoveInCircle(ConeObject_[15]->worldTransform_.translation_, deltatime, 50.0f, center, angle, 0.001f, 0);
-		MoveInCircle(ConeObject_[14]->worldTransform_.translation_, deltatime, 50.0f, center, angle, 0.001f, 1);
-		MoveInCircle(ConeObject_[13]->worldTransform_.translation_, deltatime, 50.0f, center, angle, 0.001f, 2);
+		MoveInCircle(ConeObject_[19]->worldTransform_.translation_, deltatime, 100.0f, center, angle, 0.01f, 0);
+		MoveInCircle(ConeObject_[20]->worldTransform_.translation_, deltatime, 110.0f, center, angle, 0.01f, 1);
+		MoveInCircle(ConeObject_[21]->worldTransform_.translation_, deltatime, 120.0f, center, angle, 0.01f, 2);
 
 		if (firstPhase) {
 			ApplyLerp(ConeObject_[17]->worldTransform_.translation_.y, 60.0f, 0.034f);
@@ -1094,6 +1091,7 @@ void GameScene::MoveInCircle(Vector3& FloorPos, float deltaTime, float radius,
 	const Vector3 centerPos, float& angle, float speed, int mode) {
 	// 角度を更新（常に通常回転）
 	angle += speed * deltaTime;
+	
 
 	// 角度を 0～2π の範囲に制限
 	if (angle > DirectX::XM_2PI) {
@@ -1135,9 +1133,9 @@ void GameScene::DisplayDebugInfo(const Vector3& playerPos) {
 	ImGui::Text("On Floor: %d", isOnFloor);
 	ImGui::End();
 	ImGui::Begin("isOnFloor");
-	ImGui::SliderInt("Select Model Index1", &selectedIndex1, 0, static_cast<int>(ConeObject_.size()) - 1);
-	ImGui::SliderInt("Select Model Index2", &selectedIndex2, 0, static_cast<int>(StarObject_.size()) - 1);
-	ImGui::SliderInt("Select Model Index3", &selectedIndex3, 0, static_cast<int>(TextObject_.size()) - 1);
+	ImGui::SliderInt("Select ConeModel Index", &selectedIndex1, 0, static_cast<int>(ConeObject_.size()) - 1);
+	ImGui::SliderInt("Select StarModel Index", &selectedIndex2, 0, static_cast<int>(StarObject_.size()) - 1);
+	ImGui::SliderInt("Select TextModel Index", &selectedIndex3, 0, static_cast<int>(TextObject_.size()) - 1);
 	ImGui::Text("OnFloor : %d", isOnFloor);
 	ImGui::Text("GetStar : %d", isGetStar);
 	ImGui::Text("Player Pos : %f %f %f", playerPos.x, playerPos.y, playerPos.z);
