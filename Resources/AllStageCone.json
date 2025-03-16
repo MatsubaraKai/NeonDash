@@ -603,7 +603,72 @@
           },
           "file_name": "cone"
         },
-
+        {
+          "type": "MESH",
+          "name": "Cube.005",
+          "transform": {
+            "translation": [
+              -50.0,
+              -10.0,
+              60.0
+            ],
+            "rotation": [
+              -0.0,
+              -3.141592653589793,
+              -0.0
+            ],
+            "scaling": [
+              5.0,
+              5.0,
+              5.0
+            ]
+          },
+          "file_name": "cone"
+        },
+        {
+          "type": "MESH",
+          "name": "Cube.005",
+          "transform": {
+            "translation": [
+              -50.0,
+              -10.0,
+              60.0
+            ],
+            "rotation": [
+              -0.0,
+              -3.141592653589793,
+              -0.0
+            ],
+            "scaling": [
+              5.0,
+              5.0,
+              5.0
+            ]
+          },
+          "file_name": "cone"
+        },
+        {
+          "type": "MESH",
+          "name": "Cube.005",
+          "transform": {
+            "translation": [
+              -50.0,
+              -10.0,
+              60.0
+            ],
+            "rotation": [
+              -0.0,
+              -3.141592653589793,
+              -0.0
+            ],
+            "scaling": [
+              5.0,
+              5.0,
+              5.0
+            ]
+          },
+          "file_name": "cone"
+        },
 
 
 
