@@ -421,6 +421,7 @@ void GameScene::HandleSceneTransition() {
 		TenQOBJ->SetModel("world2.obj");
 		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "Scene1", ConeObject_, camera);
 		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "Scene1", StarObject_);
+		Loader::LoadJsonFileText("Resources", "Stage1Text", TextObject_);
 		Resize();
 		nowStage = 2;
 		portal = 0;
@@ -436,6 +437,7 @@ void GameScene::HandleSceneTransition() {
 		TenQOBJ->SetModel("world2.obj");
 		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "Scene2", ConeObject_, camera);
 		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "Scene2", StarObject_);
+		Loader::LoadJsonFileText("Resources", "Stage2Text", TextObject_);
 		Resize();
 		nowStage = 3;
 		portal = 0;
