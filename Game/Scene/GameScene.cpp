@@ -923,7 +923,7 @@ void GameScene::MoveConeObjects(int sceneTime) {
 
 		MoveInCircle(ConeObject_[19]->worldTransform_.translation_, deltatime, 100.0f, center, angle, 0.01f, 0);
 		MoveInCircle(ConeObject_[20]->worldTransform_.translation_, deltatime, 110.0f, center, angle, 0.01f, 1);
-		MoveInCircle(ConeObject_[21]->worldTransform_.translation_, deltatime, 120.0f, center, angle, 0.01f, 2);
+		MoveInCircle(ConeObject_[21]->worldTransform_.translation_, deltatime, 110.0f, center, angle, 0.01f, 2);
 
 		if (firstPhase) {
 			ApplyLerp(ConeObject_[17]->worldTransform_.translation_.y, 60.0f, 0.034f);
@@ -1155,88 +1155,6 @@ void GameScene::DisplayDebugInfo(const Vector3& playerPos) {
 		std::string label3 = "JSONTextmodel" + std::to_string(selectedIndex3);
 		TextObject_[selectedIndex3]->ModelDebug(label3.c_str());
 	}
-
-	ImGui::Begin("stage");
-	if (ImGui::Button("isTitle")) {
-		Remake();
-		isTitle = false;
-		isStageClear = false;
-		TenQOBJ->SetWorldTransform(TitleTenQTransform);
-		TenQOBJ->SetModel("world.obj");
-		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "TitleScene", ConeObject_, camera);
-		Loader::LoadJsonFileText("Resources", "TitleText", TextObject_);
-		Loader::LoadJsonFileNumber("Resources", "TitleNumber", NumberObject_);
-		Resize();
-		nowStage = 0;
-		portal = 0;
-		fade->SetTexture(textureHandles[FADE]);
-		fade->StartFadeOut();
-		fade->SetAlpha(0.0f);
-		isPreview = true;
-	}
-	if (ImGui::Button("isDemo")) {
-		Remake();
-		isDemo = false;
-		TenQOBJ->SetWorldTransform(GameTenQTransform);
-		TenQOBJ->SetModel("world2.obj");
-		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "DemoScene", ConeObject_, camera);
-		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "DemoScene", StarObject_);
-		Loader::LoadJsonFileText("Resources", "DemoText", TextObject_);
-		Resize();
-		FirstDemoFlag = true;
-		nowStage = 1;
-		portal = 0;
-		fade->SetTexture(textureHandles[FADE2]);
-		fade->StartFadeOut();
-		InitStar();
-		isPreview = true;
-	}
-	if (ImGui::Button("isGame")) {
-		Remake();
-		isGame = false;
-		TenQOBJ->SetWorldTransform(GameTenQTransform);
-		TenQOBJ->SetModel("world2.obj");
-		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "Scene1", ConeObject_, camera);
-		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "Scene1", StarObject_);
-		Resize();
-		nowStage = 2;
-		portal = 0;
-		fade->SetTexture(textureHandles[FADE2]);
-		fade->StartFadeOut();
-		InitStar();
-		isPreview = true;
-	}
-	if (ImGui::Button("isGame2")) {
-		Remake();
-		isGame2 = false;
-		TenQOBJ->SetWorldTransform(GameTenQTransform);
-		TenQOBJ->SetModel("world2.obj");
-		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "Scene2", ConeObject_, camera);
-		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "Scene2", StarObject_);
-		Resize();
-		nowStage = 3;
-		portal = 0;
-		fade->SetTexture(textureHandles[FADE2]);
-		fade->StartFadeOut();
-		InitStar();
-		isPreview = true;
-	}
-	if (ImGui::Button("isGame3")) {
-		Remake();
-		isGame3 = false;
-		TenQOBJ->SetWorldTransform(GameTenQTransform);
-		TenQOBJ->SetModel("world2.obj");
-		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "Scene3", ConeObject_, camera);
-		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "Scene3", StarObject_);
-		Resize();
-		nowStage = 4;
-		portal = 0;
-		fade->SetTexture(textureHandles[FADE2]);
-		fade->StartFadeOut();
-		InitStar();
-		isPreview = true;
-	}
-	ImGui::End();
 
 	for (size_t i = 0; i < ConeObject_.size() - 1; i++) {
 		float previousFloorHeight = playerPos.y; // 初期化しておく
