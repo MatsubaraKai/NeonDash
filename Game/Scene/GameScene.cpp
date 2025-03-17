@@ -450,6 +450,8 @@ void GameScene::HandleSceneTransition() {
 		TenQOBJ->SetModel("world2.obj");
 		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "Scene3", ConeObject_, camera);
 		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "Scene3", StarObject_);
+		Loader::LoadJsonFileText("Resources", "Stage3Text", TextObject_);
+
 		Resize();
 		nowStage = 4;
 		portal = 0;
@@ -676,7 +678,11 @@ void GameScene::UpdateObjects() {
 			obj->Update();
 		}
 	}
-	for (auto& obj : TextObject_) obj->Update();
+	for (auto& obj : TextObject_) {
+		if ((obj)->isVisible) {
+			obj->Update();
+		}
+	}
 	for (auto& obj : NumberObject_) obj->Update();
 	for (auto& obj : StarObject_) {
 		if ((obj)->isVisible) {
@@ -710,11 +716,13 @@ void GameScene::DrawTitleTextObjects()
 {
 	for (size_t i = 0; i < TextObject_.size(); ++i) {
 		auto& textObj = TextObject_[i];
-		if (i == 0 || i == 1) {
-			textObj->Draw(textureHandles[BLUE], camera); // 特定のオブジェクトは異なるテクスチャで描画
-		}
-		else {
-			textObj->Draw(textureHandles[GRID], camera);
+		if (textObj->isVisible) {
+			if (i == 0 || i == 1) {
+				textObj->Draw(textureHandles[BLUE], camera); // 特定のオブジェクトは異なるテクスチャで描画
+			}
+			else {
+				textObj->Draw(textureHandles[GRID], camera);
+			}
 		}
 	}
 }
@@ -919,7 +927,8 @@ void GameScene::MoveConeObjects(int sceneTime) {
 	bool firstPhase = (sceneTime < 180);
 	bool secondPhase = (sceneTime >= 180 && sceneTime < 360);
 
-	if (nowStage == 0) {
+	if (nowStage == 0) {//title
+		
 
 		MoveInCircle(ConeObject_[19]->worldTransform_.translation_, deltatime, 100.0f, center, angle, 0.01f, 0);
 		MoveInCircle(ConeObject_[20]->worldTransform_.translation_, deltatime, 110.0f, center, angle, 0.01f, 1);
@@ -936,7 +945,7 @@ void GameScene::MoveConeObjects(int sceneTime) {
 			MoveTitleNumberObjects(7.5f);
 		}
 	}
-	if (nowStage == 1) {
+	if (nowStage == 1) {//demo
 		for (int i = 1; i <= 2; ++i) {
 			float sign = (i == 1) ? 1.0f : -1.0f;
 			ConeObject_[i]->worldTransform_.rotation_.x += 0.01f;
@@ -945,7 +954,7 @@ void GameScene::MoveConeObjects(int sceneTime) {
 		}
 
 	}
-	if (nowStage == 2) {
+	if (nowStage == 2) {//stage1
 		if (firstPhase) {
 			ApplyLerp(ConeObject_[1]->worldTransform_.translation_.z, 0.0f, 0.02f);
 			ApplyLerp(ConeObject_[3]->worldTransform_.translation_.y, -7.0f, 0.02f);
@@ -957,8 +966,11 @@ void GameScene::MoveConeObjects(int sceneTime) {
 			ApplyLerp(ConeObject_[3]->worldTransform_.translation_.y, 55.0f, 0.02f);
 			ApplyLerp(StarObject_[1]->worldTransform_.translation_.y, 63.0f, 0.02f);
 		}
+		if (!isPreview) {
+			TextObject_[1]->isVisible = false;
+		}
 	}
-	if (nowStage == 3) {
+	if (nowStage == 3) {//stage2
 		if (firstPhase) {
 			for (int i = 0; i < 14; i++) {
 				ConeObject_[Stage2indices[i]]->isVisible = false;
@@ -975,8 +987,11 @@ void GameScene::MoveConeObjects(int sceneTime) {
 				ConeObject_[Stage2indices2[i]]->isVisible = false;
 			}
 		}
+		if (!isPreview) {
+			TextObject_[1]->isVisible = false;
+		}
 	}
-	if (nowStage == 4) {
+	if (nowStage == 4) {//stage3
 		if (firstPhase){
 			ApplyLerp(ConeObject_[1]->worldTransform_.translation_.y, -4.0f, 0.04f);
 			for (int i = 0; i < 2; i++) {
@@ -990,6 +1005,15 @@ void GameScene::MoveConeObjects(int sceneTime) {
 
 			ApplyLerp(ConeObject_[17]->worldTransform_.translation_.y, -15.0f, 0.03f);
 
+			for (int i = 0; i < 4; i++) {
+				ConeObject_[Stage3indices2[i]]->isVisible = false;
+			}
+			for (int i = 0; i < 4; i++) {
+				ConeObject_[Stage3indices3[i]]->isVisible = true;
+			}
+			if (!isPreview) {
+				TextObject_[0]->isVisible = false;
+			}
 		}
 		else if (secondPhase) {
 			ApplyLerp(ConeObject_[1]->worldTransform_.translation_.y, 50.0f, 0.04f);
@@ -1004,7 +1028,12 @@ void GameScene::MoveConeObjects(int sceneTime) {
 			ApplyLerp(ConeObject_[15]->worldTransform_.translation_.y, 71.0f, 0.03f);
 
 			ApplyLerp(ConeObject_[17]->worldTransform_.translation_.y, -4.0f, 0.03f);
-
+			for (int i = 0; i < 4; i++) {
+				ConeObject_[Stage3indices2[i]]->isVisible = true;
+			}
+			for (int i = 0; i < 4; i++) {
+				ConeObject_[Stage3indices3[i]]->isVisible = false;
+			}
 		}
 	}
 }

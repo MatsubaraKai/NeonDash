@@ -7,28 +7,6 @@
       "transform": {
         "translation": [
           0.0,
-          200.0,
-          37.0
-        ],
-        "rotation": [
-          -0.0,
-          -0.0,
-          -0.0
-        ],
-        "scaling": [
-          20.0,
-          20.0,
-          20.0
-        ]
-      },
-      "file_name": "Stage1Text"
-    },
-    {
-      "type": "MESH",
-      "name": "Cube.000",
-      "transform": {
-        "translation": [
-          0.0,
           -14.0,
           15.0
         ],
@@ -45,6 +23,8 @@
       },
       "file_name": "StartPoint"
     },
+
+
 
 
 

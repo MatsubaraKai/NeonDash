@@ -131,6 +131,8 @@ private:
     //STAGE3
     bool isGame3 = false; // Portal 4
     int Stage3indices[2] = { 2,3 };
+    int Stage3indices2[4] = { 5,7,8,11 };
+    int Stage3indices3[4] = { 6,9,10,12 };
     float Conelerpindices[2] = { -18.0f,18.0f };
     float conelerpindices[2] = { -100.0f,100.0f };
 
