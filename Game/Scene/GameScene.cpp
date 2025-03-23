@@ -694,7 +694,6 @@ void GameScene::UpdateObjects() {
 	PositionOBJ->Update();
 }
 
-
 ///Draw///
 // コーンオブジェクトの描画
 void GameScene::DrawConeObjects()

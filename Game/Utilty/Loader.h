@@ -63,7 +63,8 @@ public:
 
     static void LoadAllConeJsonFile(const std::string kDefaultBaseDirectory, const std::string fileName, const std::string sceneType, std::vector<Object3d*>& objects, Camera* camera);
     static void LoadAllStarJsonFile(const std::string kDefaultBaseDirectory, const std::string fileName, const std::string sceneType, std::vector<Object3d*>& objects);
-    
+    static void LoadAllItemJsonFile(const std::string kDefaultBaseDirectory, const std::string fileName, const std::string sceneType, std::vector<Object3d*>& objects);
+
         /// <summary>
     /// JSONファイルを読み込み、番号付きのオブジェクトを初期化する関数。
     /// </summary>

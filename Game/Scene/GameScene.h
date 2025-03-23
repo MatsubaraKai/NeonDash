@@ -156,6 +156,7 @@ private:
     bool isPreview = true;
     bool previousIsPreview = isPreview;
     bool isGetStar = false;
+    bool isGetItem = false;
     bool isStart = false;
     // Camera and input
     Camera* camera = nullptr;
@@ -175,6 +176,7 @@ private:
     Object3d* StarCountNumber = nullptr;
     std::vector<Object3d*> ConeObject_;
     std::vector<Object3d*> StarObject_;
+    std::vector<Object3d*> ItemObject_;
     std::vector<Object3d*> TextObject_;
     std::vector<Object3d*> NumberObject_;
 

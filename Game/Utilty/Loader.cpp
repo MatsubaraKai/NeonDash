@@ -458,7 +458,92 @@ void Loader::LoadAllStarJsonFile(const std::string kDefaultBaseDirectory, const 
         objects.push_back(newObject3d);
     }
 }
+void Loader::LoadAllItemJsonFile(const std::string kDefaultBaseDirectory, const std::string fileName, const std::string sceneType, std::vector<Object3d*>& objects) {
+    // フルパスを生成
+    const std::string fullpath = kDefaultBaseDirectory + "/" + fileName + ".json";
 
+    // ファイルストリームを作成
+    std::ifstream file;
+
+    // ファイルを開く
+    file.open(fullpath);
+    // ファイルオープン失敗をチェック
+    if (file.fail()) {
+        assert(0);
+    }
+
+    // JSONデータを格納する変数
+    nlohmann::json deserialized;
+
+    // ファイルからJSONデータを読み込む
+    file >> deserialized;
+
+    // JSONデータの形式をチェック
+    assert(deserialized.is_object());
+    assert(deserialized.contains("scenes"));
+
+    // シーンを探索して目的のシーンを見つける
+    nlohmann::json selectedScene;
+    bool sceneFound = false;
+
+    for (auto& scene : deserialized["scenes"]) {
+        if (scene.contains("type") && scene["type"] == sceneType) {
+            selectedScene = scene;
+            sceneFound = true;
+            break;
+        }
+    }
+
+    // 指定されたシーンが見つからない場合はエラー
+    assert(sceneFound);
+
+    // レベルデータを格納するインスタンスを生成
+    LevelData* levelData = new LevelData();
+
+    // シーン内のオブジェクトを処理
+    for (auto& object : selectedScene["objects"]) {
+        assert(object.contains("type"));
+
+        // オブジェクトの種別を取得
+        std::string type = object["type"].get<std::string>();
+
+        // MESHオブジェクトの場合
+        if (type == "MESH") {
+            levelData->objects.emplace_back(LevelData::ObjectData{});
+            LevelData::ObjectData& objectData = levelData->objects.back();
+
+            if (object.contains("file_name")) {
+                objectData.filename = object["file_name"];
+            }
+
+            // トランスフォームのパラメータを読み込む
+            auto& transform = object["transform"];
+            objectData.transform.translate.x = (float)transform["translation"][0];
+            objectData.transform.translate.y = (float)transform["translation"][2];
+            objectData.transform.translate.z = (float)transform["translation"][1];
+            objectData.transform.rotate.x = -(float)transform["rotation"][0];
+            objectData.transform.rotate.y = -(float)transform["rotation"][2];
+            objectData.transform.rotate.z = -(float)transform["rotation"][1];
+            objectData.transform.scale.x = (float)transform["scaling"][0];
+            objectData.transform.scale.y = (float)transform["scaling"][1];
+            objectData.transform.scale.z = (float)transform["scaling"][2];
+
+            // モデルをロード
+            ModelManager::GetInstance()->LoadModel("Resources/game/", objectData.filename + ".obj");
+        }
+
+        // LIGHTオブジェクトなど他の種別に対応する場合、ここに追加
+    }
+
+    // オブジェクトを生成し、配置する
+    for (auto& objectData : levelData->objects) {
+        Object3d* newObject3d = new Object3d();
+        newObject3d->Init();
+        newObject3d->SetModel(objectData.filename + ".obj");
+        newObject3d->SetTransform(objectData.transform);
+        objects.push_back(newObject3d);
+    }
+}
 
 /// <summary>
 /// JSONファイルを読み込み、番号付きのオブジェクトを初期化する関数
