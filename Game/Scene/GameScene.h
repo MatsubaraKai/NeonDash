@@ -43,6 +43,7 @@ private:
     void InitializeData();
     void InitializeParticles();
     void InitStar();
+    void InitItem();
 
 
     // Update methods
@@ -77,6 +78,7 @@ private:
     void UpdateTitleScene(const Vector3& playerPos,int sceneTime);
 
     void StarSetting(const Vector3& playerPos);
+    void ItemSetting(const Vector3& playerPos);
 
     void ClearMode();
 
@@ -85,7 +87,7 @@ private:
     void MoveInCircle(Vector3& FloorPos, float deltaTime, float radius,
         const Vector3 centerPos, float& angle, float speed, int mode);
     // Draw methods
-    void DrawConeObjects();
+    void DrawObjects();
     void DrawTitleTextObjects();
     void DrawTitleNumberObjects();
     void DrawSpecialObjects();
@@ -141,9 +143,7 @@ private:
     // Scene state variables
     int sceneTime = 0;
     int sceneTime1 = 0;
-    int selectedIndex1 = 0;
-    int selectedIndex2 = 0;
-    int selectedIndex3 = 0;
+    int selectedIndex[4] = { 0,0,0,0 };
     int portal = 0;
    
     bool effect = false;
@@ -181,8 +181,11 @@ private:
     std::vector<Object3d*> NumberObject_;
 
     Vector3 center = { 0.0f, 0.0f, -15.0f };
+    Vector3 Itemcenter = { 0.0f, 3.2f, -15.0f };
     float angle = 0.0f;
+    float Itemangle = 0.0f;
     float deltatime = 0.1f;
+    float Itemdeltatime = -0.2f;
     // インデックスを定義
     enum ParticleType {
         FLOOR,
@@ -271,6 +274,7 @@ private:
         GAMETENQ,
         POSITION,
         STAR,
+        ITEM,
         TEXTURE_COUNT // テクスチャの総数
     };
 
@@ -282,7 +286,7 @@ private:
         TIMECOUNT,
         TIMECOUNT2,
         FIREWORK,
-        GETSTAR,
+        GETSE,
         AUDIO_COUNT // オーディオの総数
     };
 

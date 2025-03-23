@@ -79,6 +79,8 @@ void GameScene::Update() {
 		StarSetting(playerPos);
 		StarCountNum();
 	}
+	//Itemの処理
+	ItemSetting(playerPos);
 	// シーンタイムに応じた移動
 	MoveConeObjects(sceneTime);
 	// ステージタイムのモデル設定
@@ -114,7 +116,7 @@ void GameScene::Update() {
 void GameScene::Draw()
 {
 	// 各種オブジェクトの描画
-	DrawConeObjects();
+	DrawObjects();
 	DrawTitleTextObjects();
 	DrawTitleNumberObjects();
 	DrawSpecialObjects();
@@ -172,6 +174,7 @@ void GameScene::LoadTextures()
 	textureHandles[TITLETENQ] = TextureManager::StoreTexture("Resources/game/world.png");
 	textureHandles[GAMETENQ] = TextureManager::StoreTexture("Resources/game/world2.png");
 	textureHandles[STAR] = TextureManager::StoreTexture("Resources/game/star.png");
+	textureHandles[ITEM] = TextureManager::StoreTexture("Resources/game/item.png");
 	textureHandles[POSITION] = TextureManager::StoreTexture("Resources/game/position.png");
 }
 
@@ -197,7 +200,7 @@ void GameScene::LoadAudio()
 	audioHandle[TIMECOUNT] = Audio::SoundLoadWave("Resources/game/Audio/timecount.wav");
 	audioHandle[TIMECOUNT2] = Audio::SoundLoadWave("Resources/game/Audio/timecount2.wav");
 	audioHandle[FIREWORK] = Audio::SoundLoadWave("Resources/game/Audio/firework.wav");
-	audioHandle[GETSTAR] = Audio::SoundLoadWave("Resources/game/Audio/GetSE.wav");
+	audioHandle[GETSE] = Audio::SoundLoadWave("Resources/game/Audio/GetSE.wav");
 
 }
 
@@ -208,6 +211,7 @@ void GameScene::InitializeData()
 		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "TitleScene", ConeObject_, camera);
 		Loader::LoadJsonFileText("Resources", "TitleText", TextObject_);
 		Loader::LoadJsonFileNumber("Resources", "TitleNumber", NumberObject_);
+		Loader::LoadAllItemJsonFile("Resources", "AllStageItem", "TitleScene", ItemObject_);
 		Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), audioHandle[BGM], true, 0.05f);
 		GameRoop = true;
 	}
@@ -386,12 +390,14 @@ void GameScene::HandleSceneTransition() {
 		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "TitleScene", ConeObject_, camera);
 		Loader::LoadJsonFileText("Resources", "TitleText", TextObject_);
 		Loader::LoadJsonFileNumber("Resources", "TitleNumber", NumberObject_);
+		Loader::LoadAllItemJsonFile("Resources", "AllStageItem","TitleScene",ItemObject_);
 		Resize();
 		nowStage = 0;
 		portal = 0;
 		fade->SetTexture(textureHandles[FADE]);
 		fade->StartFadeOut();
 		fade->SetAlpha(0.0f);
+		InitItem();
 		isPreview = true;
 	}
 	else if (isDemo) {
@@ -683,20 +689,30 @@ void GameScene::UpdateObjects() {
 			obj->Update();
 		}
 	}
+
 	for (auto& obj : NumberObject_) obj->Update();
+
 	for (auto& obj : StarObject_) {
 		if ((obj)->isVisible) {
 			obj->Update();
 			obj->worldTransform_.rotation_.y += 0.02f;
 		}
-	} 
+	}
+	for (auto& obj : ItemObject_) {
+		if ((obj)->isVisible) {
+			obj->Update();
+			obj->worldTransform_.rotation_.z -= 0.01f;
+			obj->worldTransform_.rotation_.y += 0.018f;
+			obj->worldTransform_.rotation_.z += 0.022f;
+		}
+	}
 	TenQOBJ->Update();
 	PositionOBJ->Update();
 }
 
 ///Draw///
-// コーンオブジェクトの描画
-void GameScene::DrawConeObjects()
+// オブジェクトの描画
+void GameScene::DrawObjects()
 {
 	for (auto& cone : ConeObject_) {
 		if (cone->isVisible) {
@@ -706,6 +722,11 @@ void GameScene::DrawConeObjects()
 	for (auto& star : StarObject_) {
 		if (star->isVisible) {
 			star->Draw(textureHandles[STAR], camera);
+		}
+	}
+	for (auto& item : ItemObject_) {
+		if (item->isVisible) {
+			item->Draw(textureHandles[ITEM], camera);
 		}
 	}
 }
@@ -855,6 +876,12 @@ void GameScene::InitStar() {
 	}
 }
 
+void GameScene::InitItem() {
+	for (auto& item : ItemObject_) {
+		item->isVisible = true;
+	}
+}
+
 void GameScene::Remake() {
 	for (auto object : ConeObject_) {
 		delete object;  // メモリの解放
@@ -868,10 +895,14 @@ void GameScene::Remake() {
 	for (auto object : NumberObject_) {
 		delete object;  // メモリの解放
 	}
+	for (auto object : ItemObject_) {
+		delete object;
+	}
 	ConeObject_.clear(); // コンテナを空にする
 	StarObject_.clear(); // コンテナを空にする
 	TextObject_.clear(); // コンテナを空にする
 	NumberObject_.clear(); // コンテナを空にする
+	ItemObject_.clear(); // コンテナを空にする
 }
 
 
@@ -932,6 +963,7 @@ void GameScene::MoveConeObjects(int sceneTime) {
 		MoveInCircle(ConeObject_[19]->worldTransform_.translation_, deltatime, 100.0f, center, angle, 0.01f, 0);
 		MoveInCircle(ConeObject_[20]->worldTransform_.translation_, deltatime, 110.0f, center, angle, 0.01f, 1);
 		MoveInCircle(ConeObject_[21]->worldTransform_.translation_, deltatime, 110.0f, center, angle, 0.01f, 2);
+		MoveInCircle(ItemObject_[0]->worldTransform_.translation_, Itemdeltatime, 30.0f, Itemcenter, Itemangle, 0.01f, 0);
 
 		if (firstPhase) {
 			ApplyLerp(ConeObject_[17]->worldTransform_.translation_.y, 60.0f, 0.034f);
@@ -1076,8 +1108,39 @@ void GameScene::StarSetting(const Vector3& playerPos) {
 		}
 	}
 	if (isGetStar) {
-		Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), audioHandle[GETSTAR], false, 1.0f);
+		Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), audioHandle[GETSE], false, 1.0f);
 		StarCount[nowStage - 1]--;
+	}
+}
+
+void GameScene::ItemSetting(const Vector3& playerPos) {
+	for (size_t i = 0; i < ItemObject_.size(); i++) {
+		if (ItemObject_[i]->isVisible) {
+			// オブジェクトの座標とサイズを取得
+			Vector3 starPos = ItemObject_[i]->worldTransform_.translation_;
+			Vector3 starSize = ItemObject_[i]->worldTransform_.scale_;
+
+			// プレイヤーがオブジェクトに当たっているか判定
+			if (playerPos.x >= starPos.x - starSize.x - 2.0f &&
+				playerPos.x <= starPos.x + starSize.x + 2.0f &&
+				playerPos.z >= starPos.z - starSize.z - 2.0f &&
+				playerPos.z <= starPos.z + starSize.z + 2.0f &&
+				playerPos.y >= starPos.y + starSize.y - 5.0f &&
+				playerPos.y <= starPos.y + starSize.y + 5.0f) {
+				isGetItem = true;
+				ItemObject_[i]->isVisible = false;  // 該当オブジェクトの描画を停止
+				break;  // 判定を終了
+			}
+			else {
+				isGetItem = false;
+			}
+		}
+		else {
+			isGetItem = false;
+		}
+	}
+	if (isGetItem) {
+		Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), audioHandle[GETSE], false, 1.0f);
 	}
 }
 
@@ -1121,7 +1184,7 @@ void GameScene::MoveInCircle(Vector3& FloorPos, float deltaTime, float radius,
 	const Vector3 centerPos, float& angle, float speed, int mode) {
 	// 角度を更新（常に通常回転）
 	angle += speed * deltaTime;
-	
+
 
 	// 角度を 0～2π の範囲に制限
 	if (angle > DirectX::XM_2PI) {
@@ -1163,25 +1226,30 @@ void GameScene::DisplayDebugInfo(const Vector3& playerPos) {
 	ImGui::Text("On Floor: %d", isOnFloor);
 	ImGui::End();
 	ImGui::Begin("isOnFloor");
-	ImGui::SliderInt("Select ConeModel Index", &selectedIndex1, 0, static_cast<int>(ConeObject_.size()) - 1);
-	ImGui::SliderInt("Select StarModel Index", &selectedIndex2, 0, static_cast<int>(StarObject_.size()) - 1);
-	ImGui::SliderInt("Select TextModel Index", &selectedIndex3, 0, static_cast<int>(TextObject_.size()) - 1);
+	ImGui::SliderInt("Select ConeModel Index", &selectedIndex[0], 0, static_cast<int>(ConeObject_.size()) - 1);
+	ImGui::SliderInt("Select StarModel Index", &selectedIndex[1], 0, static_cast<int>(StarObject_.size()) - 1);
+	ImGui::SliderInt("Select TextModel Index", &selectedIndex[2], 0, static_cast<int>(TextObject_.size()) - 1);
+	ImGui::SliderInt("Select ItemModel Index", &selectedIndex[3], 0, static_cast<int>(ItemObject_.size()) - 1);
 	ImGui::Text("OnFloor : %d", isOnFloor);
 	ImGui::Text("GetStar : %d", isGetStar);
 	ImGui::Text("Player Pos : %f %f %f", playerPos.x, playerPos.y, playerPos.z);
 	ImGui::End();
 	
 	if (ConeObject_.size() > 0) {
-		std::string label1 = "JSONConemodel" + std::to_string(selectedIndex1);
-		ConeObject_[selectedIndex1]->ModelDebug(label1.c_str());
+		std::string label1 = "JSONConemodel" + std::to_string(selectedIndex[0]);
+		ConeObject_[selectedIndex[0]]->ModelDebug(label1.c_str());
 	}
 	if (StarObject_.size() > 0) {
-		std::string label2 = "JSONStarmodel" + std::to_string(selectedIndex2);
-		StarObject_[selectedIndex2]->ModelDebug(label2.c_str());
+		std::string label2 = "JSONStarmodel" + std::to_string(selectedIndex[1]);
+		StarObject_[selectedIndex[1]]->ModelDebug(label2.c_str());
 	}
 	if (TextObject_.size() > 0) {
-		std::string label3 = "JSONTextmodel" + std::to_string(selectedIndex3);
-		TextObject_[selectedIndex3]->ModelDebug(label3.c_str());
+		std::string label3 = "JSONTextmodel" + std::to_string(selectedIndex[2]);
+		TextObject_[selectedIndex[2]]->ModelDebug(label3.c_str());
+	}
+	if (ItemObject_.size() > 0) {
+		std::string label4 = "JSONItemmodel" + std::to_string(selectedIndex[3]);
+		ItemObject_[selectedIndex[3]]->ModelDebug(label4.c_str());
 	}
 
 	for (size_t i = 0; i < ConeObject_.size() - 1; i++) {
@@ -1236,14 +1304,15 @@ void GameScene::ImguiDebug() {
 	ImGui::Text("previousIsPreview %d", previousIsPreview);
 	if (nowStage != 0) {
 		ImGui::Text("starcount %d", StarCount[nowStage - 1]);
-		ImGui::Text("isvisible: %d", StarObject_[selectedIndex2]->isVisible);
+		ImGui::Text("isvisible: %d", StarObject_[selectedIndex[1]]->isVisible);
 		for (size_t i = 0; i < ConeObject_.size(); ++i) {
 			ImGui::Text("Coneisvisible: %d", ConeObject_[i]->isVisible);
 		}
 	}
 	ImGui::Text("isgetstar %d", isGetStar);
 	ImGui::Text("time %d%d:%d%d", timer.elapsedTensOfMinutes(),timer.elapsedMinutesOnly(),timer.elapsedTensOfSeconds(),timer.elapsedSecondsOnly());
-	ImGui::Text("size %d", previousPos.size());
+	ImGui::Text("Objetsize %d", previousPos.size());
+	ImGui::Text("isGetItem %d",isGetItem);
 	ImGui::End();
 }
 
