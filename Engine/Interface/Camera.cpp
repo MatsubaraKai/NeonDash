@@ -92,8 +92,8 @@ void Camera::HandleGamepadMovement(int menucount)
                 float inputMagnitude = Length(moveLeftStick);
                 if (inputMagnitude > leftStickDeadZone)
                 {
-                    moveLeftStick.x *= PlayerSpeed;
-                    moveLeftStick.z *= PlayerSpeed;
+                    moveLeftStick.x *= baseSpeed;
+                    moveLeftStick.z *= baseSpeed;
                 }
             }
 
