@@ -1,7 +1,7 @@
 {
   "scenes": [
     {
-      "type": "DemoScene",
+      "type": "TitleScene",
       "objects": [
         {
           "type": "MESH",
@@ -23,7 +23,7 @@
               1.0
             ]
           },
-          "file_name": "star"
+          "file_name": "item"
         },
 
         {
@@ -46,7 +46,7 @@
               1.0
             ]
           },
-          "file_name": "star"
+          "file_name": "item"
         }
       ]
     },
@@ -75,7 +75,7 @@
               1.0
             ]
           },
-          "file_name": "star"
+          "file_name": "item"
         },
 
         {
@@ -98,7 +98,7 @@
               1.0
             ]
           },
-          "file_name": "star"
+          "file_name": "item"
         },
 
         {
@@ -121,7 +121,7 @@
               1.0
             ]
           },
-          "file_name": "star"
+          "file_name": "item"
         }
       ]
     },
@@ -151,7 +151,7 @@
               1.0
             ]
           },
-          "file_name": "star"
+          "file_name": "item"
         },
 
         {
@@ -174,7 +174,7 @@
               1.0
             ]
           },
-          "file_name": "star"
+          "file_name": "item"
         },
 
         {
@@ -197,7 +197,7 @@
               1.0
             ]
           },
-          "file_name": "star"
+          "file_name": "item"
         },
 
         {
@@ -220,7 +220,7 @@
               1.0
             ]
           },
-          "file_name": "star"
+          "file_name": "item"
         }
       ]
     },
@@ -251,7 +251,7 @@
               1.0
             ]
           },
-          "file_name": "star"
+          "file_name": "item"
         },
 
         {
@@ -274,7 +274,7 @@
               1.0
             ]
           },
-          "file_name": "star"
+          "file_name": "item"
         },
 
         {
@@ -297,7 +297,7 @@
               1.0
             ]
           },
-          "file_name": "star"
+          "file_name": "item"
         },
 
         {
@@ -320,7 +320,7 @@
               1.0
             ]
           },
-          "file_name": "star"
+          "file_name": "item"
         },
 
         {
@@ -343,7 +343,7 @@
               1.0
             ]
           },
-          "file_name": "star"
+          "file_name": "item"
         }
       ]
     }
