@@ -283,7 +283,7 @@ private:
         TIMECOUNT2,
         FIREWORK,
         GETSTAR,
-        AUDIO_COUNT
+        AUDIO_COUNT // オーディオの総数
     };
 
     std::array<uint32_t, AUDIO_COUNT> audioHandle;
