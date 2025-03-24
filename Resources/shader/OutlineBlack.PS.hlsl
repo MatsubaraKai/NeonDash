@@ -54,34 +54,34 @@ struct PixelShaderOutput
 
 PixelShaderOutput main(VertexShaderOutput input)
 {
-    uint width, height; // 1. uvStepSizeの算出
+    uint width, height;
     gTexture.GetDimensions(width, height);
     float2 uvStepSize = float2(1.0f / width, 1.0f / height);
     
-    float2 difference = float2(0.0f, 0.0f); // 縦横それぞれの畳み込みの結果を格納する
+    float2 difference = float2(0.0f, 0.0f);
     
     for (int x = 0; x < KenelSize; ++x)
     {
         for (int y = 0; y < KenelSize; ++y)
         {
-            // 3. 現在のtexcoordを算出
             float2 texcoord = input.texcoord.xy + kIndex3x3[x][y] * uvStepSize;
-            // 4. 色に1/9掛けて足す
             float3 fetchColor = gTexture.Sample(gSampler, texcoord).rgb;
-            // 輝度を使う
             float luminance = Luminance(fetchColor);
             difference.x += luminance * kPrewittHorizontalKernel[x][y];
             difference.y += luminance * kPrewittVerticalKernel[x][y];
         }
     }
     
-    // 変化の長さをウェイトとして合成
     float weight = length(difference);
-    weight = saturate(weight * 100.0f); // ウェイトを調整
+    weight = saturate(weight * 100.0f);
     
     PixelShaderOutput output;
-    // weightが大きいほど青く表示するようにしている
-    output.color.rgb = (1.0f - weight) * float3(0.0f, 0.7f, 1.0f); // 青色に変更
+    
+    // アウトラインは黒色
+    float4 outlineColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    
+    // アウトライン部分を黒色にし、それ以外を青色に設定する
+    output.color.rgb = lerp(outlineColor.rgb, float3(0.2f, 1.0f, 0.2f), weight);
     output.color.a = 1.0f;
   
     return output;

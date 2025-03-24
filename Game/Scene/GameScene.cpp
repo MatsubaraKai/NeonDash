@@ -358,9 +358,21 @@ void GameScene::UpdateEffects() {
 	effect = (sceneTime == 180);
 	effect2 = (sceneTime == 360);
 
-	if (effect) IPostEffectState::SetEffectNo(kOutlinePurple);
-	if (effect2) IPostEffectState::SetEffectNo(kOutlineBlue);
 
+
+	if (isGetItem) {
+		ignoreEffect = !ignoreEffect; // アイテムを取るたびに無効化をトグル
+		sceneTime = 179;
+	}
+
+	// エフェクト適用
+	if (!ignoreEffect) {
+		if (effect)  IPostEffectState::SetEffectNo(kOutlinePurple);
+		if (effect2) IPostEffectState::SetEffectNo(kOutlineBlue);
+	}
+	else {
+		IPostEffectState::SetEffectNo(kOutlineBlack);
+	}
 	if (nowStage != 0) {
 		if (sceneTime == 180 || sceneTime == 360)
 			Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), audioHandle[TIMECOUNT2], false, 1.0f);
@@ -701,7 +713,7 @@ void GameScene::UpdateObjects() {
 	for (auto& obj : ItemObject_) {
 		if ((obj)->isVisible) {
 			obj->Update();
-			obj->worldTransform_.rotation_.z -= 0.01f;
+			obj->worldTransform_.rotation_.x -= 0.01f;
 			obj->worldTransform_.rotation_.y += 0.018f;
 			obj->worldTransform_.rotation_.z += 0.022f;
 		}

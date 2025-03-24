@@ -158,6 +158,7 @@ private:
     bool isGetStar = false;
     bool isGetItem = false;
     bool isStart = false;
+    bool ignoreEffect = false; // 初期状態では無視しない
     // Camera and input
     Camera* camera = nullptr;
     Input* input = nullptr;
