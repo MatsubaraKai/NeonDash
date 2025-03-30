@@ -1,5 +1,4 @@
 ﻿#pragma once
-
 #include "IScene.h"
 #include "Triangle.h"
 #include "WorldTransform.h"
@@ -18,11 +17,29 @@
 #include "random"
 #include <vector>
 #include <string>
-
+#include "ImGuiCommon.h"
+#include "TextureManager.h"
+#include "ModelManager.h"
+#include "mathFunction.h"
+#include "PSOPostEffect.h"
+#include "Loader.h"
+#include "Audio.h"
+#include <iostream>
+#include <cmath>
 struct ParticleWorldTransformData {
     WorldTransform* transform;
     Vector3 translation;
 };
+
+struct SceneData {
+    std::string modelName;
+    std::string coneFile;
+    std::string starFile;
+    std::string textFile;
+    std::string fadeTexture;
+};
+
+extern std::map<std::string, SceneData> sceneTable;
 
 class GameScene : public IScene
 {
@@ -45,7 +62,8 @@ private:
     void InitStar();
     void InitItem();
 
-
+    void TransitionScene(const std::string& sceneName);
+    uint32_t GetTextureID(const std::string& textureName);
     // Update methods
     void UpdatePortalCollision(const Vector3& playerPos);
     void UpdateEffects();
@@ -86,6 +104,7 @@ private:
 
     void MoveInCircle(Vector3& FloorPos, float deltaTime, float radius,
         const Vector3 centerPos, float& angle, float speed, int mode);
+
     // Draw methods
     void DrawObjects();
     void DrawTitleTextObjects();

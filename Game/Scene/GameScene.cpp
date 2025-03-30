@@ -1,14 +1,5 @@
 ﻿#include "GameScene.h"
-#include "ImGuiCommon.h"
-#include "TextureManager.h"
-#include "ModelManager.h"
-#include "mathFunction.h"
-#include "PSOPostEffect.h"
-#include "Loader.h"
-#include "Audio.h"
-#include <iostream>
-#include <cmath>
-#include <DirectXMath.h>
+
 
 // 初期化関数
 void GameScene::Init()
@@ -177,7 +168,36 @@ void GameScene::LoadTextures()
 	textureHandles[ITEM] = TextureManager::StoreTexture("Resources/game/item.png");
 	textureHandles[POSITION] = TextureManager::StoreTexture("Resources/game/position.png");
 }
+uint32_t GameScene::GetTextureID(const std::string& textureName) {
+	static const std::unordered_map<std::string, TextureID> textureMap = {
+		{"FADE", FADE},
+		{"FADE2", FADE2},
+		{"FADE3", FADE3},
+		{"MENUMEDI", MENUMEDI},
+		{"MENUHIGH", MENUHIGH},
+		{"MENULOW", MENULOW},
+		{"WHITE", WHITE},
+		{"PARTICLERED", PARTICLERED},
+		{"PARTICLESTAR", PARTICLESTAR},
+		{"PARTICLEBLUE", PARTICLEBLUE},
+		{"PARTICLE3", PARTICLE3},
+		{"PARTICLE4", PARTICLE4},
+		{"BLUE", BLUE},
+		{"CONE", CONE},
+		{"GRID", GRID},
+		{"TITLETENQ", TITLETENQ},
+		{"GAMETENQ", GAMETENQ},
+		{"POSITION", POSITION},
+		{"STAR", STAR},
+		{"ITEM", ITEM}
+	};
 
+	auto it = textureMap.find(textureName);
+	if (it != textureMap.end()) {
+		return it->second;
+	}
+	return FADE; // デフォルトのテクスチャIDを返す
+}
 // モデルのロード
 void GameScene::LoadModels()
 {
@@ -391,92 +411,79 @@ void GameScene::UpdateEffects() {
 	}
 }
 
+std::map<std::string, SceneData> sceneTable = {
+	{"Title", {"world.obj", "TitleScene", "", "TitleText", "FADE"}},
+	{"Demo", {"world2.obj", "DemoScene", "AllStageStar", "DemoText", "FADE2"}},
+	{"Game1", {"world2.obj", "Scene1", "AllStageStar", "Stage1Text", "FADE2"}},
+	{"Game2", {"world2.obj", "Scene2", "AllStageStar", "Stage2Text", "FADE2"}},
+	{"Game3", {"world2.obj", "Scene3", "AllStageStar", "Stage3Text", "FADE2"}},
+};
+// シーン遷移
+void GameScene::TransitionScene(const std::string& sceneName) {
+
+	
+
+	if (sceneTable.find(sceneName) == sceneTable.end()) {
+		std::cerr << "Error: Scene '" << sceneName << "' not found in sceneTable!" << std::endl;
+		assert(false); // 強制クラッシュ (デバッグしやすくするため)
+	}
+
+	if (sceneTable.find(sceneName) == sceneTable.end()) return; // 存在しないシーンなら処理を中断
+
+	const SceneData& data = sceneTable.at(sceneName); // at() を使用
+
+	ImGui::Begin("Scene Transition");
+	ImGui::Text("DATA : %d", data.coneFile);
+	ImGui::Text("DATA : %d", data.starFile);
+	ImGui::Text("DATA : %d", data.textFile);
+	ImGui::Text("DATA : %d", data.fadeTexture);
+	ImGui::End();
+
+	Remake();
+	TenQOBJ->SetWorldTransform(GameTenQTransform);
+	TenQOBJ->SetModel(data.modelName);
+
+	Loader::LoadAllConeJsonFile("Resources", "AllStageCone", data.coneFile, ConeObject_, camera);
+	if (!data.starFile.empty()) {
+		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", data.starFile, StarObject_);
+	}
+	Loader::LoadJsonFileText("Resources", data.textFile, TextObject_);
+
+	Resize();
+	nowStage++;
+	portal = 0;
+	fade->SetTexture(textureHandles[GetTextureID(data.fadeTexture)]);
+	fade->StartFadeOut();
+	isPreview = true;
+}
+
+
+
 // シーン遷移処理
 void GameScene::HandleSceneTransition() {
 	if (isTitle || isStageClear) {
-		Remake();
+		TransitionScene("Title");
 		isTitle = false;
 		isStageClear = false;
-		TenQOBJ->SetWorldTransform(TitleTenQTransform);
-		TenQOBJ->SetModel("world.obj");
-		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "TitleScene", ConeObject_, camera);
-		Loader::LoadJsonFileText("Resources", "TitleText", TextObject_);
-		Loader::LoadJsonFileNumber("Resources", "TitleNumber", NumberObject_);
-		Loader::LoadAllItemJsonFile("Resources", "AllStageItem","TitleScene",ItemObject_);
-		Resize();
-		nowStage = 0;
-		portal = 0;
-		fade->SetTexture(textureHandles[FADE]);
-		fade->StartFadeOut();
-		fade->SetAlpha(0.0f);
-		InitItem();
-		isPreview = true;
 	}
 	else if (isDemo) {
-		Remake();
+		TransitionScene("Demo");
 		isDemo = false;
-		TenQOBJ->SetWorldTransform(GameTenQTransform);
-		TenQOBJ->SetModel("world2.obj");
-		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "DemoScene", ConeObject_, camera);
-		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "DemoScene", StarObject_);
-		Loader::LoadJsonFileText("Resources", "DemoText", TextObject_);
-		Resize();
-		FirstDemoFlag = true;
-		nowStage = 1;
-		portal = 0;
-		fade->SetTexture(textureHandles[FADE2]);
-		fade->StartFadeOut();
-		InitStar();
-		isPreview = true;
 	}
 	else if (isGame) {
-		Remake();
+		TransitionScene("Game1");
 		isGame = false;
-		TenQOBJ->SetWorldTransform(GameTenQTransform);
-		TenQOBJ->SetModel("world2.obj");
-		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "Scene1", ConeObject_, camera);
-		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "Scene1", StarObject_);
-		Loader::LoadJsonFileText("Resources", "Stage1Text", TextObject_);
-		Resize();
-		nowStage = 2;
-		portal = 0;
-		fade->SetTexture(textureHandles[FADE2]);
-		fade->StartFadeOut();
-		InitStar();
-		isPreview = true;
 	}
 	else if (isGame2) {
-		Remake();
+		TransitionScene("Game2");
 		isGame2 = false;
-		TenQOBJ->SetWorldTransform(GameTenQTransform);
-		TenQOBJ->SetModel("world2.obj");
-		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "Scene2", ConeObject_, camera);
-		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "Scene2", StarObject_);
-		Loader::LoadJsonFileText("Resources", "Stage2Text", TextObject_);
-		Resize();
-		nowStage = 3;
-		portal = 0;
-		fade->SetTexture(textureHandles[FADE2]);
-		fade->StartFadeOut();
-		InitStar();
-		isPreview = true;
 	}
 	else if (isGame3) {
-		Remake();
+		TransitionScene("Game3");
 		isGame3 = false;
-		TenQOBJ->SetWorldTransform(GameTenQTransform);
-		TenQOBJ->SetModel("world2.obj");
-		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "Scene3", ConeObject_, camera);
-		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "Scene3", StarObject_);
-		Loader::LoadJsonFileText("Resources", "Stage3Text", TextObject_);
-
-		Resize();
-		nowStage = 4;
-		portal = 0;
-		fade->SetTexture(textureHandles[FADE2]);
-		fade->StartFadeOut();
-		InitStar();
-		isPreview = true;
+	}
+	else {
+		std::cerr << "Error: No valid scene transition triggered." << std::endl;
 	}
 }
 
