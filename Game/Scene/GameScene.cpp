@@ -915,6 +915,8 @@ void GameScene::Remake() {
 	TextObject_.clear(); // コンテナを空にする
 	NumberObject_.clear(); // コンテナを空にする
 	ItemObject_.clear(); // コンテナを空にする
+	ignoreEffect = false;
+	IPostEffectState::SetEffectNo(kOutlineBlue);
 }
 
 
@@ -970,8 +972,11 @@ void GameScene::MoveConeObjects(int sceneTime) {
 	bool secondPhase = (sceneTime >= 180 && sceneTime < 360);
 
 	if (nowStage == 0) {//title
-		
-
+		if (isGetItem == true) {
+			for (int i = 1; i <= ConeObject_.size() - 1; i++) {
+				ConeObject_[i]->isVisible = !ConeObject_[i]->isVisible;
+			}
+		}
 		MoveInCircle(ConeObject_[19]->worldTransform_.translation_, deltatime, 100.0f, center, angle, 0.01f, 0);
 		MoveInCircle(ConeObject_[20]->worldTransform_.translation_, deltatime, 110.0f, center, angle, 0.01f, 1);
 		MoveInCircle(ConeObject_[21]->worldTransform_.translation_, deltatime, 110.0f, center, angle, 0.01f, 2);
@@ -1325,6 +1330,7 @@ void GameScene::ImguiDebug() {
 	ImGui::Text("time %d%d:%d%d", timer.elapsedTensOfMinutes(),timer.elapsedMinutesOnly(),timer.elapsedTensOfSeconds(),timer.elapsedSecondsOnly());
 	ImGui::Text("Objetsize %d", previousPos.size());
 	ImGui::Text("isGetItem %d",isGetItem);
+	ImGui::Text("ignoreEffect %d", ignoreEffect);
 	ImGui::End();
 }
 
