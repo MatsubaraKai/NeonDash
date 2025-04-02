@@ -228,10 +228,11 @@ void GameScene::LoadAudio()
 void GameScene::InitializeData()
 {
 	if (!GameRoop) {
-		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "TitleScene", ConeObject_, camera);
+		TransitionScene("Title");
+	/*	Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "TitleScene", ConeObject_, camera);
 		Loader::LoadJsonFileText("Resources", "TitleText", TextObject_);
 		Loader::LoadJsonFileNumber("Resources", "TitleNumber", NumberObject_);
-		Loader::LoadAllItemJsonFile("Resources", "AllStageItem", "TitleScene", ItemObject_);
+		Loader::LoadAllItemJsonFile("Resources", "AllStageItem", "TitleScene", ItemObject_);*/
 		Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), audioHandle[BGM], true, 0.05f);
 		GameRoop = true;
 	}
@@ -421,23 +422,21 @@ std::map<std::string, SceneData> sceneTable = {
 // シーン遷移
 void GameScene::TransitionScene(const std::string& sceneName) {
 
-	
-
 	if (sceneTable.find(sceneName) == sceneTable.end()) {
-		std::cerr << "Error: Scene '" << sceneName << "' not found in sceneTable!" << std::endl;
-		assert(false); // 強制クラッシュ (デバッグしやすくするため)
+		std::cerr << "Error: Scene '" << sceneName << "' not found in sceneTable" << std::endl;
+		assert(false); // 強制クラッシュ
 	}
 
 	if (sceneTable.find(sceneName) == sceneTable.end()) return; // 存在しないシーンなら処理を中断
 
 	const SceneData& data = sceneTable.at(sceneName); // at() を使用
 
-	ImGui::Begin("Scene Transition");
+	/*ImGui::Begin("Scene Transition");
 	ImGui::Text("DATA : %d", data.coneFile);
 	ImGui::Text("DATA : %d", data.starFile);
 	ImGui::Text("DATA : %d", data.textFile);
 	ImGui::Text("DATA : %d", data.fadeTexture);
-	ImGui::End();
+	ImGui::End();*/
 
 	Remake();
 	TenQOBJ->SetWorldTransform(GameTenQTransform);
