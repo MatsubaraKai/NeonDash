@@ -482,9 +482,6 @@ void GameScene::HandleSceneTransition() {
 		TransitionScene("Game3");
 		isGame3 = false;
 	}
-	else {
-		std::cerr << "Error: No valid scene transition triggered." << std::endl;
-	}
 }
 
 // ステージタイムのモデル設定
