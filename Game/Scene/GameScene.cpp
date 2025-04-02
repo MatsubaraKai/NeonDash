@@ -424,12 +424,12 @@ void GameScene::TransitionScene(const std::string& sceneName) {
 
 	if (sceneTable.find(sceneName) == sceneTable.end()) {
 		std::cerr << "Error: Scene '" << sceneName << "' not found in sceneTable" << std::endl;
-		assert(false); // 強制クラッシュ
+		assert(false);
 	}
 
 	if (sceneTable.find(sceneName) == sceneTable.end()) return; // 存在しないシーンなら処理を中断
 
-	const SceneData& data = sceneTable.at(sceneName); // at() を使用
+	const SceneData& data = sceneTable.at(sceneName);
 
 	/*ImGui::Begin("Scene Transition");
 	ImGui::Text("DATA : %d", data.coneFile);
