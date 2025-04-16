@@ -325,6 +325,32 @@ void GameScene::InitializeParticles()
 	particles[CLEAR]->Initialize(ParticleEmitter_);
 }
 
+void GameScene::InitEffects() {
+	std::mt19937 rng(std::random_device{}());
+	std::uniform_real_distribution<float> posDist(-20.0f, 20.0f);  // 位置用
+	std::uniform_real_distribution<float> scaleDist(0.5f, 2.0f);   // スケール用
+
+	const int numEffects = 100;
+
+	for (int i = 0; i < numEffects; ++i) {
+		FlowEffectObject effect;
+		effect.Init();
+		effect.SetModel("Resources/game/cone.obj");
+
+		// ランダム位置とスケール
+		Vector3 pos = { posDist(rng), posDist(rng), posDist(rng) };
+		Vector3 scale = { scaleDist(rng), scaleDist(rng), scaleDist(rng) };
+
+		effect.SetPosition(pos);
+		effect.SetScale(scale);
+
+		// 任意で色も変える
+		effect.SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+
+		effects.push_back(effect);
+	}
+}
+
 ///Update///
 // ポータル判定
 void GameScene::UpdatePortalCollision(const Vector3& playerPos) {
@@ -720,6 +746,10 @@ void GameScene::UpdateObjects() {
 	}
 	TenQOBJ->Update();
 	PositionOBJ->Update();
+	for (auto& effect : effects) {
+		effect.Update();
+		effect.Draw(textureHandles[CONE], camera);
+	}
 }
 
 ///Draw///

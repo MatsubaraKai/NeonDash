@@ -18,6 +18,7 @@
 #include "random"
 #include <vector>
 #include <string>
+#include "FlowEffectObject.h"
 
 struct ParticleWorldTransformData {
     WorldTransform* transform;
@@ -44,6 +45,7 @@ private:
     void InitializeParticles();
     void InitStar();
     void InitItem();
+    void InitEffects();
 
 
     // Update methods
@@ -180,6 +182,7 @@ private:
     std::vector<Object3d*> ItemObject_;
     std::vector<Object3d*> TextObject_;
     std::vector<Object3d*> NumberObject_;
+    std::vector<FlowEffectObject> effects;
 
     Vector3 center = { 0.0f, 0.0f, -15.0f };
     Vector3 Itemcenter = { 0.0f, 3.2f, -15.0f };
