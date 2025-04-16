@@ -75,7 +75,7 @@ void GameScene::Update() {
 		TenQOBJ->worldTransform_.rotation_.y += 0.0005f;
 	}
 	else {
-		TenQOBJ->worldTransform_.rotation_.x += 0.001f;
+		TenQOBJ->worldTransform_.rotation_.x += 0.003f;
 		StarSetting(playerPos);
 		StarCountNum();
 	}
@@ -170,7 +170,7 @@ void GameScene::LoadTextures()
 	textureHandles[MENUHIGH] = TextureManager::StoreTexture("Resources/game/menuhigh.png");
 	textureHandles[MENULOW] = TextureManager::StoreTexture("Resources/game/menulow.png");
 	textureHandles[GRID] = TextureManager::StoreTexture("Resources/cian.png");
-	textureHandles[CONE] = TextureManager::StoreTexture("Resources/game/cone.png");
+	textureHandles[CONE] = TextureManager::StoreTexture("Resources/game/load.png");
 	textureHandles[TITLETENQ] = TextureManager::StoreTexture("Resources/game/world.png");
 	textureHandles[GAMETENQ] = TextureManager::StoreTexture("Resources/game/world2.png");
 	textureHandles[STAR] = TextureManager::StoreTexture("Resources/game/star.png");
