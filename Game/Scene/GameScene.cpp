@@ -333,6 +333,7 @@ void GameScene::InitEffects() {
 	const int numEffects = 100;
 
 	for (int i = 0; i < numEffects; ++i) {
+		
 		FlowEffectObject effect;
 		effect.Init();
 		effect.SetModel("Resources/game/cone.obj");
@@ -343,9 +344,6 @@ void GameScene::InitEffects() {
 
 		effect.SetPosition(pos);
 		effect.SetScale(scale);
-
-		// 任意で色も変える
-		effect.SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
 
 		effects.push_back(effect);
 	}
