@@ -144,6 +144,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Interface\Camera.cpp" />
     <ClCompile Include="Engine\Interface\Heap\SRVManager.cpp" />
     <ClCompile Include="Engine\2d\PostEffect\Effect\Fog.cpp" />
+    <ClCompile Include="Engine\3d\FlowEffectObject.cpp" />
+    <ClCompile Include="Engine\3d\FlowEffectManager.cpp" />
     <ClCompile Include="Game\Utilty\Loader.cpp" />
     <ClCompile Include="Engine\Interface\Mesh.cpp" />
     <ClCompile Include="Engine\Interface\PSO\PSOAnimationModel.cpp" />
@@ -224,6 +226,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Interface\Camera.h" />
     <ClInclude Include="Engine\Interface\Heap\SRVManager.h" />
     <ClInclude Include="Engine\2d\PostEffect\Effect\Fog.h" />
+    <ClInclude Include="Engine\3d\FlowEffectObject.h" />
+    <ClInclude Include="Engine\3d\FlowEffectManager.h" />
     <ClInclude Include="Game\Utilty\Loader.h" />
     <ClInclude Include="Engine\Interface\Mesh.h" />
     <ClInclude Include="Engine\Interface\PSO\PSOAnimationModel.h" />

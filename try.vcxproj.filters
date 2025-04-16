@@ -308,6 +308,8 @@
     <ClCompile Include="Engine\2d\PostEffect\Effect\Vignette.cpp">
       <Filter>Engine\2d\PostEffect\Effect</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\3d\FlowEffectObject.cpp" />
+    <ClCompile Include="Engine\3d\FlowEffectManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Interface\DirectXCommon.h">
@@ -578,6 +580,8 @@
     <ClInclude Include="test.h">
       <Filter>Application\scene</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\3d\FlowEffectObject.h" />
+    <ClInclude Include="Engine\3d\FlowEffectManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="imgui\imgui.ini">

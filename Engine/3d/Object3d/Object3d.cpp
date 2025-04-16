@@ -100,6 +100,30 @@ void Object3d::Release()
 
 }
 
+void Object3d::SetPosition(const Vector3& pos) {
+	position_ = pos;
+}
+
+Vector3 Object3d::GetPosition() const {
+	return position_;
+}
+
+void Object3d::SetRotation(const Vector3& rot) {
+	rotation_ = rot;
+}
+
+Vector3 Object3d::GetRotation() const {
+	return rotation_;
+}
+
+void Object3d::SetScale(const Vector3& scale) {
+	scale_ = scale;
+}
+
+Vector3 Object3d::GetScale() const {
+	return scale_;
+}
+
 void Object3d::SetModel(const std::string& filePath)
 {
 	model_ = ModelManager::GetInstance()->FindModel(filePath);
