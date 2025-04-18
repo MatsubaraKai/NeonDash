@@ -10,7 +10,7 @@ struct FlowObject {
     float maxLifetime = 100.0f;
 
     Vector3 rotationSpeed = { 0.0f, 0.05f, 0.0f };
-    Vector3 baseScale = { 1.0f, 1.0f, 1.0f };
+    Vector3 baseScale = { 5.0f, 5.0f, 5.0f };
     FlowObject(std::unique_ptr<Object3d> o, float maxLife)
         : obj(std::move(o)), maxLifetime(maxLife), lifetime(0.0f) {}
 };

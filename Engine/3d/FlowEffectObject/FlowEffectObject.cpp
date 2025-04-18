@@ -17,7 +17,7 @@ void FlowEffectObject::Init() {
 }
 
 void FlowEffectObject::Update() {
-    spawnTimer_ += 1.0f / 30.0f; // 仮に30FPS前提
+    spawnTimer_ += 1.0f / 10.0f; // 仮に30FPS前提
 
     // 一定間隔でオブジェクト生成
     if (spawnTimer_ >= spawnInterval_) {
@@ -31,7 +31,7 @@ void FlowEffectObject::Update() {
 
         WorldTransform wt = obj.obj->GetWorldTransform();
 
-        wt.translation_.z -= 0.3f; // Z方向移動
+        wt.translation_.z -= 0.8f; // Z方向移動
         wt.rotation_ += obj.rotationSpeed; // ランダムな回転速度で回転
 
         float lifeRatio = 1.0f - (obj.lifetime / obj.maxLifetime);
@@ -61,11 +61,11 @@ void FlowEffectObject::SpawnObject() {
     newObj->SetModel("cube.obj");
 
     // ランダム値
-    float randX = RandomFloat(-50.0f, 50.0f); // X方向にランダム位置
-    float randY = RandomFloat(-0.0f, 30.0f); // Y方向にランダム位置
-    float randZ = RandomFloat(100.0f, 200.0f); // Z方向（遠くから）
+    float randX = RandomFloat(-700.0f, 700.0f); // X方向にランダム位置
+    float randY = RandomFloat(-100.0f, 700.0f); // Y方向にランダム位置
+    float randZ = RandomFloat(500.0f, 750.0f); // Z方向（遠くから）
 
-    float randScale = RandomFloat(0.1f, 2.0f); // 大きさ
+    float randScale = RandomFloat(0.1f, 2.5f); // 大きさ
 
     float randRotX = RandomFloat(0.0f, 3.14f); // 初期回転
     float randRotY = RandomFloat(0.0f, 3.14f);
@@ -79,7 +79,7 @@ void FlowEffectObject::SpawnObject() {
 
     wt.UpdateMatrix();
     newObj->SetWorldTransform(wt);
-    FlowObject flowObj(std::move(newObj),10.0f);
+    FlowObject flowObj(std::move(newObj),30.0f);
     flowObj.rotationSpeed = { 0.01f, RandomFloat(0.01f, 0.1f), 0.01f }; // Y軸中心に
 
     objects_.emplace_back(std::move(flowObj));
@@ -90,8 +90,11 @@ void FlowEffectObject::Draw(uint32_t texture, Camera* camera) {
     int i = 0;
     for (auto& obj : objects_) {
         obj.obj->Draw(texture, camera);
+#ifdef _DEBUG
         std::string label = "DebugFlowModel" + std::to_string(i++);
         obj.obj->ModelDebug(label.c_str()); // ← インデックスでユニークに
+#endif
+
     }
 }
 

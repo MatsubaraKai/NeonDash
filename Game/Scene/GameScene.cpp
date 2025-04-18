@@ -1304,8 +1304,8 @@ void GameScene::DisplayDebugInfo(const Vector3& playerPos) {
 			isOnFloor = false;
 		}
 	}
-	flowEffect_.DebugImGui();
 	camera->CameraDebug();
+	flowEffect_.DebugImGui();
 #endif
 
 }
