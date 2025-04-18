@@ -3,6 +3,7 @@
 
 void FlowEffectObject::Init() {
     spawnTimer_ = 0.0f;
+    ModelManager::GetInstance()->LoadModel("Resources/game/", "star.obj");
     objects_.clear();
 }
 
@@ -43,20 +44,22 @@ void FlowEffectObject::Update() {
 void FlowEffectObject::SpawnObject() {
     std::unique_ptr<Object3d> newObj = std::make_unique<Object3d>();
     newObj->Init(); // 必要に応じて初期化処理
-    newObj->SetModel("cone.obj");
-    newObj->SetPosition({ 0.0f, 0.0f, -10.0f }); // 奥からスタート
+    newObj->SetModel("star.obj");
+    newObj->SetPosition({ 0.0f, 10.0f, -10.0f }); // 奥からスタート
     newObj->SetRotation({ 0.0f, 0.0f, 0.0f });
-    newObj->SetScale({ 1.0f, 1.0f, 1.0f });
+    newObj->SetScale({ 10.0f, 10.0f, 10.0f });
 
-    objects_.emplace_back(std::move(newObj), 5.0f); // 5秒で消える
-    
+    objects_.emplace_back(std::move(newObj), 10.0f); // 5秒で消える
+
 }
 
 
 void FlowEffectObject::Draw(uint32_t texture, Camera* camera) {
+    int i = 0;
     for (auto& obj : objects_) {
         obj.obj->Draw(texture, camera);
-        
+        std::string label = "DebugFlowModel" + std::to_string(i++);
+        obj.obj->ModelDebug(label.c_str()); // ← インデックスでユニークに
     }
 }
 
@@ -78,7 +81,7 @@ void FlowEffectObject::DebugImGui() {
         ImGui::Text("Lifetime: %.2f / %.2f", selected.lifetime, selected.maxLifetime);
 
         std::string label = "DebugModel" + std::to_string(selectedIndex);
-        selected.obj->ModelDebug(label.c_str()); // デバッグ表示（線画モードなど）
+        selected.obj->ModelDebug(label.c_str());
     }
 
     ImGui::End();

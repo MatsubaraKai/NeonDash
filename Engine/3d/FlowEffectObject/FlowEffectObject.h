@@ -2,6 +2,7 @@
 #include "Object3d.h"
 #include <vector>
 #include <memory>
+#include "ModelManager.h"
 
 struct FlowObject {
     std::unique_ptr<Object3d> obj;

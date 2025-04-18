@@ -102,6 +102,7 @@ void Object3d::Release()
 
 void Object3d::SetPosition(const Vector3& pos) {
 	position_ = pos;
+	worldTransform_.UpdateMatrix();
 }
 
 Vector3 Object3d::GetPosition() const {
@@ -110,6 +111,8 @@ Vector3 Object3d::GetPosition() const {
 
 void Object3d::SetRotation(const Vector3& rot) {
 	rotation_ = rot;
+	worldTransform_.UpdateMatrix();
+
 }
 
 Vector3 Object3d::GetRotation() const {
@@ -118,6 +121,8 @@ Vector3 Object3d::GetRotation() const {
 
 void Object3d::SetScale(const Vector3& scale) {
 	scale_ = scale;
+	worldTransform_.UpdateMatrix();
+
 }
 
 Vector3 Object3d::GetScale() const {
