@@ -11,12 +11,13 @@ float RandomFloat(float min, float max) {
 
 void FlowEffectObject::Init() {
     spawnTimer_ = 0.0f;
-    ModelManager::GetInstance()->LoadModel("Resources/game/", "star.obj");
+    ModelManager::GetInstance()->LoadModel("Resources/game/", "cube.obj");
     objects_.clear();
+
 }
 
 void FlowEffectObject::Update() {
-    spawnTimer_ += 1.0f / 60.0f; // 仮に60FPS前提
+    spawnTimer_ += 1.0f / 30.0f; // 仮に30FPS前提
 
     // 一定間隔でオブジェクト生成
     if (spawnTimer_ >= spawnInterval_) {
@@ -30,8 +31,16 @@ void FlowEffectObject::Update() {
 
         WorldTransform wt = obj.obj->GetWorldTransform();
 
-        wt.translation_.z += 0.1f; // Z方向移動
+        wt.translation_.z -= 0.3f; // Z方向移動
         wt.rotation_ += obj.rotationSpeed; // ランダムな回転速度で回転
+
+        float lifeRatio = 1.0f - (obj.lifetime / obj.maxLifetime);
+        lifeRatio = std::clamp(lifeRatio, 0.0f, 1.0f);
+
+        // 例: 2乗して減少速度をゆるやかに
+        float easedRatio = lifeRatio * lifeRatio;
+        wt.scale_ = obj.baseScale * easedRatio;
+
 
         wt.UpdateMatrix();
         obj.obj->SetWorldTransform(wt);
@@ -49,14 +58,14 @@ void FlowEffectObject::Update() {
 void FlowEffectObject::SpawnObject() {
     std::unique_ptr<Object3d> newObj = std::make_unique<Object3d>();
     newObj->Init();
-    newObj->SetModel("star.obj");
+    newObj->SetModel("cube.obj");
 
     // ランダム値
-    float randX = RandomFloat(-5.0f, 5.0f); // X方向にランダム位置
-    float randY = RandomFloat(5.0f, 15.0f); // Y方向にランダム位置
-    float randZ = RandomFloat(-20.0f, -10.0f); // Z方向（遠くから）
+    float randX = RandomFloat(-50.0f, 50.0f); // X方向にランダム位置
+    float randY = RandomFloat(-0.0f, 30.0f); // Y方向にランダム位置
+    float randZ = RandomFloat(100.0f, 200.0f); // Z方向（遠くから）
 
-    float randScale = RandomFloat(5.0f, 15.0f); // 大きさ
+    float randScale = RandomFloat(0.1f, 2.0f); // 大きさ
 
     float randRotX = RandomFloat(0.0f, 3.14f); // 初期回転
     float randRotY = RandomFloat(0.0f, 3.14f);
@@ -70,9 +79,7 @@ void FlowEffectObject::SpawnObject() {
 
     wt.UpdateMatrix();
     newObj->SetWorldTransform(wt);
-
-    // ランダムな回転速度も入れてFlowObjectを改造するのがおすすめ！
-    FlowObject flowObj(std::move(newObj), 10.0f);
+    FlowObject flowObj(std::move(newObj),10.0f);
     flowObj.rotationSpeed = { 0.01f, RandomFloat(0.01f, 0.1f), 0.01f }; // Y軸中心に
 
     objects_.emplace_back(std::move(flowObj));
@@ -100,9 +107,6 @@ void FlowEffectObject::DebugImGui() {
         ImGui::SliderInt("Selected", &selectedIndex, 0, static_cast<int>(objects_.size()) - 1);
 
         FlowObject& selected = objects_[selectedIndex];
-
-        Vector3 pos = selected.obj->GetPosition();
-        ImGui::Text("Position: X: %.2f, Y: %.2f, Z: %.2f", pos.x, pos.y, pos.z);
         ImGui::Text("Lifetime: %.2f / %.2f", selected.lifetime, selected.maxLifetime);
 
         std::string label = "DebugModel" + std::to_string(selectedIndex);

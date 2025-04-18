@@ -744,7 +744,7 @@ void GameScene::DrawObjects()
 			item->Draw(textureHandles[ITEM], camera);
 		}
 	}
-	flowEffect_.Draw(textureHandles[CONE], camera);
+	flowEffect_.Draw(textureHandles[GRID], camera);
 }
 
 // タイトルテキストの描画
