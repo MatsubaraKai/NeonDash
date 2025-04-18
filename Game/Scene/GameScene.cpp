@@ -170,7 +170,7 @@ void GameScene::LoadTextures()
 	textureHandles[MENUHIGH] = TextureManager::StoreTexture("Resources/game/menuhigh.png");
 	textureHandles[MENULOW] = TextureManager::StoreTexture("Resources/game/menulow.png");
 	textureHandles[GRID] = TextureManager::StoreTexture("Resources/cian.png");
-	textureHandles[CONE] = TextureManager::StoreTexture("Resources/game/load.png");
+	textureHandles[CONE] = TextureManager::StoreTexture("Resources/game/cone.png");
 	textureHandles[TITLETENQ] = TextureManager::StoreTexture("Resources/game/world.png");
 	textureHandles[GAMETENQ] = TextureManager::StoreTexture("Resources/game/world2.png");
 	textureHandles[STAR] = TextureManager::StoreTexture("Resources/game/star.png");
@@ -248,6 +248,8 @@ void GameScene::InitializeData()
 	{&GameScene3WorldTransformPa, PortalPosition[5]}
 	};
 
+	flowEffect_.Init();
+
 	for (auto& data : transforms) {
 		data.transform->Initialize();
 		data.transform->translation_ = data.translation;
@@ -323,30 +325,6 @@ void GameScene::InitializeParticles()
 	particles[STAGE2]->Initialize(ParticleEmitter_);
 	particles[STAGE3]->Initialize(ParticleEmitter_);
 	particles[CLEAR]->Initialize(ParticleEmitter_);
-}
-
-void GameScene::InitEffects() {
-	std::mt19937 rng(std::random_device{}());
-	std::uniform_real_distribution<float> posDist(-20.0f, 20.0f);  // 位置用
-	std::uniform_real_distribution<float> scaleDist(0.5f, 2.0f);   // スケール用
-
-	const int numEffects = 100;
-
-	for (int i = 0; i < numEffects; ++i) {
-		
-		FlowEffectObject effect;
-		effect.Init();
-		effect.SetModel("Resources/game/cone.obj");
-
-		// ランダム位置とスケール
-		Vector3 pos = { posDist(rng), posDist(rng), posDist(rng) };
-		Vector3 scale = { scaleDist(rng), scaleDist(rng), scaleDist(rng) };
-
-		effect.SetPosition(pos);
-		effect.SetScale(scale);
-
-		effects.push_back(effect);
-	}
 }
 
 ///Update///
@@ -742,12 +720,9 @@ void GameScene::UpdateObjects() {
 			obj->worldTransform_.rotation_.z += 0.022f;
 		}
 	}
+	flowEffect_.Update();
 	TenQOBJ->Update();
 	PositionOBJ->Update();
-	for (auto& effect : effects) {
-		effect.Update();
-		effect.Draw(textureHandles[CONE], camera);
-	}
 }
 
 ///Draw///
@@ -769,6 +744,7 @@ void GameScene::DrawObjects()
 			item->Draw(textureHandles[ITEM], camera);
 		}
 	}
+	flowEffect_.Draw(textureHandles[CONE], camera);
 }
 
 // タイトルテキストの描画
@@ -1328,6 +1304,7 @@ void GameScene::DisplayDebugInfo(const Vector3& playerPos) {
 			isOnFloor = false;
 		}
 	}
+	flowEffect_.DebugImGui();
 	camera->CameraDebug();
 #endif
 
