@@ -1,5 +1,13 @@
 ﻿#include "FlowEffectObject.h"
 #include <cmath>
+#include <random>
+
+float RandomFloat(float min, float max) {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> dist(min, max);
+    return dist(gen);
+}
 
 void FlowEffectObject::Init() {
     spawnTimer_ = 0.0f;
@@ -18,20 +26,16 @@ void FlowEffectObject::Update() {
 
     for (auto it = objects_.begin(); it != objects_.end();) {
         FlowObject& obj = *it;
-
-        // 時間経過
         obj.lifetime += 1.0f / 60.0f;
 
-        // 前方向からカメラ側に移動 & 回転
-        Vector3 pos = obj.obj->GetPosition();
-        pos.z += 0.1f; // 奥から手前へ
-        obj.obj->SetPosition(pos);
+        WorldTransform wt = obj.obj->GetWorldTransform();
 
-        Vector3 rot = obj.obj->GetRotation();
-        rot.y += 0.05f; // 回転
-        obj.obj->SetRotation(rot);
+        wt.translation_.z += 0.1f; // Z方向移動
+        wt.rotation_ += obj.rotationSpeed; // ランダムな回転速度で回転
 
-        // 寿命切れで削除
+        wt.UpdateMatrix();
+        obj.obj->SetWorldTransform(wt);
+
         if (obj.lifetime >= obj.maxLifetime) {
             it = objects_.erase(it);
         }
@@ -39,18 +43,39 @@ void FlowEffectObject::Update() {
             ++it;
         }
     }
+
 }
 
 void FlowEffectObject::SpawnObject() {
     std::unique_ptr<Object3d> newObj = std::make_unique<Object3d>();
-    newObj->Init(); // 必要に応じて初期化処理
+    newObj->Init();
     newObj->SetModel("star.obj");
-    newObj->SetPosition({ 0.0f, 10.0f, -10.0f }); // 奥からスタート
-    newObj->SetRotation({ 0.0f, 0.0f, 0.0f });
-    newObj->SetScale({ 10.0f, 10.0f, 10.0f });
 
-    objects_.emplace_back(std::move(newObj), 10.0f); // 5秒で消える
+    // ランダム値
+    float randX = RandomFloat(-5.0f, 5.0f); // X方向にランダム位置
+    float randY = RandomFloat(5.0f, 15.0f); // Y方向にランダム位置
+    float randZ = RandomFloat(-20.0f, -10.0f); // Z方向（遠くから）
 
+    float randScale = RandomFloat(5.0f, 15.0f); // 大きさ
+
+    float randRotX = RandomFloat(0.0f, 3.14f); // 初期回転
+    float randRotY = RandomFloat(0.0f, 3.14f);
+    float randRotZ = RandomFloat(0.0f, 3.14f);
+
+    // ランダム回転速度を保存したいので、FlowObjectに新しいメンバを追加
+    WorldTransform wt;
+    wt.translation_ = { randX, randY, randZ };
+    wt.rotation_ = { randRotX, randRotY, randRotZ };
+    wt.scale_ = { randScale, randScale, randScale };
+
+    wt.UpdateMatrix();
+    newObj->SetWorldTransform(wt);
+
+    // ランダムな回転速度も入れてFlowObjectを改造するのがおすすめ！
+    FlowObject flowObj(std::move(newObj), 10.0f);
+    flowObj.rotationSpeed = { 0.01f, RandomFloat(0.01f, 0.1f), 0.01f }; // Y軸中心に
+
+    objects_.emplace_back(std::move(flowObj));
 }
 
 

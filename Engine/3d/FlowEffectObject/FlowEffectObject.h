@@ -6,12 +6,15 @@
 
 struct FlowObject {
     std::unique_ptr<Object3d> obj;
-    float lifetime = 0.0f; // 経過時間
-    float maxLifetime = 5.0f; // 消えるまでの時間
+    float lifetime = 0.0f;
+    float maxLifetime = 5.0f;
+
+    Vector3 rotationSpeed = { 0.0f, 0.05f, 0.0f }; // ← これを追加
 
     FlowObject(std::unique_ptr<Object3d> o, float maxLife)
         : obj(std::move(o)), maxLifetime(maxLife), lifetime(0.0f) {}
 };
+
 
 class FlowEffectObject {
 public:
