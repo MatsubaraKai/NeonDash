@@ -17,7 +17,7 @@ void FlowEffectObject::Init() {
 }
 
 void FlowEffectObject::Update() {
-    spawnTimer_ += 1.0f / 10.0f; // 仮に30FPS前提
+    spawnTimer_ += 1.0f / 20.0f; // 仮に30FPS前提
 
     // 一定間隔でオブジェクト生成
     if (spawnTimer_ >= spawnInterval_) {
@@ -31,16 +31,16 @@ void FlowEffectObject::Update() {
 
         WorldTransform wt = obj.obj->GetWorldTransform();
 
-        wt.translation_.z -= 0.8f; // Z方向移動
+        obj.rotationSpeed = { 0.01f, RandomFloat(0.01f, 0.1f), 0.01f };
+
+        // Z方向スピードもランダム（近づく速さ）
+        //obj.moveSpeed = RandomFloat(0.1f, 3.0f);
+
+        obj.baseScale = wt.scale_; // 忘れず baseScale も代入
+
+        wt.translation_.z -= 2.5f;
+
         wt.rotation_ += obj.rotationSpeed; // ランダムな回転速度で回転
-
-        float lifeRatio = 1.0f - (obj.lifetime / obj.maxLifetime);
-        lifeRatio = std::clamp(lifeRatio, 0.0f, 1.0f);
-
-        // 例: 2乗して減少速度をゆるやかに
-        float easedRatio = lifeRatio * lifeRatio;
-        wt.scale_ = obj.baseScale * easedRatio;
-
 
         wt.UpdateMatrix();
         obj.obj->SetWorldTransform(wt);
@@ -63,9 +63,9 @@ void FlowEffectObject::SpawnObject() {
     // ランダム値
     float randX = RandomFloat(-700.0f, 700.0f); // X方向にランダム位置
     float randY = RandomFloat(-100.0f, 700.0f); // Y方向にランダム位置
-    float randZ = RandomFloat(500.0f, 750.0f); // Z方向（遠くから）
+    float randZ = RandomFloat(700.0f, 950.0f); // Z方向（遠くから）
 
-    float randScale = RandomFloat(0.1f, 2.5f); // 大きさ
+    float randScale = RandomFloat(1.0f, 10.0f); // 大きさ
 
     float randRotX = RandomFloat(0.0f, 3.14f); // 初期回転
     float randRotY = RandomFloat(0.0f, 3.14f);
@@ -79,7 +79,7 @@ void FlowEffectObject::SpawnObject() {
 
     wt.UpdateMatrix();
     newObj->SetWorldTransform(wt);
-    FlowObject flowObj(std::move(newObj),30.0f);
+    FlowObject flowObj(std::move(newObj), 14.0f);
     flowObj.rotationSpeed = { 0.01f, RandomFloat(0.01f, 0.1f), 0.01f }; // Y軸中心に
 
     objects_.emplace_back(std::move(flowObj));

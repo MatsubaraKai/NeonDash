@@ -8,7 +8,7 @@ struct FlowObject {
     std::unique_ptr<Object3d> obj;
     float lifetime = 0.0f;
     float maxLifetime = 100.0f;
-
+    float moveSpeed = 0.5f;
     Vector3 rotationSpeed = { 0.0f, 0.05f, 0.0f };
     Vector3 baseScale = { 5.0f, 5.0f, 5.0f };
     FlowObject(std::unique_ptr<Object3d> o, float maxLife)
