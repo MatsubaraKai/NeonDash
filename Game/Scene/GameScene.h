@@ -44,7 +44,7 @@ private:
     void InitializeParticles();
     void InitStar();
     void InitItem();
-
+   
 
     // Update methods
     void UpdatePortalCollision(const Vector3& playerPos);
@@ -278,6 +278,18 @@ private:
         ITEM,
         TEXTURE_COUNT // テクスチャの総数
     };
+
+     void LoadScene(
+        const std::string& modelName,
+        const std::string& coneSceneName,
+        const std::string& textFileName,
+        TextureID fadeTextureID,
+        int stage,
+        bool loadStars = false,
+        const std::string& starSceneName = "",
+        bool loadItems = false,
+        const std::string& itemSceneName = ""
+    );
 
     std::array<uint32_t, TEXTURE_COUNT> textureHandles;
 

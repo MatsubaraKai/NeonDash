@@ -394,90 +394,28 @@ void GameScene::UpdateEffects() {
 // シーン遷移処理
 void GameScene::HandleSceneTransition() {
 	if (isTitle || isStageClear) {
-		Remake();
 		isTitle = false;
 		isStageClear = false;
-		TenQOBJ->SetWorldTransform(TitleTenQTransform);
-		TenQOBJ->SetModel("world.obj");
-		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "TitleScene", ConeObject_, camera);
-		Loader::LoadJsonFileText("Resources", "TitleText", TextObject_);
-		Loader::LoadJsonFileNumber("Resources", "TitleNumber", NumberObject_);
-		Loader::LoadAllItemJsonFile("Resources", "AllStageItem","TitleScene",ItemObject_);
-		Resize();
-		nowStage = 0;
-		portal = 0;
-		fade->SetTexture(textureHandles[FADE]);
-		fade->StartFadeOut();
-		fade->SetAlpha(0.0f);
-		InitItem();
-		isPreview = true;
+		LoadScene("world.obj", "TitleScene", "TitleText",FADE, 0, false, "", true, "TitleScene");
 	}
 	else if (isDemo) {
-		Remake();
 		isDemo = false;
-		TenQOBJ->SetWorldTransform(GameTenQTransform);
-		TenQOBJ->SetModel("world2.obj");
-		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "DemoScene", ConeObject_, camera);
-		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "DemoScene", StarObject_);
-		Loader::LoadJsonFileText("Resources", "DemoText", TextObject_);
-		Resize();
 		FirstDemoFlag = true;
-		nowStage = 1;
-		portal = 0;
-		fade->SetTexture(textureHandles[FADE2]);
-		fade->StartFadeOut();
-		InitStar();
-		isPreview = true;
+		LoadScene("world2.obj", "DemoScene", "DemoText",FADE2, 1, true, "DemoScene");
 	}
 	else if (isGame) {
-		Remake();
 		isGame = false;
-		TenQOBJ->SetWorldTransform(GameTenQTransform);
-		TenQOBJ->SetModel("world2.obj");
-		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "Scene1", ConeObject_, camera);
-		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "Scene1", StarObject_);
-		Loader::LoadJsonFileText("Resources", "Stage1Text", TextObject_);
-		Resize();
-		nowStage = 2;
-		portal = 0;
-		fade->SetTexture(textureHandles[FADE2]);
-		fade->StartFadeOut();
-		InitStar();
-		isPreview = true;
+		LoadScene("world2.obj", "Scene1", "Stage1Text",FADE2, 2, true, "Scene1");
 	}
 	else if (isGame2) {
-		Remake();
 		isGame2 = false;
-		TenQOBJ->SetWorldTransform(GameTenQTransform);
-		TenQOBJ->SetModel("world2.obj");
-		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "Scene2", ConeObject_, camera);
-		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "Scene2", StarObject_);
-		Loader::LoadJsonFileText("Resources", "Stage2Text", TextObject_);
-		Resize();
-		nowStage = 3;
-		portal = 0;
-		fade->SetTexture(textureHandles[FADE2]);
-		fade->StartFadeOut();
-		InitStar();
-		isPreview = true;
+		LoadScene("world2.obj", "Scene2", "Stage2Text",FADE2, 3, true, "Scene2");
 	}
 	else if (isGame3) {
-		Remake();
 		isGame3 = false;
-		TenQOBJ->SetWorldTransform(GameTenQTransform);
-		TenQOBJ->SetModel("world2.obj");
-		Loader::LoadAllConeJsonFile("Resources", "AllStageCone", "Scene3", ConeObject_, camera);
-		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", "Scene3", StarObject_);
-		Loader::LoadJsonFileText("Resources", "Stage3Text", TextObject_);
-
-		Resize();
-		nowStage = 4;
-		portal = 0;
-		fade->SetTexture(textureHandles[FADE2]);
-		fade->StartFadeOut();
-		InitStar();
-		isPreview = true;
+		LoadScene("world2.obj", "Scene3", "Stage3Text",FADE2, 4, true, "Scene3");
 	}
+
 }
 
 // ステージタイムのモデル設定
@@ -1303,6 +1241,45 @@ void GameScene::DisplayDebugInfo(const Vector3& playerPos) {
 	camera->CameraDebug();
 #endif
 
+}
+
+
+
+void GameScene::LoadScene(
+	const std::string& modelName,
+	const std::string& coneSceneName,
+	const std::string& textFileName,
+	TextureID fadeTextureID,
+	int stage,
+	bool loadStars,
+	const std::string& starSceneName,
+	bool loadItems,
+	const std::string& itemSceneName
+) {
+	Remake();
+	TenQOBJ->SetWorldTransform(stage == 0 ? TitleTenQTransform : GameTenQTransform);
+	TenQOBJ->SetModel(modelName);
+	Loader::LoadAllConeJsonFile("Resources", "AllStageCone", coneSceneName, ConeObject_, camera);
+	Loader::LoadJsonFileText("Resources", textFileName, TextObject_);
+
+	if (loadStars) {
+		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", starSceneName, StarObject_);
+		InitStar();
+	}
+
+	if (loadItems) {
+		Loader::LoadAllItemJsonFile("Resources", "AllStageItem", itemSceneName, ItemObject_);
+		InitItem();
+	}
+
+	Resize();
+	nowStage = stage;
+	portal = 0;
+	fade->SetTexture(textureHandles[fadeTextureID]);
+	fade->StartFadeOut();
+	if (stage == 0 || loadStars) {
+		isPreview = true;
+	}
 }
 
 void GameScene::ImguiDebug() {
