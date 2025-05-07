@@ -101,6 +101,15 @@ public:
     /// <param name="maptexture">テクスチャのハンドル</param>
     void SetMapTexture(uint32_t maptexture) { mapTexture_ = maptexture; };
 
+    void SetPosition(const Vector3& pos);
+    Vector3 GetPosition() const;
+
+    void SetRotation(const Vector3& rot);
+    Vector3 GetRotation() const;
+
+    void SetScale(const Vector3& scale);
+    Vector3 GetScale() const;
+
 public: // Getter
     /// <summary>
     /// ワールド変換を取得する
@@ -150,4 +159,8 @@ private:
 
     // 環境マップ用Texture
     uint32_t mapTexture_;
+
+    Vector3 position_;
+    Vector3 rotation_;
+    Vector3 scale_;
 };

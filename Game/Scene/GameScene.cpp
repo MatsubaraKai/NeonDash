@@ -248,6 +248,8 @@ void GameScene::InitializeData()
 	{&GameScene3WorldTransformPa, PortalPosition[5]}
 	};
 
+	flowEffect_.Init();
+
 	for (auto& data : transforms) {
 		data.transform->Initialize();
 		data.transform->translation_ = data.translation;
@@ -718,6 +720,7 @@ void GameScene::UpdateObjects() {
 			obj->worldTransform_.rotation_.z += 0.022f;
 		}
 	}
+	flowEffect_.Update();
 	TenQOBJ->Update();
 	PositionOBJ->Update();
 }
@@ -741,6 +744,7 @@ void GameScene::DrawObjects()
 			item->Draw(textureHandles[ITEM], camera);
 		}
 	}
+	flowEffect_.Draw(textureHandles[GRID], camera);
 }
 
 // タイトルテキストの描画
@@ -1301,6 +1305,7 @@ void GameScene::DisplayDebugInfo(const Vector3& playerPos) {
 		}
 	}
 	camera->CameraDebug();
+	flowEffect_.DebugImGui();
 #endif
 
 }
