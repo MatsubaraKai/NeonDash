@@ -420,6 +420,8 @@ void GameScene::HandleSceneTransition() {
 	case SceneState::Title:
 	case SceneState::StageClear:
 		LoadScene("world.obj", "TitleScene", "TitleText", FADE, 0, false, "", true, "TitleScene");
+		Loader::LoadJsonFileNumber("Resources", "TitleNumber", NumberObject_);
+
 		break;
 	case SceneState::Demo:
 		FirstDemoFlag = true;
