@@ -856,7 +856,7 @@ void GameScene::InitStar() {
 		{4, 5}
 	};
 	if (stageToStarCount.contains(nowStage)) {
-		StarCount[nowStage] = stageToStarCount.at(nowStage);
+		StarCount[nowStage - 1] = stageToStarCount.at(nowStage);
 	}
 }
 
