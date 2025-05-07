@@ -10,6 +10,9 @@
 #include <cmath>
 #include <DirectXMath.h>
 
+GameScene::GameScene()
+	: currentSceneState(SceneState::None), FirstDemoFlag(false) {}
+
 // 初期化関数
 void GameScene::Init()
 {
@@ -331,27 +334,47 @@ void GameScene::InitializeParticles()
 // ポータル判定
 void GameScene::UpdatePortalCollision(const Vector3& playerPos) {
 	if (nowStage != 0) {
-		isTitle = collider->CheckCollision(playerPos, TitleSceneWorldTransformPa.translation_, 2.5f, 4.0f, 2.5f, 2.0f);
-		if (StarCount[nowStage - 1] == 0) {
-			isStageClear = collider->CheckCollision(playerPos, ClearPortalPosition[nowStage - 1], 2.5f, 4.0f, 2.5f, 2.0f);
+		if (collider->CheckCollision(playerPos, TitleSceneWorldTransformPa.translation_, 2.5f, 4.0f, 2.5f, 2.0f)) {
+			currentSceneState = SceneState::Title;
+		}
+
+		if (StarCount[nowStage - 1] == 0 &&
+			collider->CheckCollision(playerPos, ClearPortalPosition[nowStage - 1], 2.5f, 4.0f, 2.5f, 2.0f)) {
+			currentSceneState = SceneState::StageClear;
 		}
 	}
-	if (nowStage == 0) {
-	    isDemo = collider->CheckCollision(playerPos, DemoSceneWorldTransformPa.translation_, 2.5f, 4.0f, 2.5f, 2.0f);
-		isGame = collider->CheckCollision(playerPos, GameSceneWorldTransformPa.translation_, 2.5f, 4.0f, 2.5f, 2.0f);
-		isGame2 = collider->CheckCollision(playerPos, GameScene2WorldTransformPa.translation_, 2.5f, 4.0f, 2.5f, 2.0f);
-		isGame3 = collider->CheckCollision(playerPos, GameScene3WorldTransformPa.translation_, 2.5f, 4.0f, 2.5f, 2.0f);
+	else {
+		if (collider->CheckCollision(playerPos, DemoSceneWorldTransformPa.translation_, 2.5f, 4.0f, 2.5f, 2.0f)) {
+			currentSceneState = SceneState::Demo;
+		}
+		else if (collider->CheckCollision(playerPos, GameSceneWorldTransformPa.translation_, 2.5f, 4.0f, 2.5f, 2.0f)) {
+			currentSceneState = SceneState::Game1;
+		}
+		else if (collider->CheckCollision(playerPos, GameScene2WorldTransformPa.translation_, 2.5f, 4.0f, 2.5f, 2.0f)) {
+			currentSceneState = SceneState::Game2;
+		}
+		else if (collider->CheckCollision(playerPos, GameScene3WorldTransformPa.translation_, 2.5f, 4.0f, 2.5f, 2.0f)) {
+			currentSceneState = SceneState::Game3;
+		}
 	}
 	// ポータルが一度だけ発動する処理
-	if (isTitle || isDemo || isGame || isGame2 || isGame3 || isStageClear) {
+	switch (currentSceneState) {
+	case SceneState::Title:
+	case SceneState::Demo:
+	case SceneState::Game1:
+	case SceneState::Game2:
+	case SceneState::Game3:
+	case SceneState::StageClear:
 		if (portal == 0) {
 			Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), audioHandle[PORTAL], false, 0.1f);
 		}
 		portal++;
 		isClear = true;
-	}
-	else {
+		break;
+
+	default:
 		isClear = false;
+		break;
 	}
 }
 
@@ -383,7 +406,6 @@ void GameScene::UpdateEffects() {
 			Audio::SoundPlayWave(Audio::GetInstance()->GetIXAudio().Get(), audioHandle[TIMECOUNT], false, 1.0f);
 		}
 	}
-
 	if (sceneTime >= 360) sceneTime = 0;
 	if (sceneTime1 >= 360) sceneTime1 = 0;
 
@@ -393,31 +415,35 @@ void GameScene::UpdateEffects() {
 	}
 }
 
-// シーン遷移処理
 void GameScene::HandleSceneTransition() {
-	if (isTitle || isStageClear) {
-		isTitle = false;
-		isStageClear = false;
-		LoadScene("world.obj", "TitleScene", "TitleText",FADE, 0, false, "", true, "TitleScene");
-	}
-	else if (isDemo) {
-		isDemo = false;
+	switch (currentSceneState) {
+	case SceneState::Title:
+	case SceneState::StageClear:
+		LoadScene("world.obj", "TitleScene", "TitleText", FADE, 0, false, "", true, "TitleScene");
+		break;
+	case SceneState::Demo:
 		FirstDemoFlag = true;
-		LoadScene("world2.obj", "DemoScene", "DemoText",FADE2, 1, true, "DemoScene");
-	}
-	else if (isGame) {
-		isGame = false;
-		LoadScene("world2.obj", "Scene1", "Stage1Text",FADE2, 2, true, "Scene1");
-	}
-	else if (isGame2) {
-		isGame2 = false;
-		LoadScene("world2.obj", "Scene2", "Stage2Text",FADE2, 3, true, "Scene2");
-	}
-	else if (isGame3) {
-		isGame3 = false;
-		LoadScene("world2.obj", "Scene3", "Stage3Text",FADE2, 4, true, "Scene3");
+		LoadScene("world2.obj", "DemoScene", "DemoText", FADE2, 1, true, "DemoScene");
+		break;
+
+	case SceneState::Game1:
+		LoadScene("world2.obj", "Scene1", "Stage1Text", FADE2, 2, true, "Scene1");
+		break;
+
+	case SceneState::Game2:
+		LoadScene("world2.obj", "Scene2", "Stage2Text", FADE2, 3, true, "Scene2");
+		break;
+
+	case SceneState::Game3:
+		LoadScene("world2.obj", "Scene3", "Stage3Text", FADE2, 4, true, "Scene3");
+		break;
+
+	default:
+		break;
 	}
 
+	// 一度処理したら状態をリセット
+	currentSceneState = SceneState::None;
 }
 
 // ステージタイムのモデル設定
@@ -434,12 +460,12 @@ void GameScene::UpdateStageTimes() {
 
 // 各オブジェクトをカメラに向ける
 void GameScene::AlignObjectsToCamera() {
-		for (auto& obj : TextObject_) {
-			obj->worldTransform_.rotation_.y = camera->Face2Face(camera->transform_.translate, obj->worldTransform_.translation_) + 3.14f;
-		}
-		for (auto& obj : NumberObject_) {
-			obj->worldTransform_.rotation_.y = camera->Face2Face(camera->transform_.translate, obj->worldTransform_.translation_) + 3.14f;
-		}
+	for (auto& obj : TextObject_) {
+		obj->worldTransform_.rotation_.y = camera->Face2Face(camera->transform_.translate, obj->worldTransform_.translation_) + 3.14f;
+	}
+	for (auto& obj : NumberObject_) {
+		obj->worldTransform_.rotation_.y = camera->Face2Face(camera->transform_.translate, obj->worldTransform_.translation_) + 3.14f;
+	}
 }
 
 // ゲームパッド入力処理
@@ -496,7 +522,7 @@ void GameScene::UpdateFloorInteraction()
 {
 	// プレイヤーの現在位置
 	Vector3 playerPos = camera->transform_.translate;
-	
+
 
 	// 各床オブジェクトに対してチェック
 	for (size_t i = 0; i < ConeObject_.size(); ++i) {
@@ -532,10 +558,10 @@ void GameScene::UpdateFloorInteraction()
 			previousPos[i] = floorPos;
 		}
 	}
-		// 床の上にいない場合
-		if (!isOnFloor) {
-			isOnFloor = false;
-		}
+	// 床の上にいない場合
+	if (!isOnFloor) {
+		isOnFloor = false;
+	}
 }
 
 // カメラの更新
@@ -548,22 +574,24 @@ void GameScene::UpdateCamera() {
 
 	// フェードイン中であればカメラの移動を制御
 	if (!isFadeInStarted && isClear == true) {
-		if (collider->CheckCollision(camera->transform_.translate, ClearPortalPosition[nowStage - 1], 2.5f, 4.0f, 2.5f, 2.0f) && StarCount[nowStage - 1] == 0) {
-			fade->SetTexture(textureHandles[FADE3]);
-		}
-		else {
-			fade->SetTexture(textureHandles[FADE]);
+		if (nowStage >= 1 && nowStage <= 4) {
+			if (collider->CheckCollision(camera->transform_.translate, ClearPortalPosition[nowStage - 1], 2.5f, 4.0f, 2.5f, 2.0f) && StarCount[nowStage - 1] == 0) {
+				fade->SetTexture(textureHandles[FADE3]);
+			}
+			else {
+				fade->SetTexture(textureHandles[FADE]);
 
+			}
 		}
 		fade->StartFadeIn();    // FadeInを開始
 		isFadeInStarted = true; // フラグを立てて一度だけ実行されるようにする
 	}
 	if (isPreview == true) {
-			camera->StagePreview(stageCenter[nowStage], stageRadius[nowStage], rotationSpeed[nowStage], angleX[nowStage], isPreview);
-			isFadeInStarted = isPreview;
-			if (camera->isEasing == true) {
-				fade->SetAlpha(0.0f);
-			}
+		camera->StagePreview(stageCenter[nowStage], stageRadius[nowStage], rotationSpeed[nowStage], angleX[nowStage], isPreview);
+		isFadeInStarted = isPreview;
+		if (camera->isEasing == true) {
+			fade->SetAlpha(0.0f);
+		}
 	}
 	else
 	{
@@ -611,16 +639,16 @@ void GameScene::UpdatePlayerFloorCollision(const Vector3& playerPos) {
 	isOnFloor = false;
 	for (size_t i = 0; i < ConeObject_.size(); ++i) {
 		if (ConeObject_[i]->isVisible) {
-		Vector3 floorPos = ConeObject_[i]->worldTransform_.translation_;
+			Vector3 floorPos = ConeObject_[i]->worldTransform_.translation_;
 			Vector3 floorSize = ConeObject_[i]->worldTransform_.scale_;
 
 			if (playerPos.x >= floorPos.x - floorSize.x && playerPos.x <= floorPos.x + floorSize.x &&
 				playerPos.z >= floorPos.z - floorSize.z && playerPos.z <= floorPos.z + floorSize.z &&
 				playerPos.y >= floorPos.y + floorSize.y - 1.0f && playerPos.y <= floorPos.y + floorSize.y + 3.0f) {
-					float floorHeightChange = floorPos.y + floorSize.y - playerPos.y;
-					camera->transform_.translate.y += floorHeightChange + 3.0f;
-					isOnFloor = true;
-					break;
+				float floorHeightChange = floorPos.y + floorSize.y - playerPos.y;
+				camera->transform_.translate.y += floorHeightChange + 3.0f;
+				isOnFloor = true;
+				break;
 			}
 			else {
 				isOnFloor = false;
@@ -825,10 +853,12 @@ void GameScene::InitStar() {
 		{3, 4},
 		{4, 5}
 	};
-	if (stageToStarCount.contains(nowStage)) {
+	if (stageToStarCount.contains(nowStage) &&
+		nowStage >= 1 && nowStage <= 4) {
 		StarCount[nowStage - 1] = stageToStarCount.at(nowStage);
 	}
 }
+
 
 void GameScene::InitItem() {
 	for (auto& item : ItemObject_) {
@@ -905,7 +935,7 @@ void GameScene::MoveTitleNumberObjects(float targetHeight) {
 	for (auto& obj : NumberObject_) {
 		ApplyLerp(obj->worldTransform_.translation_.y, targetHeight, 0.01f);
 	}
-	
+
 }
 
 // コーンオブジェクトの移動
@@ -982,7 +1012,7 @@ void GameScene::MoveConeObjects(int sceneTime) {
 		}
 	}
 	if (nowStage == 4) {//stage3
-		if (firstPhase){
+		if (firstPhase) {
 			ApplyLerp(ConeObject_[1]->worldTransform_.translation_.y, -4.0f, 0.04f);
 			for (int i = 0; i < 2; i++) {
 				ApplyLerp(ConeObject_[Stage3indices[i]]->worldTransform_.translation_.x, conelerpindices[i], 0.02f);
@@ -1104,23 +1134,25 @@ void GameScene::ItemSetting(const Vector3& playerPos) {
 }
 
 void GameScene::ClearMode() {
-	if (collider->CheckCollision(camera->transform_.translate, ClearPortalPosition[nowStage - 1], 2.5f, 4.0f, 2.5f, 2.0f) && StarCount[nowStage - 1] == 0) {
-		if (AllStageTime[nowStage - 1][4] == 0) {
-			AllStageTime[nowStage - 1][0] = timer.elapsedTensOfMinutes();
-			AllStageTime[nowStage - 1][1] = timer.elapsedMinutesOnly();
-			AllStageTime[nowStage - 1][2] = timer.elapsedTensOfSeconds();
-			AllStageTime[nowStage - 1][3] = timer.elapsedSecondsOnly();
-			AllStageTime[nowStage - 1][4] = static_cast<int>(timer.elapsedSeconds());
+	if (nowStage >= 1 && nowStage <= 4) {
+		if (collider->CheckCollision(camera->transform_.translate, ClearPortalPosition[nowStage - 1], 2.5f, 4.0f, 2.5f, 2.0f) && StarCount[nowStage - 1] == 0) {
+			if (AllStageTime[nowStage - 1][4] == 0) {
+				AllStageTime[nowStage - 1][0] = timer.elapsedTensOfMinutes();
+				AllStageTime[nowStage - 1][1] = timer.elapsedMinutesOnly();
+				AllStageTime[nowStage - 1][2] = timer.elapsedTensOfSeconds();
+				AllStageTime[nowStage - 1][3] = timer.elapsedSecondsOnly();
+				AllStageTime[nowStage - 1][4] = static_cast<int>(timer.elapsedSeconds());
+			}
+			if (static_cast<int>(timer.elapsedSeconds()) < AllStageTime[nowStage - 1][4]) {//前回の記録より早かったら記録
+				AllStageTime[nowStage - 1][0] = timer.elapsedTensOfMinutes();
+				AllStageTime[nowStage - 1][1] = timer.elapsedMinutesOnly();
+				AllStageTime[nowStage - 1][2] = timer.elapsedTensOfSeconds();
+				AllStageTime[nowStage - 1][3] = timer.elapsedSecondsOnly();
+				AllStageTime[nowStage - 1][4] = static_cast<int>(timer.elapsedSeconds());
+			}
+			timer.stop();//タイマー止める
+			fade->SetTexture(textureHandles[FADE3]);
 		}
-		if (static_cast<int>(timer.elapsedSeconds()) < AllStageTime[nowStage - 1][4]) {//前回の記録より早かったら記録
-			AllStageTime[nowStage - 1][0] = timer.elapsedTensOfMinutes();
-			AllStageTime[nowStage - 1][1] = timer.elapsedMinutesOnly();
-			AllStageTime[nowStage - 1][2] = timer.elapsedTensOfSeconds();
-			AllStageTime[nowStage - 1][3] = timer.elapsedSecondsOnly();
-			AllStageTime[nowStage - 1][4] = static_cast<int>(timer.elapsedSeconds());
-		}
-		timer.stop();//タイマー止める
-		fade->SetTexture(textureHandles[FADE3]);
 	}
 }
 
@@ -1132,11 +1164,13 @@ void GameScene::Resize() {
 }
 
 void GameScene::StarCountNum() {
-	std::string modelFileName = std::to_string(StarCount[nowStage - 1]) + ".obj";
-	StarCountNumber->SetModel(modelFileName.c_str());
-	StarCountNumber->worldTransform_.translation_ = ClearNumberPosition[nowStage - 1];
-	StarCountNumber->worldTransform_.rotation_.y = camera->Face2Face(camera->transform_.translate, StarCountNumber->worldTransform_.translation_) + 3.14f;
-	StarCountNumber->Update();
+	if (nowStage >= 1 && nowStage <= 4) {
+		std::string modelFileName = std::to_string(StarCount[nowStage - 1]) + ".obj";
+		StarCountNumber->SetModel(modelFileName.c_str());
+		StarCountNumber->worldTransform_.translation_ = ClearNumberPosition[nowStage - 1];
+		StarCountNumber->worldTransform_.rotation_.y = camera->Face2Face(camera->transform_.translate, StarCountNumber->worldTransform_.translation_) + 3.14f;
+		StarCountNumber->Update();
+	}
 }
 
 void GameScene::MoveInCircle(Vector3& FloorPos, float deltaTime, float radius,
@@ -1193,7 +1227,7 @@ void GameScene::DisplayDebugInfo(const Vector3& playerPos) {
 	ImGui::Text("GetStar : %d", isGetStar);
 	ImGui::Text("Player Pos : %f %f %f", playerPos.x, playerPos.y, playerPos.z);
 	ImGui::End();
-	
+
 	if (ConeObject_.size() > 0) {
 		std::string label1 = "JSONConemodel" + std::to_string(selectedIndex[0]);
 		ConeObject_[selectedIndex[0]]->ModelDebug(label1.c_str());
@@ -1297,7 +1331,7 @@ void GameScene::ImguiDebug() {
 	ImGui::Text("isGame2 %d", isGame2);
 	ImGui::Text("isGame3 %d", isGame3);
 	ImGui::Text("portal %d", portal);
-	ImGui::Text("isclear %d", isClear);	
+	ImGui::Text("isclear %d", isClear);
 	ImGui::Text("isFadeInStarted %d", isFadeInStarted);
 	ImGui::Text("isPreview %d", isPreview);
 	ImGui::Text("previousIsPreview %d", previousIsPreview);
@@ -1309,9 +1343,9 @@ void GameScene::ImguiDebug() {
 		}
 	}
 	ImGui::Text("isgetstar %d", isGetStar);
-	ImGui::Text("time %d%d:%d%d", timer.elapsedTensOfMinutes(),timer.elapsedMinutesOnly(),timer.elapsedTensOfSeconds(),timer.elapsedSecondsOnly());
+	ImGui::Text("time %d%d:%d%d", timer.elapsedTensOfMinutes(), timer.elapsedMinutesOnly(), timer.elapsedTensOfSeconds(), timer.elapsedSecondsOnly());
 	ImGui::Text("Objetsize %d", previousPos.size());
-	ImGui::Text("isGetItem %d",isGetItem);
+	ImGui::Text("isGetItem %d", isGetItem);
 	ImGui::Text("ignoreEffect %d", ignoreEffect);
 	ImGui::End();
 }

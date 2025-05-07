@@ -35,6 +35,19 @@ public:
     void PostDraw() override;
     void Release() override;
     int GameClose() override;
+
+    // シーンの状態を列挙
+    enum class SceneState {
+        None,
+        Title,
+        StageClear,
+        Demo,
+        Game1,
+        Game2,
+        Game3
+    };
+
+    GameScene();
  
 private:
     // Initialization methods
@@ -93,6 +106,8 @@ private:
     void DrawTitleNumberObjects();
     void DrawSpecialObjects();
     void DrawParticles();
+
+    SceneState currentSceneState;
 
     // Member variables
     // World transforms

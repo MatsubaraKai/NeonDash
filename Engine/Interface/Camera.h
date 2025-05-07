@@ -314,7 +314,7 @@ private:
     /// <summary>
     /// ジャンプ速度
     /// </summary>
-    float JumpSpeed = 0.2f;
+    float JumpSpeed = 0.5f;
 
     /// <summary>
     /// ジャンプ中かどうかのフラグ
