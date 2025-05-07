@@ -17,7 +17,7 @@ void FlowEffectObject::Init() {
 }
 
 void FlowEffectObject::Update() {
-    spawnTimer_ += 1.0f / 20.0f; // 仮に30FPS前提
+    spawnTimer_ += 1.0f / 10.0f; // 仮に30FPS前提
 
     // 一定間隔でオブジェクト生成
     if (spawnTimer_ >= spawnInterval_) {
@@ -62,10 +62,10 @@ void FlowEffectObject::SpawnObject() {
 
     // ランダム値
     float randX = RandomFloat(-700.0f, 700.0f); // X方向にランダム位置
-    float randY = RandomFloat(-100.0f, 700.0f); // Y方向にランダム位置
-    float randZ = RandomFloat(700.0f, 950.0f); // Z方向（遠くから）
+    float randY = RandomFloat(-700.0f, 700.0f); // Y方向にランダム位置
+    float randZ = RandomFloat(1500.0f, 1600.0f); // Z方向（遠くから）
 
-    float randScale = RandomFloat(1.0f, 10.0f); // 大きさ
+    float randScale = RandomFloat(1.0f, 5.0f); // 大きさ
 
     float randRotX = RandomFloat(0.0f, 3.14f); // 初期回転
     float randRotY = RandomFloat(0.0f, 3.14f);
@@ -79,7 +79,7 @@ void FlowEffectObject::SpawnObject() {
 
     wt.UpdateMatrix();
     newObj->SetWorldTransform(wt);
-    FlowObject flowObj(std::move(newObj), 14.0f);
+    FlowObject flowObj(std::move(newObj), 12.0f);
     flowObj.rotationSpeed = { 0.01f, RandomFloat(0.01f, 0.1f), 0.01f }; // Y軸中心に
 
     objects_.emplace_back(std::move(flowObj));
