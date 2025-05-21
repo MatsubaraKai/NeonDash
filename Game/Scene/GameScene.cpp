@@ -1301,7 +1301,7 @@ void GameScene::LoadScene(
 	TenQOBJ->SetModel(modelName);
 	Loader::LoadAllConeJsonFile("Resources", "AllStageCone", coneSceneName, ConeObject_, camera);
 	Loader::LoadJsonFileText("Resources", textFileName, TextObject_);
-
+	nowStage = stage;
 	if (loadStars) {
 		Loader::LoadAllStarJsonFile("Resources", "AllStageStar", starSceneName, StarObject_);
 		InitStar();
@@ -1313,7 +1313,6 @@ void GameScene::LoadScene(
 	}
 
 	Resize();
-	nowStage = stage;
 	portal = 0;
 	fade->SetTexture(textureHandles[fadeTextureID]);
 	fade->StartFadeOut();
